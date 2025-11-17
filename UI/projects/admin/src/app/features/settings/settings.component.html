@@ -1,0 +1,184 @@
+<div class="settings-container">
+  <div class="row g-4">
+    <!-- Notifications -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-bell me-2"></i>
+            Notification Preferences
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 mb-3">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="emailNotifications"
+                  [(ngModel)]="settings.emailNotifications">
+                <label class="form-check-label" for="emailNotifications">
+                  <strong>Email Notifications</strong>
+                  <br>
+                  <small class="text-muted">Receive notifications via email</small>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="pushNotifications"
+                  [(ngModel)]="settings.pushNotifications">
+                <label class="form-check-label" for="pushNotifications">
+                  <strong>Push Notifications</strong>
+                  <br>
+                  <small class="text-muted">Receive push notifications on your device</small>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="smsNotifications"
+                  [(ngModel)]="settings.smsNotifications">
+                <label class="form-check-label" for="smsNotifications">
+                  <strong>SMS Notifications</strong>
+                  <br>
+                  <small class="text-muted">Receive notifications via SMS</small>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="weeklyNewsletter"
+                  [(ngModel)]="settings.weeklyNewsletter">
+                <label class="form-check-label" for="weeklyNewsletter">
+                  <strong>Weekly Newsletter</strong>
+                  <br>
+                  <small class="text-muted">Receive weekly newsletter with updates</small>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="productUpdates"
+                  [(ngModel)]="settings.productUpdates">
+                <label class="form-check-label" for="productUpdates">
+                  <strong>Product Updates</strong>
+                  <br>
+                  <small class="text-muted">Get notified about new features and updates</small>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="col-12 col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-gear me-2"></i>
+            Preferences
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="language" class="form-label">Language</label>
+            <select class="form-select" id="language" [(ngModel)]="settings.language">
+              <option *ngFor="let lang of languages" [value]="lang.code">
+                {{ lang.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="timezone" class="form-label">Timezone</label>
+            <select class="form-select" id="timezone" [(ngModel)]="settings.timezone">
+              <option *ngFor="let tz of timezones" [value]="tz">
+                {{ tz }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-0">
+            <label for="theme" class="form-label">Theme</label>
+            <select class="form-select" id="theme" [(ngModel)]="settings.theme">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="auto">Auto</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account -->
+    <div class="col-12 col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-shield-lock me-2"></i>
+            Account Security
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary text-start">
+              <i class="bi bi-key me-2"></i>
+              Change Password
+            </button>
+            <button class="btn btn-outline-primary text-start">
+              <i class="bi bi-shield-check me-2"></i>
+              Two-Factor Authentication
+            </button>
+            <button class="btn btn-outline-primary text-start">
+              <i class="bi bi-clock-history me-2"></i>
+              Login History
+            </button>
+            <button class="btn btn-outline-danger text-start">
+              <i class="bi bi-trash me-2"></i>
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-secondary" (click)="resetSettings()">
+              <i class="bi bi-arrow-counterclockwise me-2"></i>
+              Reset to Defaults
+            </button>
+            <button class="btn btn-primary" (click)="saveSettings()">
+              <i class="bi bi-check-circle me-2"></i>
+              Save Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

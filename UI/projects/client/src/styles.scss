@@ -1,0 +1,203 @@
+/* Import variables, mixins, and utilities */
+@import 'styles/variables';
+@import 'styles/mixins';
+
+/* Import Bootstrap */
+@import 'bootstrap/scss/bootstrap';
+
+/* Import Bootstrap Icons */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* Import ngx-toastr styles */
+@import 'ngx-toastr/toastr';
+
+/* Import custom utilities */
+@import 'styles/utilities';
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $dark-color;
+  background-color: #f8f9fa;
+}
+
+body {
+  @include custom-scrollbar;
+}
+
+/* Typography improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  text-decoration: none;
+  color: $primary-color;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: color-mix(in srgb, $primary-color 90%, black 10%);
+  }
+}
+
+/* Form improvements */
+.form-control,
+.form-select {
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+  }
+}
+
+/* Button improvements */
+.btn {
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: $border-radius;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Card improvements */
+.card {
+  border: none;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: $box-shadow-lg;
+  }
+
+  .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Badge improvements */
+.badge {
+  font-weight: 500;
+  padding: 0.375rem 0.75rem;
+  border-radius: $border-radius-sm;
+}
+
+/* Modal improvements */
+.modal-content {
+  border: none;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-lg;
+}
+
+/* Table improvements */
+.table {
+  th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+  }
+}
+
+/* Toastr custom styles */
+.toast-container {
+  .ngx-toastr {
+    border-radius: $border-radius;
+    box-shadow: $box-shadow-lg;
+  }
+}
+
+/* Loading spinner overlay */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Utility classes for better UX */
+.no-select {
+  user-select: none;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  body.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+
+    .card {
+      background-color: #2d2d2d;
+      color: #ffffff;
+    }
+
+    .form-control,
+    .form-select {
+      background-color: #2d2d2d;
+      color: #ffffff;
+      border-color: #404040;
+    }
+  }
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+

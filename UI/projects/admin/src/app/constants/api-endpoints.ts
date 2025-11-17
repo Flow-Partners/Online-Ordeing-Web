@@ -1,0 +1,19 @@
+export const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    LOGOUT: '/auth/logout',
+    REFRESH: '/auth/refresh',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
+    CHANGE_PASSWORD: '/auth/change-password',
+    VERIFY_EMAIL: '/auth/verify-email'
+  },
+  USER: {
+    PROFILE: '/user/profile',
+    UPDATE: '/user/update',
+    UPDATE_AVATAR: '/user/avatar',
+    DELETE: '/user/delete'
+  }
+};
+

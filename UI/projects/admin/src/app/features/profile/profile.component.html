@@ -1,0 +1,170 @@
+<div class="profile-container">
+  <div class="row g-4">
+    <!-- Profile Info -->
+    <div class="col-12 col-lg-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <img
+            [src]="currentUser?.avatar || 'https://ui-avatars.com/api/?name=' + (currentUser?.name || 'User') + '&size=128'"
+            alt="Profile Picture"
+            class="profile-image mb-3">
+          <h4 class="mb-1">{{ currentUser?.name }}</h4>
+          <p class="text-muted mb-3">{{ currentUser?.email }}</p>
+          <span class="badge bg-primary-subtle text-primary">{{ currentUser?.role }}</span>
+
+          <hr class="my-4">
+
+          <div class="profile-stats">
+            <div class="stat-item">
+              <h5 class="mb-1">128</h5>
+              <p class="text-muted small mb-0">Posts</p>
+            </div>
+            <div class="stat-item">
+              <h5 class="mb-1">1,234</h5>
+              <p class="text-muted small mb-0">Followers</p>
+            </div>
+            <div class="stat-item">
+              <h5 class="mb-1">567</h5>
+              <p class="text-muted small mb-0">Following</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Forms -->
+    <div class="col-12 col-lg-8">
+      <!-- Update Profile -->
+      <div class="card mb-4">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">Update Profile</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  formControlName="name"
+                  [class.is-invalid]="pf['name'].invalid && pf['name'].touched">
+                <div class="invalid-feedback" *ngIf="pf['name'].invalid && pf['name'].touched">
+                  Name is required (min 3 characters)
+                </div>
+              </div>
+
+              <div class="col-12 mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  formControlName="email"
+                  [class.is-invalid]="pf['email'].invalid && pf['email'].touched">
+                <div class="invalid-feedback" *ngIf="pf['email'].invalid && pf['email'].touched">
+                  Valid email is required
+                </div>
+              </div>
+
+              <div class="col-12 mb-3">
+                <label for="role" class="form-label">Role</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="role"
+                  formControlName="role">
+                <small class="text-muted">Role is managed by administrators</small>
+              </div>
+
+              <div class="col-12">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="isSubmitting">
+                  <span *ngIf="!isSubmitting">Update Profile</span>
+                  <span *ngIf="isSubmitting">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Updating...
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">Change Password</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <label for="currentPassword" class="form-label">Current Password</label>
+                <div class="input-group">
+                  <input
+                    [type]="showCurrentPassword ? 'text' : 'password'"
+                    class="form-control"
+                    id="currentPassword"
+                    formControlName="currentPassword"
+                    [class.is-invalid]="pwf['currentPassword'].invalid && pwf['currentPassword'].touched">
+                  <button class="btn btn-outline-secondary" type="button" (click)="showCurrentPassword = !showCurrentPassword">
+                    <i class="bi" [class.bi-eye]="!showCurrentPassword" [class.bi-eye-slash]="showCurrentPassword"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12 mb-3">
+                <label for="newPassword" class="form-label">New Password</label>
+                <div class="input-group">
+                  <input
+                    [type]="showNewPassword ? 'text' : 'password'"
+                    class="form-control"
+                    id="newPassword"
+                    formControlName="newPassword"
+                    [class.is-invalid]="pwf['newPassword'].invalid && pwf['newPassword'].touched">
+                  <button class="btn btn-outline-secondary" type="button" (click)="showNewPassword = !showNewPassword">
+                    <i class="bi" [class.bi-eye]="!showNewPassword" [class.bi-eye-slash]="showNewPassword"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12 mb-3">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <div class="input-group">
+                  <input
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    class="form-control"
+                    id="confirmPassword"
+                    formControlName="confirmPassword"
+                    [class.is-invalid]="pwf['confirmPassword'].invalid && pwf['confirmPassword'].touched">
+                  <button class="btn btn-outline-secondary" type="button" (click)="showConfirmPassword = !showConfirmPassword">
+                    <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button
+                  type="submit"
+                  class="btn btn-warning"
+                  [disabled]="isSubmitting">
+                  <span *ngIf="!isSubmitting">Change Password</span>
+                  <span *ngIf="isSubmitting">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Changing...
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

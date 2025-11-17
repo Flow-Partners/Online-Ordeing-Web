@@ -1,0 +1,85 @@
+{
+  "name": "angular-base-template",
+  "version": "1.0.0",
+  "description": "A comprehensive Angular base template with authentication, routing, and best practices",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve client",
+    "start:client": "ng serve client",
+    "start:admin": "ng serve admin",
+    "start:dev": "ng serve client --configuration development",
+    "build": "ng build client",
+    "build:client": "ng build client",
+    "build:admin": "ng build admin",
+    "build:all": "ng build client && ng build admin",
+    "build:client:prod": "ng build client --configuration production",
+    "build:admin:prod": "ng build admin --configuration production",
+    "build:prod": "ng build client --configuration production",
+    "watch": "ng build client --watch --configuration development",
+    "test": "ng test",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"projects/**/*.{ts,html,scss}\""
+  },
+  "keywords": [
+    "angular",
+    "angular-template",
+    "angular-starter",
+    "angular-boilerplate",
+    "typescript",
+    "bootstrap",
+    "authentication",
+    "jwt",
+    "spa",
+    "frontend",
+    "angular19",
+    "starter-kit",
+    "template",
+    "boilerplate"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR-USERNAME/angular-base-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR-USERNAME/angular-base-template/issues"
+  },
+  "homepage": "https://github.com/YOUR-USERNAME/angular-base-template#readme",
+  "dependencies": {
+    "@angular/animations": "^19.2.0",
+    "@angular/common": "^19.2.0",
+    "@angular/compiler": "^19.2.0",
+    "@angular/core": "^19.2.0",
+    "@angular/forms": "^19.2.0",
+    "@angular/platform-browser": "^19.2.0",
+    "@angular/platform-browser-dynamic": "^19.2.0",
+    "@angular/router": "^19.2.0",
+    "@ngx-translate/core": "^16.0.0",
+    "@ngx-translate/http-loader": "^16.0.0",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "ngx-toastr": "^19.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^19.2.0",
+    "@angular/cli": "^19.2.0",
+    "@angular/compiler-cli": "^19.2.0",
+    "@types/jasmine": "~5.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "jasmine-core": "~5.6.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "prettier": "^3.0.0",
+    "typescript": "~5.7.0"
+  }
+}
+

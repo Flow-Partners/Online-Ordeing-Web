@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/app",
+    "types": [],
+    "paths": {
+      "@core/*": ["projects/admin/src/app/core/*"],
+      "@shared/*": ["projects/admin/src/app/shared/*"],
+      "@features/*": ["projects/admin/src/app/features/*"],
+      "@layout/*": ["projects/admin/src/app/layout/*"],
+      "@models/*": ["projects/admin/src/app/models/*"],
+      "@constants/*": ["projects/admin/src/app/constants/*"],
+      "@environments/*": ["projects/admin/src/environments/*"]
+    }
+  },
+  "files": [
+    "src/main.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
+}
+

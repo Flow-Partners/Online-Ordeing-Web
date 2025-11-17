@@ -1,0 +1,60 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- Sidebar Toggle Button (Desktop) -->
+  <button 
+    class="sidebar-toggle d-none d-lg-flex" 
+    (click)="toggleSidebar()"
+    [title]="isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
+    <i class="bi" [class.bi-chevron-right]="isCollapsed" [class.bi-chevron-left]="!isCollapsed"></i>
+  </button>
+
+  <!-- Sidebar Menu -->
+  <nav class="sidebar-nav">
+    <ul class="nav flex-column">
+      <li class="nav-item" *ngFor="let item of menuItems">
+        <!-- Menu item with children -->
+        <div *ngIf="item.children && item.children.length > 0">
+          <button
+            class="nav-link"
+            [class.active]="isActive(item)"
+            (click)="toggleSubmenu(item.label)">
+            <i [class]="'bi ' + item.icon"></i>
+            <span class="nav-text">{{ item.label }}</span>
+            <i class="bi bi-chevron-down ms-auto submenu-arrow" 
+               [class.rotated]="isExpanded(item.label)"></i>
+          </button>
+          
+          <!-- Submenu -->
+          <ul class="submenu" [class.show]="isExpanded(item.label)">
+            <li *ngFor="let child of item.children">
+              <a 
+                [routerLink]="child.route" 
+                routerLinkActive="active"
+                class="submenu-link">
+                <i [class]="'bi ' + child.icon"></i>
+                <span>{{ child.label }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Menu item without children -->
+        <a 
+          *ngIf="!item.children || item.children.length === 0"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          class="nav-link">
+          <i [class]="'bi ' + item.icon"></i>
+          <span class="nav-text">{{ item.label }}</span>
+          <span *ngIf="item.badge" 
+                [class]="'badge ms-auto ' + item.badge.class">
+            {{ item.badge.value }}
+          </span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay d-lg-none" [class.show]="!isCollapsed" (click)="toggleSidebar()"></div>
+

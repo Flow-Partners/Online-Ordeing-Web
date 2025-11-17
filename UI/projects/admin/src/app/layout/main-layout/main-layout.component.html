@@ -1,0 +1,15 @@
+<div class="main-wrapper">
+  <!-- Top Navigation Bar -->
+  <app-top-navbar (toggleSidebar)="onToggleSidebar()"></app-top-navbar>
+
+  <!-- Side Navigation Bar -->
+  <app-side-navbar></app-side-navbar>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
+
