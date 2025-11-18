@@ -104,11 +104,23 @@ try
     builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 
+    // Register Menu Management repositories
+    builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+    builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+    builder.Services.AddScoped<IPortionRepository, PortionRepository>();
+    builder.Services.AddScoped<IPortionDetailRepository, PortionDetailRepository>();
+
     // Register services
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
     builder.Services.AddScoped<IPermissionService, PermissionService>();
     builder.Services.AddScoped<IUserService, UserService>();
+
+    // Register Menu Management services
+    builder.Services.AddScoped<ICategoryService, CategoryService>();
+    builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+    builder.Services.AddScoped<IPortionService, PortionService>();
+    builder.Services.AddScoped<IPortionDetailService, PortionDetailService>();
 
     // Add AutoMapper
     builder.Services.AddAutoMapper(typeof(Program));

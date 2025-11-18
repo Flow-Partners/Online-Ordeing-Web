@@ -53,6 +53,19 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'menu-items',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/menu-items/list-menu-items/list-menu-items.component').then(m => m.ListMenuItemsComponent)
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./features/menu-items/create-menu-item/create-menu-item.component').then(m => m.CreateMenuItemComponent)
+          }
+        ]
       }
     ]
   },

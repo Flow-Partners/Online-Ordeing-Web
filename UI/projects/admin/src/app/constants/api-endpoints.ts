@@ -14,6 +14,25 @@ export const API_ENDPOINTS = {
     UPDATE: '/user/update',
     UPDATE_AVATAR: '/user/avatar',
     DELETE: '/user/delete'
+  },
+  CATEGORIES: {
+    LIST: '/Categories',
+    GET: (id: number) => `/Categories/${id}`,
+    CREATE: '/Categories',
+    UPDATE: (id: number) => `/Categories/${id}`,
+    DELETE: (id: number) => `/Categories/${id}`,
+    TOGGLE_VISIBILITY: (id: number) => `/Categories/${id}/toggle-visibility`,
+    CHECK_NAME: '/Categories/check-name'
+  },
+  MENU_ITEMS: {
+    LIST: '/MenuItems',
+    GET: (id: number) => `/MenuItems/${id}`,
+    CREATE: '/MenuItems',
+    UPDATE: (id: number) => `/MenuItems/${id}`,
+    DELETE: (id: number) => `/MenuItems/${id}`,
+    TOGGLE_AVAILABILITY: (id: number) => `/MenuItems/${id}/toggle-availability`,
+    BY_CATEGORY: (categoryId: number) => `/MenuItems/category/${categoryId}`,
+    CHECK_NAME: '/MenuItems/check-name'
   }
 };
 
