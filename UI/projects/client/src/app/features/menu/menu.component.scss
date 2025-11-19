@@ -1,0 +1,139 @@
+.menu-container {
+  padding: 2rem;
+  background: #faf7f2;
+  min-height: 100vh;
+}
+
+/* Grid layout for deal cards */
+.deal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* EXACTLY 4 per row */
+  gap: 1.8rem;
+}
+/* Deal Card */
+.deal-card {
+  display: flex;
+  padding: 1rem;
+  gap: 1rem;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #ffe8a3;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: .25s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+}
+
+/* IMAGE BOX */
+.deal-image {
+  width: 170px;
+  height: 170px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ececec;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* RIGHT CONTENT */
+.deal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.deal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .deal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #333;
+  }
+}
+
+/* Description */
+.deal-desc {
+  font-size: 0.95rem;
+  color: #777;
+  margin: 0.5rem 0 0.8rem;
+  line-height: 1.4;
+}
+
+/* PRICE (separated so it stands out like your image) */
+.deal-price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ff6b35;
+  // margin-bottom: 1rem;
+}
+
+/* Bottom action section */
+.deal-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // justify-content: flex-start;
+  gap: 1rem;
+}
+
+/* ADD TO CART BUTTON */
+.deal-btn {
+  background: #f97316;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.3rem;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.25s;
+
+  &:hover:not(:disabled) {
+    background: #e36310;
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    background: #bcbcbc;
+    cursor: not-allowed;
+    opacity: .7;
+  }
+}
+
+/* HEART / FAVORITE BUTTON */
+.fav-btn {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #aaa;
+  transition: .2s;
+
+  &:hover {
+    color: #ff4a4a;
+    transform: scale(1.15);
+  }
+
+  &.active {
+    color: #ff4a4a;
+  }
+}
+
+/* Empty State */
+.empty {
+  text-align: center;
+  margin-top: 4rem;
+  color: #777;
+}

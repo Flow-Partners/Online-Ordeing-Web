@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MenuItemService, MenuItemList } from '@core/services/menu-item.service';
 import { NotificationService } from '@core/services/notification.service';
 import { ApiResponse } from '@models/api-response.model';
+import { environment } from '@environments/environment';
 
 interface PagedResult<T> {
   items: T[];
@@ -133,6 +134,41 @@ export class ListMenuItemsComponent implements OnInit {
       pages.push(i);
     }
     return pages;
+  }
+
+  /**
+   * Get full image URL (prepend API base URL if relative path)
+   */
+  getImageUrl(imageUrl: string | undefined): string {
+    if (!imageUrl) {
+      return '';
+    }
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    // If it's a relative path starting with /, prepend the API base URL (without /api)
+    if (imageUrl.startsWith('/')) {
+      // Remove /api from the end of apiUrl if present
+      const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+      return `${baseUrl}${imageUrl}`;
+    }
+    return imageUrl;
+  }
+
+  /**
+   * Handle image load error
+   */
+  onImageError(event: Event, item: MenuItemList): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    // Mark item as having image error
+    item.imageError = true;
+    // Show placeholder instead
+    const placeholder = img.nextElementSibling as HTMLElement;
+    if (placeholder && placeholder.classList.contains('menu-item-placeholder')) {
+      placeholder.classList.remove('d-none');
+    }
   }
 }
 

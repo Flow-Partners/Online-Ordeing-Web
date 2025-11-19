@@ -124,15 +124,47 @@
               placeholder="Enter menu item description"></textarea>
           </div>
 
-          <!-- Image URL -->
+          <!-- Menu Item Image -->
           <div class="col-12 col-md-6">
-            <label for="menuItemBaseImageUrl" class="form-label">Image URL</label>
+            <label for="menuItemBaseImage" class="form-label">Menu Item Image</label>
             <input
-              type="url"
+              type="file"
               class="form-control"
-              id="menuItemBaseImageUrl"
-              formControlName="menuItemBaseImageUrl"
-              placeholder="https://example.com/image.jpg">
+              id="menuItemBaseImage"
+              accept="image/*"
+              (change)="onMenuItemImageChange($event)"
+              [class.is-invalid]="f['menuItemBaseImage']?.invalid && f['menuItemBaseImage']?.touched">
+            <div class="form-text">Upload an image (JPG, PNG, GIF, WEBP, max 5MB)</div>
+            
+            <!-- Enhanced Image Preview -->
+            <div class="image-preview-container mt-3" *ngIf="menuItemImagePreview">
+              <div class="image-preview-wrapper">
+                <img 
+                  [src]="menuItemImagePreview" 
+                  [alt]="menuItemForm.get('menuItemName')?.value || 'Menu item image'"
+                  class="preview-image"
+                  (error)="menuItemImagePreview = null">
+                <button
+                  type="button"
+                  class="btn-remove-image"
+                  (click)="clearMenuItemImage()"
+                  title="Remove image">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Fallback: Image URL input (for backward compatibility) -->
+            <div class="mt-2">
+              <label for="menuItemBaseImageUrl" class="form-label small text-muted">Or enter image URL:</label>
+              <input
+                type="url"
+                class="form-control form-control-sm"
+                id="menuItemBaseImageUrl"
+                formControlName="menuItemBaseImageUrl"
+                placeholder="https://example.com/image.jpg"
+                (input)="onImageUrlChange($event)">
+            </div>
           </div>
 
           <!-- Preparation Time -->
@@ -227,15 +259,47 @@
                 placeholder="e.g., 12 inch pizza">
             </div>
 
-            <!-- Portion Image URL -->
+            <!-- Portion Image -->
             <div class="col-12 col-md-6">
-              <label [for]="'portionImage' + i" class="form-label">Image URL</label>
+              <label [for]="'portionImage' + i" class="form-label">Portion Image</label>
               <input
-                type="url"
+                type="file"
                 class="form-control"
                 [id]="'portionImage' + i"
-                formControlName="imageUrl"
-                placeholder="https://example.com/image.jpg">
+                accept="image/*"
+                (change)="onPortionImageChange($event, i)"
+                [class.is-invalid]="portion.get('image')?.invalid && portion.get('image')?.touched">
+              <div class="form-text small">Upload an image (JPG, PNG, GIF, WEBP, max 5MB)</div>
+              
+              <!-- Enhanced Image Preview -->
+              <div class="image-preview-container mt-3" *ngIf="portionImagePreviews.get(i)">
+                <div class="image-preview-wrapper">
+                  <img 
+                    [src]="portionImagePreviews.get(i)" 
+                    [alt]="portion.get('name')?.value || 'Portion image'"
+                    class="preview-image preview-image-sm"
+                    (error)="portionImagePreviews.delete(i)">
+                  <button
+                    type="button"
+                    class="btn-remove-image"
+                    (click)="clearPortionImage(i)"
+                    title="Remove image">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Fallback: Image URL input (for backward compatibility) -->
+              <div class="mt-2">
+                <label [for]="'portionImageUrl' + i" class="form-label small text-muted">Or enter image URL:</label>
+                <input
+                  type="url"
+                  class="form-control form-control-sm"
+                  [id]="'portionImageUrl' + i"
+                  formControlName="imageUrl"
+                  placeholder="https://example.com/image.jpg"
+                  (input)="onPortionImageUrlChange($event, i)">
+              </div>
             </div>
 
             <!-- Display Order -->

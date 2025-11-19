@@ -1,0 +1,75 @@
+<div class="menu-container">
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Loading menu items...</p>
+  </div>
+
+  <!-- Deals List -->
+  <div *ngIf="!loading" class="deal-grid">
+
+    <div *ngFor="let item of menuItems" class="deal-card">
+
+      <!-- LEFT: Image -->
+      <div class="deal-image">
+        <img 
+          [src]="getImageUrl(item.baseImageUrl)" 
+          [alt]="item.name"
+          (error)="onImageError($event)"
+        />
+      </div>
+
+      <!-- RIGHT: Content -->
+      <div class="deal-content">
+
+        <div class="deal-header">
+          <h3 class="deal-title">{{ item.name }}</h3>
+        
+        </div>
+
+        <p class="deal-desc">
+          {{ item.description || 'Delicious food item with great taste.' }}
+        </p>
+
+        <div class="deal-price" *ngIf="getItemPrice(item.id)">
+          {{ formatPrice(getItemPrice(item.id)!) }}
+        </div>
+        <div class="deal-price" *ngIf="!getItemPrice(item.id)" style="color: #999; font-size: 0.9rem;">
+          Loading price...
+        </div>
+        
+        <div class="deal-footer">
+         
+
+          <button 
+            class="deal-btn" 
+            (click)="addToCart(item)"
+            [disabled]="!item.isAvailable"
+          >
+            Add To Cart
+          </button>
+          <button 
+          class="fav-btn"
+          (click)="toggleFavorite(item.id)"
+          [class.active]="isFavorite(item.id)"
+        >
+          <i class="bi" 
+             [class.bi-heart]="!isFavorite(item.id)" 
+             [class.bi-heart-fill]="isFavorite(item.id)">
+          </i>
+        </button>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && menuItems.length === 0" class="empty">
+    <i class="bi bi-inbox fs-1 text-muted"></i>
+    <h3>No menu items found</h3>
+  </div>
+</div>

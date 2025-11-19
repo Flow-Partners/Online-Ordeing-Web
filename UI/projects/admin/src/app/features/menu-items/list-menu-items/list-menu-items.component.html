@@ -58,7 +58,7 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th style="width: 60px;">Image</th>
+              <th style="width: 90px;">Image</th>
               <th>Name</th>
               <th>Category</th>
               <th>Description</th>
@@ -80,15 +80,15 @@
                 <div class="menu-item-image">
                   <img
                     *ngIf="item.baseImageUrl"
-                    [src]="item.baseImageUrl"
+                    [src]="getImageUrl(item.baseImageUrl)"
                     [alt]="item.name"
-                    class="img-thumbnail"
-                    style="width: 50px; height: 50px; object-fit: cover;">
+                    class="menu-item-img"
+                    (error)="onImageError($event, item)">
                   <div
-                    *ngIf="!item.baseImageUrl"
-                    class="img-thumbnail d-flex align-items-center justify-content-center bg-light"
-                    style="width: 50px; height: 50px;">
-                    <i class="bi bi-image text-muted"></i>
+                    [class.menu-item-placeholder]="true"
+                    [class.d-none]="item.baseImageUrl && !item.imageError"
+                    [attr.data-item-id]="item.id">
+                    <i class="bi bi-image"></i>
                   </div>
                 </div>
               </td>

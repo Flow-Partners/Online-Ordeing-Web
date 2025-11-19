@@ -6,6 +6,7 @@ import { MenuItemService } from '@core/services/menu-item.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Category, MenuItemDetail } from '@models/menu-item.model';
 import { ApiResponse } from '@models/api-response.model';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-create-menu-item',
@@ -26,6 +27,10 @@ export class CreateMenuItemComponent implements OnInit {
   menuItemId: number | null = null;
   isLoadingMenuItem = false;
   isEditMode = false;
+  menuItemImageFile: File | null = null;
+  menuItemImagePreview: string | null = null;
+  portionImageFiles: Map<number, File> = new Map();
+  portionImagePreviews: Map<number, string> = new Map();
 
   constructor(
     private fb: FormBuilder,
@@ -77,7 +82,8 @@ export class CreateMenuItemComponent implements OnInit {
       categoryId: ['', [Validators.required]],
       menuItemName: ['', [Validators.required, Validators.maxLength(200)]],
       menuItemDescription: ['', [Validators.maxLength(1000)]],
-      menuItemBaseImageUrl: ['', [Validators.maxLength(500)]],
+      menuItemBaseImage: [null], // File input
+      menuItemBaseImageUrl: ['', [Validators.maxLength(500)]], // Keep for backward compatibility
       menuItemIsAvailable: [true],
       menuItemPreparationTime: [0, [Validators.min(0)]],
       portions: this.fb.array([])
@@ -147,20 +153,21 @@ export class CreateMenuItemComponent implements OnInit {
     return price.toFixed(2);
   }
 
-  addPortion(): void {
-    const portionForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(100)]],
-      description: ['', [Validators.maxLength(500)]],
-      imageUrl: ['', [Validators.maxLength(500)]],
-      isActive: [true],
-      displayOrder: [0],
-      minSelection: [1],
-      maxSelection: [1],
-      portionDetails: this.fb.array([])
-    });
-    this.portions.push(portionForm);
-    this.addPortionDetail(this.portions.length - 1);
-  }
+         addPortion(): void {
+           const portionForm = this.fb.group({
+             name: ['', [Validators.required, Validators.maxLength(100)]],
+             description: ['', [Validators.maxLength(500)]],
+             image: [null], // File input
+             imageUrl: ['', [Validators.maxLength(500)]], // Keep for backward compatibility
+             isActive: [true],
+             displayOrder: [0],
+             minSelection: [1],
+             maxSelection: [1],
+             portionDetails: this.fb.array([])
+           });
+           this.portions.push(portionForm);
+           this.addPortionDetail(this.portions.length - 1);
+         }
 
   removePortion(index: number): void {
     this.portions.removeAt(index);
@@ -379,6 +386,11 @@ export class CreateMenuItemComponent implements OnInit {
       menuItemPreparationTime: menuItem.preparationTime
     });
 
+    // Set image preview if URL exists - construct full URL
+    if (menuItem.baseImageUrl) {
+      this.menuItemImagePreview = this.getImageUrl(menuItem.baseImageUrl);
+    }
+
     // Update category search text
     const category = this.categories.find(cat => cat.id === menuItem.categoryId);
     if (category) {
@@ -397,6 +409,7 @@ export class CreateMenuItemComponent implements OnInit {
         const portionForm = this.fb.group({
           name: [portion.name, [Validators.required, Validators.maxLength(100)]],
           description: [portion.description || '', [Validators.maxLength(500)]],
+          image: [null], // File input
           imageUrl: [portion.imageUrl || '', [Validators.maxLength(500)]],
           isActive: [portion.isActive],
           displayOrder: [portion.displayOrder || 0],
@@ -407,6 +420,11 @@ export class CreateMenuItemComponent implements OnInit {
         
         this.portions.push(portionForm);
         const portionIndex = this.portions.length - 1;
+
+        // Set image preview if URL exists - construct full URL
+        if (portion.imageUrl) {
+          this.portionImagePreviews.set(portionIndex, this.getImageUrl(portion.imageUrl));
+        }
 
         // Populate portion details
         if (portion.portionDetails && portion.portionDetails.length > 0) {
@@ -425,6 +443,139 @@ export class CreateMenuItemComponent implements OnInit {
     } else {
       // If no portions, add one default
       this.addPortion();
+    }
+  }
+
+  onMenuItemImageChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      
+      // Validate file size
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        this.notificationService.error('File size exceeds 5MB limit');
+        input.value = '';
+        return;
+      }
+      
+      this.menuItemImageFile = file;
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.menuItemImagePreview = e.target.result;
+      };
+      reader.onerror = () => {
+        this.notificationService.error('Failed to load image preview');
+      };
+      reader.readAsDataURL(file);
+      
+      // Update form
+      this.menuItemForm.patchValue({ menuItemBaseImage: file });
+    }
+  }
+
+  onPortionImageChange(event: Event, portionIndex: number): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      
+      // Validate file size
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        this.notificationService.error('File size exceeds 5MB limit');
+        input.value = '';
+        return;
+      }
+      
+      this.portionImageFiles.set(portionIndex, file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.portionImagePreviews.set(portionIndex, e.target.result);
+      };
+      reader.onerror = () => {
+        this.notificationService.error('Failed to load image preview');
+      };
+      reader.readAsDataURL(file);
+      
+      // Update form
+      const portionForm = this.getPortionFormGroup(portionIndex);
+      portionForm.patchValue({ image: file });
+    }
+  }
+
+  /**
+   * Get full image URL (prepend API base URL if relative path)
+   */
+  getImageUrl(imageUrl: string | undefined): string {
+    if (!imageUrl) {
+      return '';
+    }
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    // If it's a relative path starting with /, prepend the API base URL (without /api)
+    if (imageUrl.startsWith('/')) {
+      const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+      return `${baseUrl}${imageUrl}`;
+    }
+    return imageUrl;
+  }
+
+  /**
+   * Clear menu item image
+   */
+  clearMenuItemImage(): void {
+    this.menuItemImageFile = null;
+    this.menuItemImagePreview = null;
+    this.menuItemForm.patchValue({ menuItemBaseImage: null });
+    const fileInput = document.getElementById('menuItemBaseImage') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  /**
+   * Clear portion image
+   */
+  clearPortionImage(portionIndex: number): void {
+    this.portionImageFiles.delete(portionIndex);
+    this.portionImagePreviews.delete(portionIndex);
+    const portionForm = this.getPortionFormGroup(portionIndex);
+    portionForm.patchValue({ image: null });
+    const fileInput = document.getElementById(`portionImage${portionIndex}`) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  /**
+   * Handle image URL input change for menu item
+   */
+  onImageUrlChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const url = input.value.trim();
+    if (url) {
+      this.menuItemImagePreview = this.getImageUrl(url);
+    } else {
+      this.menuItemImagePreview = null;
+    }
+  }
+
+  /**
+   * Handle image URL input change for portion
+   */
+  onPortionImageUrlChange(event: Event, portionIndex: number): void {
+    const input = event.target as HTMLInputElement;
+    const url = input.value.trim();
+    if (url) {
+      this.portionImagePreviews.set(portionIndex, this.getImageUrl(url));
+    } else {
+      this.portionImagePreviews.delete(portionIndex);
     }
   }
 
@@ -464,34 +615,55 @@ export class CreateMenuItemComponent implements OnInit {
     this.isSubmitting = true;
     const formValue = this.menuItemForm.value;
 
-    const requestData: any = {
-      categoryId: formValue.categoryId,
-      menuItemName: formValue.menuItemName,
-      menuItemDescription: formValue.menuItemDescription || null,
-      menuItemBaseImageUrl: formValue.menuItemBaseImageUrl || null,
-      menuItemIsAvailable: formValue.menuItemIsAvailable ?? true,
-      menuItemPreparationTime: formValue.menuItemPreparationTime || 0,
-      portions: formValue.portions.map((portion: any) => ({
-        name: portion.name,
-        description: portion.description || null,
-        imageUrl: portion.imageUrl || null,
-        isActive: portion.isActive ?? true,
-        displayOrder: portion.displayOrder || 0,
-        minSelection: portion.minSelection || 1,
-        maxSelection: portion.maxSelection ?? 1,
-        portionDetails: portion.portionDetails.map((detail: any) => ({
-          name: detail.name,
-          price: parseFloat(detail.price)
-        }))
-      }))
-    };
+    // Create FormData for file upload
+    const formData = new FormData();
+    
+    formData.append('categoryId', formValue.categoryId);
+    formData.append('menuItemName', formValue.menuItemName);
+    if (formValue.menuItemDescription) {
+      formData.append('menuItemDescription', formValue.menuItemDescription);
+    }
+    if (this.menuItemImageFile) {
+      formData.append('MenuItemBaseImage', this.menuItemImageFile);
+    } else if (formValue.menuItemBaseImageUrl) {
+      formData.append('MenuItemBaseImageUrl', formValue.menuItemBaseImageUrl);
+    }
+    formData.append('MenuItemIsAvailable', formValue.menuItemIsAvailable ?? true);
+    formData.append('MenuItemPreparationTime', (formValue.menuItemPreparationTime || 0).toString());
 
     // Add ID if in edit mode
     if (this.isEditMode && this.menuItemId) {
-      requestData.id = this.menuItemId;
+      formData.append('Id', this.menuItemId.toString());
     }
 
-    this.menuItemService.createMenuItemWithPrice(requestData).subscribe({
+    // Handle portions
+    if (formValue.portions && formValue.portions.length > 0) {
+      formValue.portions.forEach((portion: any, index: number) => {
+        formData.append(`Portions[${index}].Name`, portion.name);
+        if (portion.description) {
+          formData.append(`Portions[${index}].Description`, portion.description);
+        }
+        const portionImageFile = this.portionImageFiles.get(index);
+        if (portionImageFile) {
+          formData.append(`Portions[${index}].Image`, portionImageFile);
+        } else if (portion.imageUrl) {
+          formData.append(`Portions[${index}].ImageUrl`, portion.imageUrl);
+        }
+        formData.append(`Portions[${index}].IsActive`, portion.isActive ?? true);
+        formData.append(`Portions[${index}].DisplayOrder`, (portion.displayOrder || 0).toString());
+        formData.append(`Portions[${index}].MinSelection`, (portion.minSelection || 1).toString());
+        formData.append(`Portions[${index}].MaxSelection`, (portion.maxSelection ?? 1).toString());
+
+        if (portion.portionDetails && portion.portionDetails.length > 0) {
+          portion.portionDetails.forEach((detail: any, detailIndex: number) => {
+            formData.append(`Portions[${index}].PortionDetails[${detailIndex}].Name`, detail.name);
+            formData.append(`Portions[${index}].PortionDetails[${detailIndex}].Price`, detail.price.toString());
+          });
+        }
+      });
+    }
+
+    this.menuItemService.createMenuItemWithPrice(formData).subscribe({
       next: (response: ApiResponse<MenuItemDetail>) => {
         if (response.success) {
           const message = this.isEditMode 

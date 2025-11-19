@@ -15,17 +15,20 @@ namespace DotNet_Starter_Template.Services.Implementations
         private readonly ICategoryRepository _categoryRepository;
         private readonly IPortionRepository _portionRepository;
         private readonly IPortionDetailRepository _portionDetailRepository;
+        private readonly IFileUploadService _fileUploadService;
 
         public MenuItemService(
             IMenuItemRepository menuItemRepository, 
             ICategoryRepository categoryRepository,
             IPortionRepository portionRepository,
-            IPortionDetailRepository portionDetailRepository)
+            IPortionDetailRepository portionDetailRepository,
+            IFileUploadService fileUploadService)
         {
             _menuItemRepository = menuItemRepository;
             _categoryRepository = categoryRepository;
             _portionRepository = portionRepository;
             _portionDetailRepository = portionDetailRepository;
+            _fileUploadService = fileUploadService;
         }
 
         public async Task<ApiResponse<PagedResult<MenuItemListViewModel>>> GetAllMenuItemsAsync(PaginationRequest request)
@@ -573,14 +576,39 @@ namespace DotNet_Starter_Template.Services.Implementations
                     }
                 }
 
+                // Handle MenuItem image upload
+                string? menuItemImageUrl = null;
+                if (dto.MenuItemBaseImage != null && dto.MenuItemBaseImage.Length > 0)
+                {
+                    try
+                    {
+                        menuItemImageUrl = await _fileUploadService.UploadImageAsync(dto.MenuItemBaseImage, "menu-items");
+                    }
+                    catch (Exception ex)
+                    {
+                        return ApiResponse<MenuItemDetailViewModel>.ErrorResult($"Failed to upload menu item image: {ex.Message}");
+                    }
+                }
+                else if (!string.IsNullOrWhiteSpace(dto.MenuItemBaseImageUrl))
+                {
+                    // Use provided URL (for backward compatibility or updates)
+                    menuItemImageUrl = dto.MenuItemBaseImageUrl;
+                }
+
                 MenuItem menuItem;
                 if (isUpdate)
                 {
+                    // Delete old image if new one is uploaded
+                    if (dto.MenuItemBaseImage != null && dto.MenuItemBaseImage.Length > 0 && !string.IsNullOrWhiteSpace(existingMenuItem!.BaseImageUrl))
+                    {
+                        await _fileUploadService.DeleteImageAsync(existingMenuItem.BaseImageUrl);
+                    }
+
                     // Update existing menu item
                     existingMenuItem!.CategoryId = dto.CategoryId;
                     existingMenuItem.Name = dto.MenuItemName;
                     existingMenuItem.Description = dto.MenuItemDescription;
-                    existingMenuItem.BaseImageUrl = dto.MenuItemBaseImageUrl;
+                    existingMenuItem.BaseImageUrl = menuItemImageUrl;
                     existingMenuItem.IsAvailable = dto.MenuItemIsAvailable;
                     existingMenuItem.PreparationTime = dto.MenuItemPreparationTime;
                     existingMenuItem.UpdatedAt = DateTime.UtcNow;
@@ -603,7 +631,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                         CategoryId = dto.CategoryId,
                         Name = dto.MenuItemName,
                         Description = dto.MenuItemDescription,
-                        BaseImageUrl = dto.MenuItemBaseImageUrl,
+                        BaseImageUrl = menuItemImageUrl,
                         IsAvailable = dto.MenuItemIsAvailable,
                         PreparationTime = dto.MenuItemPreparationTime,
                         CreatedAt = DateTime.UtcNow,
@@ -630,12 +658,34 @@ namespace DotNet_Starter_Template.Services.Implementations
                             return ApiResponse<MenuItemDetailViewModel>.ErrorResult($"Portion with name '{portionInput.Name}' already exists for this menu item");
                         }
 
+                        // Handle portion image upload
+                        string? portionImageUrl = null;
+                        if (portionInput.Image != null && portionInput.Image.Length > 0)
+                        {
+                            try
+                            {
+                                portionImageUrl = await _fileUploadService.UploadImageAsync(portionInput.Image, "portions");
+                            }
+                            catch (Exception ex)
+                            {
+                                if (!isUpdate)
+                                {
+                                    await _menuItemRepository.DeleteAsync(menuItem.Id);
+                                }
+                                return ApiResponse<MenuItemDetailViewModel>.ErrorResult($"Failed to upload portion image for '{portionInput.Name}': {ex.Message}");
+                            }
+                        }
+                        else if (!string.IsNullOrWhiteSpace(portionInput.ImageUrl))
+                        {
+                            portionImageUrl = portionInput.ImageUrl;
+                        }
+
                         var portion = new Portion
                         {
                             MenuItemId = menuItem.Id,
                             Name = portionInput.Name,
                             Description = portionInput.Description,
-                            ImageUrl = portionInput.ImageUrl,
+                            ImageUrl = portionImageUrl,
                             IsActive = portionInput.IsActive,
                             DisplayOrder = displayOrder++,
                             MinSelection = portionInput.MinSelection,
@@ -709,12 +759,34 @@ namespace DotNet_Starter_Template.Services.Implementations
                     var portionName = string.IsNullOrWhiteSpace(dto.PortionName) ? "Normal" : dto.PortionName;
                     var portionDetailName = string.IsNullOrWhiteSpace(dto.PortionDetailName) ? "Normal" : dto.PortionDetailName;
 
+                    // Handle portion image upload in simple mode
+                    string? portionImageUrl = null;
+                    if (dto.PortionImage != null && dto.PortionImage.Length > 0)
+                    {
+                        try
+                        {
+                            portionImageUrl = await _fileUploadService.UploadImageAsync(dto.PortionImage, "portions");
+                        }
+                        catch (Exception ex)
+                        {
+                            if (!isUpdate)
+                            {
+                                await _menuItemRepository.DeleteAsync(menuItem.Id);
+                            }
+                            return ApiResponse<MenuItemDetailViewModel>.ErrorResult($"Failed to upload portion image: {ex.Message}");
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(dto.PortionImageUrl))
+                    {
+                        portionImageUrl = dto.PortionImageUrl;
+                    }
+
                     var portion = new Portion
                     {
                         MenuItemId = menuItem.Id,
                         Name = portionName,
                         Description = dto.PortionDescription,
-                        ImageUrl = dto.PortionImageUrl,
+                        ImageUrl = portionImageUrl,
                         IsActive = true,
                         DisplayOrder = 1,
                         MinSelection = 1,

@@ -139,6 +139,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/client/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/client/src/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
@@ -213,6 +218,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/client/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/client/src/assets",
+                "output": "/assets"
               }
             ],
             "styles": [

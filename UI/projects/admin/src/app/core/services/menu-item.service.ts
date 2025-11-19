@@ -45,10 +45,10 @@ export class MenuItemService {
   }
 
   /**
-   * Create menu item with price
+   * Create menu item with price (accepts FormData for file uploads)
    */
-  createMenuItemWithPrice(data: CreateMenuItemWithPriceRequest): Observable<ApiResponse<MenuItemDetail>> {
-    return this.apiService.post<MenuItemDetail>(API_ENDPOINTS.MENU_ITEMS.CREATE, data);
+  createMenuItemWithPrice(data: FormData): Observable<ApiResponse<MenuItemDetail>> {
+    return this.apiService.postFormData<MenuItemDetail>(API_ENDPOINTS.MENU_ITEMS.CREATE, data);
   }
 
   /**
@@ -106,5 +106,6 @@ export interface MenuItemList {
   preparationTime: number;
   createdAt: string;
   portionCount: number;
+  imageError?: boolean; // Track if image failed to load
 }
 

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace DotNet_Starter_Template.Models.DTOs.MenuItems
 {
@@ -17,6 +18,10 @@ namespace DotNet_Starter_Template.Models.DTOs.MenuItems
         [StringLength(1000)]
         public string? MenuItemDescription { get; set; }
 
+        // File upload for menu item image
+        public IFormFile? MenuItemBaseImage { get; set; }
+
+        // Keep this for backward compatibility (when updating, can send URL)
         [StringLength(500)]
         public string? MenuItemBaseImageUrl { get; set; }
 
@@ -35,6 +40,10 @@ namespace DotNet_Starter_Template.Models.DTOs.MenuItems
         [StringLength(500)]
         public string? PortionDescription { get; set; }
 
+        // File upload for portion image
+        public IFormFile? PortionImage { get; set; }
+
+        // Keep this for backward compatibility
         [StringLength(500)]
         public string? PortionImageUrl { get; set; }
 

@@ -56,7 +56,8 @@ namespace DotNet_Starter_Template.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<MenuItemDetailViewModel>>> CreateOrUpdateMenuItem(CreateMenuItemWithPriceDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApiResponse<MenuItemDetailViewModel>>> CreateOrUpdateMenuItem([FromForm] CreateMenuItemWithPriceDto dto)
         {
             try
             {
