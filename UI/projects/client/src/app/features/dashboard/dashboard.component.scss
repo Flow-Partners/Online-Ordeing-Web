@@ -1,119 +1,397 @@
 .dashboard-container {
-  .welcome-section {
-    h2 {
-      font-weight: 600;
-      color: #2c3e50;
-    }
-  }
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
 
-  .stat-card {
-    border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+  .header-section {
+    text-align: center;
+    margin-bottom: 3rem;
 
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    }
-
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      i {
-        font-size: 1.5rem;
-      }
-    }
-
-    h3 {
+    .page-title {
+      font-size: 2.5rem;
       font-weight: 700;
-      font-size: 1.75rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
     }
-  }
 
-  .card {
-    border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    .page-subtitle {
+      font-size: 1.1rem;
+      color: #6c757d;
+      margin-bottom: 2rem;
+    }
 
-    .card-header {
-      padding: 1.25rem;
-      border-bottom: 1px solid #e9ecef;
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto;
 
-      h5 {
-        font-weight: 600;
-        color: #2c3e50;
+      .search-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        gap: 1rem;
+
+        i {
+          color: #6c757d;
+          font-size: 1.2rem;
+        }
+
+        .search-input {
+          flex: 1;
+          border: none;
+          outline: none;
+          font-size: 1rem;
+          padding: 0.5rem;
+
+          &::placeholder {
+            color: #adb5bd;
+          }
+        }
+
+        .search-btn {
+          background: #ff6b35;
+          color: white;
+          border: none;
+          padding: 0.5rem 1.5rem;
+          border-radius: 25px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+          }
+        }
       }
     }
   }
 
-  .chart-placeholder {
-    height: 300px;
+  .loading-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #f8f9fa;
-    border-radius: 0.5rem;
+    padding: 4rem 2rem;
+    color: #6c757d;
   }
 
-  .activity-list {
-    .activity-item {
-      display: flex;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid #e9ecef;
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
 
-      &:last-child {
-        border-bottom: none;
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .menu-card {
+    display: flex;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    min-height: 200px;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    &.unavailable {
+      opacity: 0.7;
+    }
+
+    .menu-card-image {
+      position: relative;
+      width: 45%;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        mix-blend-mode: multiply;
       }
 
-      .activity-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.1);
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
+        padding: 1rem;
+        color: white;
+        text-align: center;
 
-        i {
-          font-size: 1.25rem;
+        .deal-badge {
+          background: rgba(0, 0, 0, 0.3);
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          backdrop-filter: blur(5px);
+
+          .deal-number {
+            display: block;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+          }
+
+          .deal-info {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.9;
+          }
         }
       }
 
-      .activity-content {
-        flex: 1;
+      .availability-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
 
-        h6 {
-          font-size: 0.95rem;
-          font-weight: 600;
+        &.available {
+          background: #28a745;
+          color: white;
+        }
+
+        &.unavailable {
+          background: #dc3545;
+          color: white;
+        }
+      }
+    }
+
+    .menu-card-content {
+      flex: 1;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      .menu-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+
+        .menu-item-title {
+          font-size: 1.25rem;
+          font-weight: 700;
           color: #2c3e50;
+          margin: 0;
+          flex: 1;
         }
 
-        p {
-          font-size: 0.875rem;
-          margin-bottom: 0.25rem;
+        .favorite-btn {
+          background: none;
+          border: none;
+          color: #6c757d;
+          font-size: 1.25rem;
+          cursor: pointer;
+          padding: 0.25rem;
+          transition: all 0.2s ease;
+          margin-left: 0.5rem;
+
+          &:hover {
+            color: #dc3545;
+            transform: scale(1.1);
+          }
+
+          &.active {
+            color: #dc3545;
+          }
         }
+      }
+
+      .menu-item-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        flex: 1;
+      }
+
+      .menu-item-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+        color: #6c757d;
 
         span {
-          font-size: 0.8rem;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+
+          i {
+            font-size: 0.9rem;
+          }
+        }
+      }
+
+      .menu-card-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        .price-btn {
+          background: #ff6b35;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          cursor: pointer;
+          flex: 1;
+          transition: all 0.2s ease;
+
+          &:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+          }
+        }
+
+        .add-to-cart-btn {
+          background: #ff6b35;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          cursor: pointer;
+          flex: 1;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover:not(:disabled) {
+            background: #e55a2b;
+            transform: translateY(-2px);
+          }
+
+          &:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+          }
         }
       }
     }
   }
 
-  .btn {
-    padding: 0.75rem 1rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+
+    h3 {
+      margin-top: 1rem;
+      color: #2c3e50;
+    }
+  }
+
+  .pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+
+    .pagination {
+      display: flex;
+      gap: 0.5rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      .page-item {
+        .page-link {
+          display: block;
+          padding: 0.5rem 1rem;
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          color: #495057;
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover:not([aria-disabled="true"]) {
+            background: #f8f9fa;
+            border-color: #ff6b35;
+            color: #ff6b35;
+          }
+        }
+
+        &.active .page-link {
+          background: #ff6b35;
+          border-color: #ff6b35;
+          color: white;
+        }
+
+        &.disabled .page-link {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .pagination-info {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  }
+
+  .scroll-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
-      transform: translateY(-2px);
+      background: #e55a2b;
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
   }
 }
 
+// Add Math to component for template usage
+// Note: In Angular, you'll need to expose Math in the component

@@ -45,6 +45,20 @@ export class ApiService {
   }
 
   /**
+   * POST request with FormData (for file uploads)
+   */
+  postFormData<T>(endpoint: string, formData: FormData): Observable<ApiResponse<T>> {
+    return this.http.post<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, formData, {
+      // Don't set Content-Type - let browser set it with boundary for multipart/form-data
+    })
+      .pipe(
+        timeout(this.apiTimeout * 2), // Longer timeout for file uploads
+        map(response => this.handleResponse(response)),
+        catchError(error => this.handleError(error))
+      );
+  }
+
+  /**
    * PUT request
    */
   put<T>(endpoint: string, body: any, options?: HttpOptions): Observable<ApiResponse<T>> {

@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: 'http://localhost:5071/api',
   apiTimeout: 30000,
   tokenKey: 'auth_token',
   refreshTokenKey: 'refresh_token',

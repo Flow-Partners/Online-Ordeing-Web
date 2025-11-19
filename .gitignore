@@ -2,4 +2,9 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-*.vsidx
+/API/.vs
+/API/Online Ordering/bin/Debug/net8.0
+/API/Online Ordering/Logs
+/API/Online Ordering/obj
+/UI/.angular/cache/19.2.18
+/UI/node_modules

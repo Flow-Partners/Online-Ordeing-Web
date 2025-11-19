@@ -104,11 +104,24 @@ try
     builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 
+    // Register Menu Management repositories
+    builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+    builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+    builder.Services.AddScoped<IPortionRepository, PortionRepository>();
+    builder.Services.AddScoped<IPortionDetailRepository, PortionDetailRepository>();
+
     // Register services
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
     builder.Services.AddScoped<IPermissionService, PermissionService>();
     builder.Services.AddScoped<IUserService, UserService>();
+
+    // Register Menu Management services
+    builder.Services.AddScoped<ICategoryService, CategoryService>();
+    builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+    builder.Services.AddScoped<IPortionService, PortionService>();
+    builder.Services.AddScoped<IPortionDetailService, PortionDetailService>();
+    builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
     // Add AutoMapper
     builder.Services.AddAutoMapper(typeof(Program));
@@ -165,6 +178,9 @@ try
 
     app.UseHttpsRedirection();
 
+    // Enable static files (serves files from wwwroot)
+    app.UseStaticFiles();
+
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -186,6 +202,21 @@ try
             Log.Warning(ex, "Database migration failed, trying to ensure database exists");
             context.Database.EnsureCreated();
         }
+    }
+
+    // Ensure wwwroot/images directory exists
+    var wwwrootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+    if (!Directory.Exists(wwwrootPath))
+    {
+        Directory.CreateDirectory(wwwrootPath);
+    }
+    var imagesPath = Path.Combine(wwwrootPath, "images");
+    if (!Directory.Exists(imagesPath))
+    {
+        Directory.CreateDirectory(imagesPath);
+        Directory.CreateDirectory(Path.Combine(imagesPath, "menu-items"));
+        Directory.CreateDirectory(Path.Combine(imagesPath, "portions"));
+        Log.Information("Created wwwroot/images directory structure");
     }
 
     app.Run();

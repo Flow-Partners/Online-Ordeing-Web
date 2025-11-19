@@ -30,6 +30,23 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ['user', 'admin']
   },
   {
+    label: 'Menu Management',
+    icon: 'bi-menu-button-wide',
+    roles: ['admin'],
+    children: [
+      {
+        label: 'Menu Items',
+        icon: 'bi-list-ul',
+        route: '/menu-items'
+      },
+      {
+        label: 'Create Menu Item',
+        icon: 'bi-plus-circle',
+        route: '/menu-items/create'
+      }
+    ]
+  },
+  {
     label: 'Admin',
     icon: 'bi-shield-lock',
     roles: ['admin'],
