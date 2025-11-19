@@ -13,6 +13,12 @@ namespace DotNet_Starter_Template.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
 
+        // Menu Management entities
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<Portion> Portions { get; set; }
+        public DbSet<PortionDetail> PortionDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -48,6 +54,9 @@ namespace DotNet_Starter_Template.Data
                 .WithMany(p => p.RolePermissions)
                 .HasForeignKey(rp => rp.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Menu Management entities
+            ConfigureMenuEntities(builder);
 
             // Seed initial data
             SeedData(builder);
@@ -136,6 +145,131 @@ namespace DotNet_Starter_Template.Data
             }).ToList();
 
             builder.Entity<RolePermission>().HasData(rolePermissions);
+        }
+
+        private void ConfigureMenuEntities(ModelBuilder builder)
+        {
+            // Configure Category entity
+            builder.Entity<Category>(entity =>
+            {
+                // Unique constraint on Name
+                entity.HasIndex(e => e.Name)
+                    .IsUnique()
+                    .HasDatabaseName("UQ_Categories_Name");
+
+                // Indexes
+                entity.HasIndex(e => e.DisplayOrder)
+                    .HasDatabaseName("IX_Categories_DisplayOrder");
+                entity.HasIndex(e => e.IsVisible)
+                    .HasDatabaseName("IX_Categories_IsVisible");
+                entity.HasIndex(e => e.CreatedAt)
+                    .HasDatabaseName("IX_Categories_CreatedAt");
+                entity.HasIndex(e => e.UpdatedAt)
+                    .HasDatabaseName("IX_Categories_UpdatedAt");
+
+                // Default values for timestamps
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.UpdatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+            });
+
+            // Configure MenuItem entity
+            builder.Entity<MenuItem>(entity =>
+            {
+                // Foreign key relationship
+                entity.HasOne(e => e.Category)
+                    .WithMany(c => c.MenuItems)
+                    .HasForeignKey(e => e.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete of category with menu items
+
+                // Unique constraint on CategoryId + Name
+                entity.HasIndex(e => new { e.CategoryId, e.Name })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_MenuItems_Category_Name");
+
+                // Indexes
+                entity.HasIndex(e => e.CategoryId)
+                    .HasDatabaseName("IX_MenuItems_CategoryId");
+                entity.HasIndex(e => e.IsAvailable)
+                    .HasDatabaseName("IX_MenuItems_IsAvailable");
+                entity.HasIndex(e => e.Name)
+                    .HasDatabaseName("IX_MenuItems_Name");
+                entity.HasIndex(e => e.CreatedAt)
+                    .HasDatabaseName("IX_MenuItems_CreatedAt");
+                entity.HasIndex(e => e.UpdatedAt)
+                    .HasDatabaseName("IX_MenuItems_UpdatedAt");
+
+                // Default values for timestamps
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.UpdatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+            });
+
+            // Configure Portion entity
+            builder.Entity<Portion>(entity =>
+            {
+                // Foreign key relationship with cascade delete
+                entity.HasOne(e => e.MenuItem)
+                    .WithMany(mi => mi.Portions)
+                    .HasForeignKey(e => e.MenuItemId)
+                    .OnDelete(DeleteBehavior.Cascade); // Cascade delete when MenuItem is deleted
+
+                // Unique constraint on MenuItemId + Name
+                entity.HasIndex(e => new { e.MenuItemId, e.Name })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_Portions_MenuItem_Name");
+
+                // Indexes
+                entity.HasIndex(e => e.MenuItemId)
+                    .HasDatabaseName("IX_Portions_MenuItemId");
+                entity.HasIndex(e => e.IsActive)
+                    .HasDatabaseName("IX_Portions_IsActive");
+                entity.HasIndex(e => e.DisplayOrder)
+                    .HasDatabaseName("IX_Portions_DisplayOrder");
+                entity.HasIndex(e => e.CreatedAt)
+                    .HasDatabaseName("IX_Portions_CreatedAt");
+                entity.HasIndex(e => e.UpdatedAt)
+                    .HasDatabaseName("IX_Portions_UpdatedAt");
+
+                // Default values for timestamps
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.UpdatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+            });
+
+            // Configure PortionDetail entity
+            builder.Entity<PortionDetail>(entity =>
+            {
+                // Foreign key relationship with cascade delete
+                entity.HasOne(e => e.Portion)
+                    .WithMany(p => p.PortionDetails)
+                    .HasForeignKey(e => e.PortionId)
+                    .OnDelete(DeleteBehavior.Cascade); // Cascade delete when Portion is deleted
+
+                // Unique constraint on PortionId + Name
+                entity.HasIndex(e => new { e.PortionId, e.Name })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_PortionDetails_Portion_Name");
+
+                // Indexes
+                entity.HasIndex(e => e.PortionId)
+                    .HasDatabaseName("IX_PortionDetails_PortionId");
+                entity.HasIndex(e => e.Name)
+                    .HasDatabaseName("IX_PortionDetails_Name");
+                entity.HasIndex(e => e.CreatedAt)
+                    .HasDatabaseName("IX_PortionDetails_CreatedAt");
+                entity.HasIndex(e => e.UpdatedAt)
+                    .HasDatabaseName("IX_PortionDetails_UpdatedAt");
+
+                // Default values for timestamps
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.UpdatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+            });
         }
     }
 }

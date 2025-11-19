@@ -14,6 +14,11 @@ export const API_ENDPOINTS = {
     UPDATE: '/user/update',
     UPDATE_AVATAR: '/user/avatar',
     DELETE: '/user/delete'
+  },
+  MENU_ITEMS: {
+    LIST: '/MenuItems',
+    DETAIL: (id: number) => `/MenuItems/${id}`,
+    BY_CATEGORY: (categoryId: number) => `/MenuItems/category/${categoryId}`
   }
 };
 

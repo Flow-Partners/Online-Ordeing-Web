@@ -27,6 +27,103 @@
         </div>
       </div>
 
+      <!-- Shopping Cart -->
+      <div class="dropdown" (appClickOutside)="closeDropdowns()">
+        <button 
+          class="btn btn-link text-dark position-relative" 
+          (click)="toggleCart()">
+          <i class="bi bi-cart3 fs-5"></i>
+          <span 
+            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            *ngIf="cartItemCount > 0">
+            {{ cartItemCount }}
+            <span class="visually-hidden">items in cart</span>
+          </span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end cart-dropdown" [class.show]="isCartOpen">
+          <div class="cart-header">
+            <h6 class="mb-0">Shopping Cart</h6>
+            <span class="badge bg-primary" *ngIf="cartItemCount > 0">{{ cartItemCount }} items</span>
+          </div>
+          
+          <!-- Cart Items -->
+          <div class="cart-items" *ngIf="cartItems.length > 0">
+            <div class="cart-item" *ngFor="let item of cartItems">
+              <div class="cart-item-image">
+                <img 
+                  [src]="getImageUrl(item.menuItemImage)" 
+                  [alt]="item.menuItemName"
+                  (error)="onImageError($event)"
+                />
+              </div>
+              <div class="cart-item-content">
+                <div class="cart-item-info">
+                  <h6 class="cart-item-name">{{ item.menuItemName }}</h6>
+                  <p class="cart-item-details text-muted small mb-2">
+                    {{ item.portionName }} - {{ item.portionDetailName }}
+                  </p>
+                  <div class="cart-item-price-section">
+                    <span class="price">{{ formatPrice(item.price) }}</span>
+                    <span class="quantity-indicator">x{{ item.quantity }}</span>
+                  </div>
+                </div>
+                <div class="cart-item-actions">
+                  <div class="quantity-controls">
+                    <button 
+                      class="btn btn-sm quantity-btn"
+                      (click)="updateQuantity(item, -1)"
+                      [disabled]="item.quantity <= 1">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <span class="quantity">{{ item.quantity }}</span>
+                    <button 
+                      class="btn btn-sm quantity-btn"
+                      (click)="updateQuantity(item, 1)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <button 
+                    class="btn btn-link text-danger p-0 remove-btn"
+                    (click)="removeFromCart(item)"
+                    title="Remove">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty Cart -->
+          <div class="empty-cart text-center py-4" *ngIf="cartItems.length === 0">
+            <i class="bi bi-cart-x fs-1 text-muted"></i>
+            <p class="text-muted mb-0 mt-2">Your cart is empty</p>
+          </div>
+
+          <!-- Cart Footer -->
+          <div class="cart-footer" *ngIf="cartItems.length > 0">
+            <div class="cart-summary">
+              <div class="summary-row">
+                <span>Subtotal:</span>
+                <span class="summary-value">{{ formatPrice(getSubtotal()) }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Delivery Charges:</span>
+                <span class="summary-value">{{ formatPrice(getDeliveryCharges()) }}</span>
+              </div>
+              <div class="summary-row total-row">
+                <span><strong>Total:</strong></span>
+                <span class="summary-value"><strong>{{ formatPrice(getTotal()) }}</strong></span>
+              </div>
+            </div>
+            <div class="cart-actions">
+              <button class="btn btn-primary w-100 checkout-btn" routerLink="/checkout" (click)="closeDropdowns()">
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Notifications -->
       <div class="dropdown" (appClickOutside)="closeDropdowns()">
         <button 

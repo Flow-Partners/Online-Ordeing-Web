@@ -1,0 +1,438 @@
+### Test API: Create Menu Item
+### This endpoint creates MenuItem, Portion, and PortionDetail in one request
+### Supports both Simple Mode (with price) and Complete Body Mode (with portions array)
+### Required: CategoryId, MenuItemName
+### For Simple Mode: Price is required
+### For Complete Mode: Either PortionDetails array OR top-level Price
+
+@baseUrl = http://localhost:5071
+@token = YOUR_JWT_TOKEN_HERE
+
+### 1. Login First (Get Token)
+POST {{baseUrl}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "superadmin@example.com",
+  "password": "SuperAdmin123!"
+}
+
+### 2. Create Menu Item - Minimal (Only Required Fields)
+### This will create:
+### - MenuItem with provided name
+### - Portion with name "Normal" (default)
+### - PortionDetail with name "Normal" (default) and provided price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Simple Burger",
+  "price": 9.99
+}
+
+### 3. Create Menu Item With Price - With Menu Item Details
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Classic Cheeseburger",
+  "menuItemDescription": "Juicy beef patty with cheese, lettuce, tomato, and special sauce",
+  "menuItemBaseImageUrl": "https://example.com/images/cheeseburger.jpg",
+  "menuItemIsAvailable": true,
+  "menuItemPreparationTime": 10,
+  "price": 12.99
+}
+
+### 4. Create Menu Item With Price - With Custom Portion Name
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Margherita Pizza",
+  "menuItemDescription": "Classic Italian pizza with fresh tomato sauce, mozzarella, and basil",
+  "portionName": "Medium",
+  "portionDescription": "12 inch pizza, serves 2-3 people",
+  "price": 18.99
+}
+
+### 5. Create Menu Item With Price - With Custom Portion and PortionDetail Names
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Pepperoni Pizza",
+  "menuItemDescription": "Traditional pizza with spicy pepperoni",
+  "portionName": "Large",
+  "portionDescription": "16 inch pizza, serves 3-4 people",
+  "portionImageUrl": "https://example.com/images/pizza-large.jpg",
+  "portionDetailName": "Classic Pepperoni",
+  "price": 24.99
+}
+
+### 6. Create Menu Item With Price - Complete Example
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "BBQ Chicken Pizza",
+  "menuItemDescription": "Pizza with tangy BBQ sauce, grilled chicken, red onions, and mozzarella",
+  "menuItemBaseImageUrl": "https://example.com/images/bbq-chicken-pizza.jpg",
+  "menuItemIsAvailable": true,
+  "menuItemPreparationTime": 20,
+  "portionName": "Family Size",
+  "portionDescription": "18 inch pizza, serves 4-5 people",
+  "portionImageUrl": "https://example.com/images/pizza-family.jpg",
+  "portionDetailName": "BBQ Chicken Deluxe",
+  "price": 29.99
+}
+
+### 7. Create Menu Item With Price - Beverage Example (Category 2)
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 2,
+  "menuItemName": "Coca Cola",
+  "menuItemDescription": "Refreshing cola drink",
+  "menuItemBaseImageUrl": "https://example.com/images/coca-cola.jpg",
+  "menuItemIsAvailable": true,
+  "menuItemPreparationTime": 0,
+  "portionName": "Regular",
+  "portionDescription": "500ml bottle",
+  "portionDetailName": "Regular Size",
+  "price": 2.99
+}
+
+### 8. Create Menu Item With Price - Using Default Portion and PortionDetail Names
+### This will create portion "Normal" and portionDetail "Normal" automatically
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Veggie Pizza",
+  "menuItemDescription": "Pizza loaded with fresh vegetables",
+  "price": 15.99
+}
+
+### 9. Test Validation Error - Missing Required Fields
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1
+}
+
+### 10. Test Validation Error - Invalid Price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Test Item",
+  "price": -5.00
+}
+
+### 11. Test Validation Error - Missing Price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Test Item"
+}
+
+### 12. Test Error - Invalid Category
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 999,
+  "menuItemName": "Test Item",
+  "price": 10.99
+}
+
+### 13. Test Error - Duplicate Menu Item Name in Category
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Margherita Pizza",
+  "price": 20.99
+}
+
+### 14. COMPLETE BODY MODE - Multiple Portions with Multiple Portion Details
+### This creates a menu item with 3 portions (Small, Medium, Large), each with multiple portion details
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Margherita Pizza Complete",
+  "menuItemDescription": "Classic Italian pizza with multiple size options",
+  "menuItemBaseImageUrl": "https://example.com/images/margherita-complete.jpg",
+  "menuItemIsAvailable": true,
+  "menuItemPreparationTime": 15,
+  "portions": [
+    {
+      "name": "Small",
+      "description": "8 inch pizza, serves 1-2 people",
+      "imageUrl": "https://example.com/images/pizza-small.jpg",
+      "isActive": true,
+      "displayOrder": 1,
+      "minSelection": 1,
+      "maxSelection": 1,
+      "portionDetails": [
+        {
+          "name": "Classic Margherita",
+          "price": 12.99
+        },
+        {
+          "name": "Extra Cheese",
+          "price": 14.99
+        }
+      ]
+    },
+    {
+      "name": "Medium",
+      "description": "12 inch pizza, serves 2-3 people",
+      "imageUrl": "https://example.com/images/pizza-medium.jpg",
+      "isActive": true,
+      "displayOrder": 2,
+      "minSelection": 1,
+      "maxSelection": 1,
+      "portionDetails": [
+        {
+          "name": "Classic Margherita",
+          "price": 18.99
+        },
+        {
+          "name": "Extra Cheese",
+          "price": 20.99
+        },
+        {
+          "name": "Premium",
+          "price": 22.99
+        }
+      ]
+    },
+    {
+      "name": "Large",
+      "description": "16 inch pizza, serves 3-4 people",
+      "imageUrl": "https://example.com/images/pizza-large.jpg",
+      "isActive": true,
+      "displayOrder": 3,
+      "minSelection": 1,
+      "maxSelection": 1,
+      "portionDetails": [
+        {
+          "name": "Classic Margherita",
+          "price": 24.99
+        },
+        {
+          "name": "Extra Cheese",
+          "price": 26.99
+        }
+      ]
+    }
+  ]
+}
+
+### 15. COMPLETE BODY MODE - Single Portion with Multiple Portion Details
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Pepperoni Pizza",
+  "menuItemDescription": "Traditional pizza with spicy pepperoni",
+  "portions": [
+    {
+      "name": "Regular",
+      "description": "Standard size pizza",
+      "isActive": true,
+      "displayOrder": 1,
+      "minSelection": 1,
+      "maxSelection": 1,
+      "portionDetails": [
+        {
+          "name": "Classic Pepperoni",
+          "price": 13.99
+        },
+        {
+          "name": "Double Pepperoni",
+          "price": 15.99
+        },
+        {
+          "name": "Pepperoni with Extra Cheese",
+          "price": 16.99
+        }
+      ]
+    }
+  ]
+}
+
+### 16. COMPLETE BODY MODE - Beverage with Multiple Sizes
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 2,
+  "menuItemName": "Coca Cola",
+  "menuItemDescription": "Refreshing cola drink",
+  "menuItemBaseImageUrl": "https://example.com/images/coca-cola.jpg",
+  "menuItemPreparationTime": 0,
+  "portions": [
+    {
+      "name": "Regular",
+      "description": "500ml bottle",
+      "isActive": true,
+      "displayOrder": 1,
+      "minSelection": 1,
+      "maxSelection": null,
+      "portionDetails": [
+        {
+          "name": "Regular Size",
+          "price": 2.99
+        }
+      ]
+    },
+    {
+      "name": "Large",
+      "description": "1.5L bottle",
+      "isActive": true,
+      "displayOrder": 2,
+      "minSelection": 1,
+      "maxSelection": null,
+      "portionDetails": [
+        {
+          "name": "Large Size",
+          "price": 4.99
+        }
+      ]
+    }
+  ]
+}
+
+### 17. Test Error - Complete Body Mode - Empty Portions Array
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Test Item",
+  "portions": []
+}
+
+### 18. COMPLETE BODY MODE - Empty PortionDetails with Top-Level Price (NEW FEATURE)
+### This will create a default "Normal" portion detail with the top-level price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 4,
+  "menuItemName": "Pizza Large",
+  "price": 2100,
+  "portions": [
+    {
+      "name": "Small",
+      "portionDetails": []
+    }
+  ]
+}
+
+### 19. COMPLETE BODY MODE - Multiple Portions with Top-Level Price
+### All portions will get "Normal" portion detail with the same price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 4,
+  "menuItemName": "Pizza Large",
+  "price": 2100,
+  "portions": [
+    {
+      "name": "Small",
+      "portionDetails": []
+    },
+    {
+      "name": "Medium",
+      "portionDetails": []
+    },
+    {
+      "name": "Large",
+      "portionDetails": []
+    }
+  ]
+}
+
+### 20. COMPLETE BODY MODE - Mix: Some with Details, Some with Top-Level Price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 4,
+  "menuItemName": "Pizza Large",
+  "price": 2100,
+  "portions": [
+    {
+      "name": "Small",
+      "portionDetails": []
+    },
+    {
+      "name": "Medium",
+      "portionDetails": [
+        {
+          "name": "Classic",
+          "price": 2500
+        },
+        {
+          "name": "Premium",
+          "price": 2800
+        }
+      ]
+    }
+  ]
+}
+
+### 21. Test Error - Complete Body Mode - Portion Without PortionDetails AND No Top-Level Price
+POST {{baseUrl}}/api/MenuItems
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": 1,
+  "menuItemName": "Test Item",
+  "portions": [
+    {
+      "name": "Small",
+      "portionDetails": []
+    }
+  ]
+}
+

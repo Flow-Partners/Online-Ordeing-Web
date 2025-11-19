@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
 import { PageNotFoundComponent } from './shared/components/page-not-found/page-not-found.component';
@@ -12,7 +11,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    component: AuthLayoutComponent,
+    // component: AuthLayoutComponent,
     children: [
       {
         path: 'login',
@@ -45,6 +44,10 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+      {
+        path: 'menu',
+        loadComponent: () => import('./features/menu/menu.component').then(m => m.MenuComponent)
       },
       {
         path: 'profile',
