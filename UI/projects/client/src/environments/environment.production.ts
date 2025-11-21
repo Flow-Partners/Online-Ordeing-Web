@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.yourapp.com/api',
+  apiUrl:  'https://192.168.0.120:7020/api',
   apiTimeout: 30000,
   tokenKey: 'auth_token',
   refreshTokenKey: 'refresh_token',

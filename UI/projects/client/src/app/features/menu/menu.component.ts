@@ -363,6 +363,16 @@ export class MenuComponent implements OnInit, OnDestroy {
     return `Rs. ${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
+  truncateDescription(description: string | undefined, maxLength: number = 50): string {
+    if (!description) {
+      return 'Delicious food item with great taste.';
+    }
+    if (description.length <= maxLength) {
+      return description;
+    }
+    return description.substring(0, maxLength).trim() + '...';
+  }
+
   // Slider methods
   getSliderImageUrl(imagePath: string): string {
     const apiUrl = 'http://localhost:5071';

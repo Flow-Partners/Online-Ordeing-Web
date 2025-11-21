@@ -130,6 +130,16 @@
   gap: 10px;
   padding: 15px 0;
   background: #fff;
+  
+  @media (max-width: 768px) {
+    padding: 10px 0;
+    gap: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px 0;
+    gap: 6px;
+  }
 }
 
 .slider-indicator {
@@ -153,6 +163,16 @@
     width: 30px;
     border-radius: 6px;
   }
+  
+  @media (max-width: 480px) {
+    width: 10px;
+    height: 10px;
+    border-width: 1.5px;
+    
+    &.active {
+      width: 24px;
+    }
+  }
 }
 
 /* Category Tabs Styles */
@@ -164,6 +184,11 @@
   top: 60px;
   z-index: 100;
   width: 100%;
+  
+  @media (max-width: 768px) {
+    top: 0;
+    margin-bottom: 1rem;
+  }
 }
 
 .category-tabs-container {
@@ -179,6 +204,11 @@
   
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
+  }
+  
+  @media (max-width: 768px) {
+    margin-left: 0;
+    padding: 0.6rem 0.75rem;
   }
 }
 
@@ -218,8 +248,15 @@
   }
   
   @media (max-width: 768px) {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.3px;
+    
+    &.active::after {
+      left: 0.9rem;
+      right: 0.9rem;
+      height: 2px;
+    }
   }
 }
 
@@ -234,6 +271,14 @@
   i {
     font-size: 1rem;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0 0.75rem;
+    
+    i {
+      font-size: 0.9rem;
+    }
+  }
 }
 
 /* Menu Content Wrapper - Centers all content */
@@ -245,6 +290,10 @@
   
   @media (max-width: 768px) {
     padding: 1rem 0.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.75rem 0.25rem;
   }
 }
 
@@ -262,43 +311,87 @@
   &:last-child {
     margin-bottom: 2rem;
   }
+  
+  @media (max-width: 768px) {
+    scroll-margin-top: 60px;
+    margin-bottom: 1.5rem;
+    
+    &:last-child {
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    scroll-margin-top: 50px;
+    margin-bottom: 1rem;
+    
+    &:last-child {
+      margin-bottom: 1rem;
+    }
+  }
 }
 
 .category-heading {
   margin-left: 80px;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #1d1d1c;
   // margin-bottom: 2rem;
-  padding-bottom: 0.5rem;
+  // padding-bottom: 0.5rem;
   // border-bottom: 2px solid #e9ecef;
   
   @media (max-width: 768px) {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-left: 0;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
   }
 }
 
-/* Grid layout for deal cards - EXACTLY 3 per row */
+/* Grid layout for deal cards - EXACTLY 3 per row on desktop, Bootstrap grid on mobile */
 .deal-grid {
-  display: grid;
   margin-left: 80px;
-  grid-template-columns: repeat(3, 1fr);  /* EXACTLY 3 per row */
-  gap: 0.25rem;  /* Reduced from 1.5rem to minimize gap */
   width: 90%;
   
-  @media (max-width: 1200px) {
-    gap: 0.6rem;  /* Reduced from 1.2rem */
+  /* Desktop (≥992px): Use CSS Grid for exact 3-column layout - override Bootstrap row */
+  @media (min-width: 992px) {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.15rem;
+    margin-left: 80px;
+    width: 90%;
+    
+    @media (max-width: 1200px) {
+      gap: 0.4rem;
+    }
+    
+    /* Override Bootstrap column classes on desktop */
+    .col-12,
+    .col-md-6,
+    .col-lg-4 {
+      width: auto !important;
+      flex: none !important;
+      max-width: none !important;
+      padding: 0 !important;
+    }
   }
   
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;  /* Reduced from 1.5rem */
+  /* Tablet and below: Use Bootstrap grid system */
+  @media (max-width: 991.98px) {
+    margin-left: 0;
+    width: 100%;
+    padding: 0 0.5rem;
+    display: block; /* Let Bootstrap row handle layout */
   }
   
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;  /* Reduced from 1rem */
+  @media (max-width: 480px) {
+    padding: 0 0.25rem;
   }
 }
 
@@ -310,41 +403,77 @@
   justify-content: center;
   padding: 4rem 2rem;
   min-height: 400px;
+  
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+    min-height: 300px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1.5rem 0.5rem;
+    min-height: 250px;
+  }
 }
 /* Deal Card */
 .deal-card {
   display: flex;
   padding: 10px;
-  gap: 0.75rem;  /* Reduced from 1rem to minimize internal gap */
+  gap: 0.6rem;
   background: #ffffff;
   border-radius: 14px;
   border: 1px solid #ffe8a3;
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   transition: .25s ease;
   cursor: pointer;
-  width: 90%;
-  min-width: 0; /* Prevents overflow */
+  height: 100%;
+  align-items: stretch;
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   }
+  
+  /* Desktop: Keep 90% width for grid layout */
+  @media (min-width: 992px) {
+    width: 90%;
+    min-width: 0;
+  }
+  
+  /* Mobile/Tablet: Full width for Bootstrap columns */
+  @media (max-width: 991.98px) {
+    width: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+    gap: 0.6rem;
+  }
 }
 
 /* IMAGE BOX */
 .deal-image {
-  width: 120px;
+  width: 125px;
   min-width: 99px;
-  height: 140px;
+  // height: 95%;
   border-radius: 12px;
   overflow: hidden;
   background: #ececec;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
+    display: block;
   }
   
   @media (max-width: 1200px) {
@@ -354,9 +483,15 @@
   }
   
   @media (max-width: 768px) {
-    width: 140px;
-    min-width: 140px;
-    height: 140px;
+    width: 120px;
+    min-width: 120px;
+    height: 120px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 100px;
+    min-width: 100px;
+    height: 100px;
   }
 }
 
@@ -365,11 +500,23 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 140px; /* Match image height */
+  justify-content: space-between;
+  
+  @media (max-width: 768px) {
+    min-height: 120px;
+  }
+  
+  @media (max-width: 480px) {
+    min-height: 100px;
+  }
 }
 
 /* Header */
 .deal-header {
-  display: flex;
+  margin-top: 15px;
+  display:block;
+  width: 210px;
   justify-content: space-between;
   align-items: center;
 
@@ -379,6 +526,20 @@
     font-weight: 700;
     color: #333;
   }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    
+    .deal-title {
+      font-size: 1.1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .deal-title {
+      font-size: 1rem;
+    }
+  }
 }
 
 /* Description */
@@ -386,22 +547,56 @@
   font-size: 0.95rem;
   color: #0a0a0a;
   margin: 4px 0 5px;
-  // margin: 0.5rem 0 0.8rem;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  line-clamp: 2; /* Standard property for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.8em; /* Ensure consistent height for 2 lines */
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    margin: 3px 0 4px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    margin: 2px 0 3px;
+  }
 }
 
 /* PRICE (separated so it stands out like your image) */
 .deal-price {
   background-color: #e36310;
-  width: 100px;
-    /* margin-left: 10px; */
+  width: fit-content;
+  min-width: 100px;
+  padding: 0.3rem 0.2rem;
   border-radius: 30px;
-  // width:10px;
-  // margin-top: 20px;
   font-size: 1rem;
   font-weight: 700;
   color: #ffffff;
-  // margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0;
+  text-align: center;
+  white-space: nowrap;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    min-width: 90px;
+    padding: 0.25rem 0.8rem;
+    margin: 0.4rem 0;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    min-width: 80px;
+    padding: 0.2rem 0.7rem;
+    margin: 0.3rem 0;
+  }
 }
 
 /* Bottom action section */
@@ -423,6 +618,7 @@
   padding: 0.3rem 1.1rem;
   border-radius: 10px;
   font-weight: 600;
+  font-size: 0.95rem;
   transition: 0.25s;
 
   &:hover:not(:disabled) {
@@ -435,13 +631,23 @@
     cursor: not-allowed;
     opacity: .7;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+  }
 }
 
 /* HEART / FAVORITE BUTTON */
 .fav-btn {
   background: none;
   border: none;
-  font-size: 1.6rem;
+  font-size: 1.2rem;
   cursor: pointer;
   color: #aaa;
   transition: .2s;
@@ -454,6 +660,14 @@
   &.active {
     color: #ff4a4a;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 }
 
 /* Empty State */
@@ -462,4 +676,14 @@
   margin-top: 4rem;
   color: #777;
   padding: 2rem;
+  
+  @media (max-width: 768px) {
+    margin-top: 2rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    margin-top: 1.5rem;
+    padding: 1rem 0.5rem;
+  }
 }

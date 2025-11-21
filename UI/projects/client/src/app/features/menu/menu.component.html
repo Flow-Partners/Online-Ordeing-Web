@@ -1,13 +1,13 @@
 <div class="menu-container">
 
   <!-- Slider Section -->
-  <div class="slider-container" *ngIf="sliderImages && sliderImages.length > 0">
-    <div class="slider-wrapper">
-      <button class="slider-nav-btn slider-prev" (click)="prevSlide()" aria-label="Previous slide" type="button">
+  <div class="slider-container w-100 mb-4 mb-md-3" *ngIf="sliderImages && sliderImages.length > 0">
+    <div class="slider-wrapper position-relative w-100">
+      <button class="slider-nav-btn slider-prev d-none d-md-flex" (click)="prevSlide()" aria-label="Previous slide" type="button">
         <i class="bi bi-chevron-left"></i>
       </button>
       
-      <div class="slider-content">
+      <div class="slider-content w-100">
         <div 
           class="slider-slide" 
           *ngFor="let image of sliderImages; let i = index"
@@ -18,17 +18,18 @@
             [alt]="'Slide ' + (i + 1)"
             (error)="onImageError($event)"
             loading="eager"
+            class="w-100 h-100"
           />
         </div>
       </div>
       
-      <button class="slider-nav-btn slider-next" (click)="nextSlide()" aria-label="Next slide" type="button">
+      <button class="slider-nav-btn slider-next d-none d-md-flex" (click)="nextSlide()" aria-label="Next slide" type="button">
         <i class="bi bi-chevron-right"></i>
       </button>
     </div>
     
     <!-- Slider Indicators -->
-    <div class="slider-indicators">
+    <div class="slider-indicators d-flex justify-content-center py-2 py-md-3">
       <button 
         *ngFor="let image of sliderImages; let i = index"
         class="slider-indicator"
@@ -41,8 +42,8 @@
   </div>
 
   <!-- Category Tabs Section -->
-  <div class="category-tabs-section" *ngIf="categories.length > 0">
-    <div class="category-tabs-container">
+  <div class="category-tabs-section w-100 mb-3 mb-md-2 mb-lg-4" *ngIf="categories.length > 0">
+    <div class="category-tabs-container d-flex align-items-center overflow-auto px-2 px-md-3">
       <button
         class="category-tab"
         [class.active]="activeCategoryId === null"
@@ -60,7 +61,7 @@
       >
         {{ category.name }}
       </button>
-      <div class="category-arrow">
+      <div class="category-arrow d-flex align-items-center justify-content-center px-2 px-md-3">
         <i class="bi bi-chevron-right"></i>
       </div>
     </div>
@@ -82,43 +83,43 @@
         <h2 class="category-heading">{{ section.category.name }}</h2>
         
         <!-- Deals Grid for this Category -->
-        <div class="deal-grid">
-          <div *ngFor="let item of section.items" class="deal-card">
+        <div class="deal-grid row g-2 g-md-3 d-md-grid">
+          <div *ngFor="let item of section.items" class="deal-card col-12 col-md-6 col-lg-4 me-3">
             
             <!-- LEFT: Image -->
-            <div class="deal-image">
+            <div class="deal-image d-flex align-items-center justify-content-center">
               <img 
                 [src]="getImageUrl(item.baseImageUrl)" 
                 [alt]="item.name"
                 (error)="onImageError($event)"
+                class="w-100 h-100 object-fit-cover"
               />
             </div>
 
             <!-- RIGHT: Content -->
-            <div class="deal-content">
+            <div class="deal-content d-flex flex-column">
               <div class="deal-header">
-                <h3 class="deal-title">{{ item.name }}</h3>
+                <h3 class="deal-title mb-2">{{ item.name }}</h3>
+                <p class="deal-desc mb-2">
+                  {{ truncateDescription(item.description) }}
+                </p>
               </div>
 
-              <p class="deal-desc">
-                {{ item.description || 'Delicious food item with great taste.' }}
-              </p>
-
-              <div class="deal-price">
+              <div class="deal-price my-2">
                 <span *ngIf="getItemPrice(item.id)">{{ formatPrice(getItemPrice(item.id)!) }}</span>
                 <span *ngIf="!getItemPrice(item.id)" class="price-loading">Loading price...</span>
               </div>
               
-              <div class="deal-footer">
+              <div class="deal-footer d-flex align-items-center justify-content-between mt-auto">
                 <button 
-                  class="deal-btn" 
+                  class="deal-btn btn" 
                   (click)="addToCart(item)"
                   [disabled]="!item.isAvailable"
                 >
                   Add To Cart
                 </button>
                 <button 
-                  class="fav-btn"
+                  class="fav-btn btn border-0 bg-transparent"
                   (click)="toggleFavorite(item.id)"
                   [class.active]="isFavorite(item.id)"
                 >
@@ -128,6 +129,8 @@
                   </i>
                 </button>
               </div>
+
+              
             </div>
           </div>
         </div>
