@@ -110,6 +110,11 @@ try
     builder.Services.AddScoped<IPortionRepository, PortionRepository>();
     builder.Services.AddScoped<IPortionDetailRepository, PortionDetailRepository>();
 
+    // Register Order Management repositories
+    builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+    builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+    builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
     // Register services
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
@@ -122,6 +127,9 @@ try
     builder.Services.AddScoped<IPortionService, PortionService>();
     builder.Services.AddScoped<IPortionDetailService, PortionDetailService>();
     builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
+    // Register Order Management services
+    builder.Services.AddScoped<IOrderService, OrderService>();
 
     // Add AutoMapper
     builder.Services.AddAutoMapper(typeof(Program));
