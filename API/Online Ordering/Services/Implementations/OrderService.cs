@@ -1,0 +1,568 @@
+using Microsoft.EntityFrameworkCore;
+using DotNet_Starter_Template.Models.Common;
+using DotNet_Starter_Template.Models.DTOs.Orders;
+using DotNet_Starter_Template.Models.ViewModels.Orders;
+using DotNet_Starter_Template.Models.ViewModels.Tickets;
+using DotNet_Starter_Template.Models.Entities;
+using DotNet_Starter_Template.Repositories.Interfaces;
+using DotNet_Starter_Template.Services.Interfaces;
+
+namespace DotNet_Starter_Template.Services.Implementations
+{
+    public class OrderService : IOrderService
+    {
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IMenuItemRepository _menuItemRepository;
+        private readonly IPortionRepository _portionRepository;
+        private readonly IPortionDetailRepository _portionDetailRepository;
+
+        public OrderService(
+            ITicketRepository ticketRepository,
+            IOrderRepository orderRepository,
+            ICustomerRepository customerRepository,
+            IMenuItemRepository menuItemRepository,
+            IPortionRepository portionRepository,
+            IPortionDetailRepository portionDetailRepository)
+        {
+            _ticketRepository = ticketRepository;
+            _orderRepository = orderRepository;
+            _customerRepository = customerRepository;
+            _menuItemRepository = menuItemRepository;
+            _portionRepository = portionRepository;
+            _portionDetailRepository = portionDetailRepository;
+        }
+
+        public async Task<ApiResponse<OrderResponseViewModel>> PlaceOrderAsync(PlaceOrderDto placeOrderDto)
+        {
+            try
+            {
+                // Validate customer exists
+                var customer = await _customerRepository.GetByIdAsync(placeOrderDto.CustomerId);
+                if (customer == null)
+                {
+                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer not found");
+                }
+
+                if (!customer.IsActive)
+                {
+                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer account is inactive");
+                }
+
+                // Validate order items
+                if (placeOrderDto.OrderItems == null || placeOrderDto.OrderItems.Count == 0)
+                {
+                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Order must contain at least one item");
+                }
+
+                // Get or set customer address
+                int? customerAddressId = placeOrderDto.CustomerAddressId;
+                if (!customerAddressId.HasValue)
+                {
+                    var defaultAddress = await _customerRepository.GetDefaultAddressAsync(placeOrderDto.CustomerId);
+                    customerAddressId = defaultAddress?.Id;
+                }
+
+                // Validate all menu items exist and are available
+                foreach (var item in placeOrderDto.OrderItems)
+                {
+                    var menuItem = await _menuItemRepository.GetByIdAsync(item.MenuItemId);
+                    if (menuItem == null)
+                    {
+                        return ApiResponse<OrderResponseViewModel>.ErrorResult($"Menu item with ID {item.MenuItemId} not found");
+                    }
+
+                    if (!menuItem.IsAvailable)
+                    {
+                        return ApiResponse<OrderResponseViewModel>.ErrorResult($"Menu item '{menuItem.Name}' is not available");
+                    }
+
+                    // Validate portion if provided
+                    if (item.PortionId.HasValue)
+                    {
+                        var portion = await _portionRepository.GetByIdAsync(item.PortionId.Value);
+                        if (portion == null || portion.MenuItemId != item.MenuItemId)
+                        {
+                            return ApiResponse<OrderResponseViewModel>.ErrorResult($"Invalid portion for menu item '{menuItem.Name}'");
+                        }
+
+                        if (!portion.IsActive)
+                        {
+                            return ApiResponse<OrderResponseViewModel>.ErrorResult($"Portion '{portion.Name}' is not active");
+                        }
+
+                        // Validate portion detail if provided
+                        if (item.PortionDetailId.HasValue)
+                        {
+                            var portionDetail = await _portionDetailRepository.GetByIdAsync(item.PortionDetailId.Value);
+                            if (portionDetail == null || portionDetail.PortionId != item.PortionId.Value)
+                            {
+                                return ApiResponse<OrderResponseViewModel>.ErrorResult($"Invalid portion detail for portion '{portion.Name}'");
+                            }
+                        }
+                    }
+                }
+
+                // Generate ticket number
+                var ticketNumber = await _ticketRepository.GenerateTicketNumberAsync();
+
+                // Calculate total amount
+                var totalAmount = placeOrderDto.OrderItems.Sum(item => item.Price * item.Quantity);
+
+                // Create ticket
+                var ticket = new Ticket
+                {
+                    TicketNumber = ticketNumber,
+                    Date = DateTime.UtcNow,
+                    LastUpdateTime = DateTime.UtcNow,
+                    LastOrderDate = DateTime.UtcNow,
+                    LastPaymentDate = DateTime.UtcNow,
+                    IsClosed = false,
+                    IsLocked = false,
+                    RemainingAmount = totalAmount,
+                    TotalAmount = totalAmount,
+                    DepartmentId = placeOrderDto.DepartmentId,
+                    TicketTypeId = placeOrderDto.TicketTypeId,
+                    Note = placeOrderDto.Note,
+                    ExchangeRate = placeOrderDto.ExchangeRate,
+                    TaxIncluded = placeOrderDto.TaxIncluded,
+                    Name = placeOrderDto.Name,
+                    CustomerId = placeOrderDto.CustomerId,
+                    CustomerAddressId = customerAddressId
+                };
+
+                var createdTicket = await _ticketRepository.CreateAsync(ticket);
+
+                // Create orders
+                var orders = new List<Order>();
+                int orderNumber = 1;
+
+                foreach (var itemDto in placeOrderDto.OrderItems)
+                {
+                    var menuItem = await _menuItemRepository.GetByIdAsync(itemDto.MenuItemId);
+                    
+                    var order = new Order
+                    {
+                        TicketId = createdTicket.Id,
+                        WarehouseId = itemDto.WarehouseId,
+                        DepartmentId = itemDto.DepartmentId,
+                        MenuItemId = itemDto.MenuItemId,
+                        PortionId = itemDto.PortionId,
+                        PortionDetailId = itemDto.PortionDetailId,
+                        MenuItemName = menuItem?.Name,
+                        PortionName = itemDto.PortionId.HasValue 
+                            ? (await _portionRepository.GetByIdAsync(itemDto.PortionId.Value))?.Name 
+                            : null,
+                        Price = itemDto.Price,
+                        Quantity = itemDto.Quantity,
+                        PortionCount = itemDto.PortionCount,
+                        Locked = false,
+                        CalculatePrice = itemDto.CalculatePrice,
+                        DecreaseInventory = itemDto.DecreaseInventory,
+                        IncreaseInventory = itemDto.IncreaseInventory,
+                        OrderNumber = orderNumber++,
+                        CreatedDateTime = DateTime.UtcNow,
+                        AccountTransactionTypeId = itemDto.AccountTransactionTypeId,
+                        PriceTag = itemDto.PriceTag,
+                        Tag = itemDto.Tag
+                    };
+
+                    orders.Add(order);
+                }
+
+                // Save all orders
+                foreach (var order in orders)
+                {
+                    await _orderRepository.CreateAsync(order);
+                }
+
+                // Update customer statistics
+                customer.TotalOrders += 1;
+                customer.TotalSpent += totalAmount;
+                customer.LastOrderDate = DateTime.UtcNow;
+                if (customer.FirstOrderDate == null)
+                {
+                    customer.FirstOrderDate = DateTime.UtcNow;
+                }
+                await _customerRepository.UpdateAsync(customer);
+
+                // Get ticket with orders for response
+                var ticketWithOrders = await _ticketRepository.GetByIdWithOrdersAsync(createdTicket.Id);
+                if (ticketWithOrders == null)
+                {
+                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Failed to retrieve created ticket");
+                }
+
+                // Map to view model
+                var response = new OrderResponseViewModel
+                {
+                    TicketId = ticketWithOrders.Id,
+                    TicketNumber = ticketWithOrders.TicketNumber,
+                    Date = ticketWithOrders.Date,
+                    TotalAmount = ticketWithOrders.TotalAmount,
+                    RemainingAmount = ticketWithOrders.RemainingAmount,
+                    IsClosed = ticketWithOrders.IsClosed,
+                    CustomerId = ticketWithOrders.CustomerId ?? 0,
+                    CustomerAddressId = ticketWithOrders.CustomerAddressId,
+                    OrderItems = ticketWithOrders.Orders.Select(o => new OrderItemViewModel
+                    {
+                        Id = o.Id,
+                        MenuItemId = o.MenuItemId,
+                        MenuItemName = o.MenuItemName ?? o.MenuItem?.Name ?? "",
+                        PortionId = o.PortionId,
+                        PortionName = o.PortionName,
+                        PortionDetailId = o.PortionDetailId,
+                        Price = o.Price,
+                        Quantity = o.Quantity,
+                        PortionCount = o.PortionCount,
+                        CreatedDateTime = o.CreatedDateTime
+                    }).ToList()
+                };
+
+                return ApiResponse<OrderResponseViewModel>.SuccessResult(response, "Order placed successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<OrderResponseViewModel>.ErrorResult($"Failed to place order: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<PagedResult<TicketListViewModel>>> GetAllTicketsAsync(PaginationRequest request)
+        {
+            try
+            {
+                var tickets = await _ticketRepository.GetAllAsync();
+                var ticketViewModels = tickets.Select(t => new TicketListViewModel
+                {
+                    Id = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    Date = t.Date,
+                    TotalAmount = t.TotalAmount,
+                    RemainingAmount = t.RemainingAmount,
+                    IsClosed = t.IsClosed,
+                    IsLocked = t.IsLocked,
+                    CustomerId = t.CustomerId ?? 0,
+                    CustomerName = t.Customer != null ? $"{t.Customer.FirstName} {t.Customer.LastName}" : null,
+                    CustomerPhone = t.Customer?.Phone,
+                    CustomerAddressId = t.CustomerAddressId,
+                    CustomerAddress = t.CustomerAddress != null 
+                        ? $"{t.CustomerAddress.AddressLine1}, {t.CustomerAddress.City}" 
+                        : null,
+                    OrderCount = t.Orders?.Count ?? 0,
+                    LastUpdateTime = t.LastUpdateTime
+                }).ToList();
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+                {
+                    var searchTerm = request.SearchTerm.ToLower();
+                    ticketViewModels = ticketViewModels
+                        .Where(t => (t.TicketNumber != null && t.TicketNumber.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerName != null && t.CustomerName.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerPhone != null && t.CustomerPhone.Contains(searchTerm)))
+                        .ToList();
+                }
+
+                // Apply sorting
+                if (!string.IsNullOrWhiteSpace(request.SortBy))
+                {
+                    ticketViewModels = request.SortBy.ToLower() switch
+                    {
+                        "date" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                            : ticketViewModels.OrderBy(t => t.Date).ToList(),
+                        "ticketnumber" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TicketNumber).ToList()
+                            : ticketViewModels.OrderBy(t => t.TicketNumber).ToList(),
+                        "totalamount" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TotalAmount).ToList()
+                            : ticketViewModels.OrderBy(t => t.TotalAmount).ToList(),
+                        "customer" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.CustomerName).ToList()
+                            : ticketViewModels.OrderBy(t => t.CustomerName).ToList(),
+                        _ => ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                    };
+                }
+                else
+                {
+                    ticketViewModels = ticketViewModels.OrderByDescending(t => t.Date).ToList();
+                }
+
+                var totalCount = ticketViewModels.Count;
+                var pagedItems = ticketViewModels
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToList();
+
+                var pagedResult = new PagedResult<TicketListViewModel>(pagedItems, totalCount, request.PageNumber, request.PageSize);
+                return ApiResponse<PagedResult<TicketListViewModel>>.SuccessResult(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<PagedResult<TicketListViewModel>>.ErrorResult($"Failed to get tickets: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<PagedResult<TicketListViewModel>>> GetOpenTicketsAsync(PaginationRequest request)
+        {
+            try
+            {
+                var tickets = await _ticketRepository.GetAllAsync();
+                var openTickets = tickets.Where(t => !t.IsClosed).ToList();
+
+                var ticketViewModels = openTickets.Select(t => new TicketListViewModel
+                {
+                    Id = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    Date = t.Date,
+                    TotalAmount = t.TotalAmount,
+                    RemainingAmount = t.RemainingAmount,
+                    IsClosed = t.IsClosed,
+                    IsLocked = t.IsLocked,
+                    CustomerId = t.CustomerId ?? 0,
+                    CustomerName = t.Customer != null ? $"{t.Customer.FirstName} {t.Customer.LastName}" : null,
+                    CustomerPhone = t.Customer?.Phone,
+                    CustomerAddressId = t.CustomerAddressId,
+                    CustomerAddress = t.CustomerAddress != null 
+                        ? $"{t.CustomerAddress.AddressLine1}, {t.CustomerAddress.City}" 
+                        : null,
+                    OrderCount = t.Orders?.Count ?? 0,
+                    LastUpdateTime = t.LastUpdateTime
+                }).ToList();
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+                {
+                    var searchTerm = request.SearchTerm.ToLower();
+                    ticketViewModels = ticketViewModels
+                        .Where(t => (t.TicketNumber != null && t.TicketNumber.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerName != null && t.CustomerName.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerPhone != null && t.CustomerPhone.Contains(searchTerm)))
+                        .ToList();
+                }
+
+                // Apply sorting
+                if (!string.IsNullOrWhiteSpace(request.SortBy))
+                {
+                    ticketViewModels = request.SortBy.ToLower() switch
+                    {
+                        "date" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                            : ticketViewModels.OrderBy(t => t.Date).ToList(),
+                        "ticketnumber" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TicketNumber).ToList()
+                            : ticketViewModels.OrderBy(t => t.TicketNumber).ToList(),
+                        "totalamount" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TotalAmount).ToList()
+                            : ticketViewModels.OrderBy(t => t.TotalAmount).ToList(),
+                        "customer" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.CustomerName).ToList()
+                            : ticketViewModels.OrderBy(t => t.CustomerName).ToList(),
+                        _ => ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                    };
+                }
+                else
+                {
+                    ticketViewModels = ticketViewModels.OrderByDescending(t => t.Date).ToList();
+                }
+
+                var totalCount = ticketViewModels.Count;
+                var pagedItems = ticketViewModels
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToList();
+
+                var pagedResult = new PagedResult<TicketListViewModel>(pagedItems, totalCount, request.PageNumber, request.PageSize);
+                return ApiResponse<PagedResult<TicketListViewModel>>.SuccessResult(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<PagedResult<TicketListViewModel>>.ErrorResult($"Failed to get open tickets: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<PagedResult<TicketListViewModel>>> GetTicketsByStatusAsync(bool isClosed, PaginationRequest request)
+        {
+            try
+            {
+                var tickets = await _ticketRepository.GetAllAsync();
+                var filteredTickets = tickets.Where(t => t.IsClosed == isClosed).ToList();
+
+                var ticketViewModels = filteredTickets.Select(t => new TicketListViewModel
+                {
+                    Id = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    Date = t.Date,
+                    TotalAmount = t.TotalAmount,
+                    RemainingAmount = t.RemainingAmount,
+                    IsClosed = t.IsClosed,
+                    IsLocked = t.IsLocked,
+                    CustomerId = t.CustomerId ?? 0,
+                    CustomerName = t.Customer != null ? $"{t.Customer.FirstName} {t.Customer.LastName}" : null,
+                    CustomerPhone = t.Customer?.Phone,
+                    CustomerAddressId = t.CustomerAddressId,
+                    CustomerAddress = t.CustomerAddress != null 
+                        ? $"{t.CustomerAddress.AddressLine1}, {t.CustomerAddress.City}" 
+                        : null,
+                    OrderCount = t.Orders?.Count ?? 0,
+                    LastUpdateTime = t.LastUpdateTime
+                }).ToList();
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+                {
+                    var searchTerm = request.SearchTerm.ToLower();
+                    ticketViewModels = ticketViewModels
+                        .Where(t => (t.TicketNumber != null && t.TicketNumber.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerName != null && t.CustomerName.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerPhone != null && t.CustomerPhone.Contains(searchTerm)))
+                        .ToList();
+                }
+
+                // Apply sorting
+                if (!string.IsNullOrWhiteSpace(request.SortBy))
+                {
+                    ticketViewModels = request.SortBy.ToLower() switch
+                    {
+                        "date" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                            : ticketViewModels.OrderBy(t => t.Date).ToList(),
+                        "ticketnumber" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TicketNumber).ToList()
+                            : ticketViewModels.OrderBy(t => t.TicketNumber).ToList(),
+                        "totalamount" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TotalAmount).ToList()
+                            : ticketViewModels.OrderBy(t => t.TotalAmount).ToList(),
+                        "customer" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.CustomerName).ToList()
+                            : ticketViewModels.OrderBy(t => t.CustomerName).ToList(),
+                        _ => ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                    };
+                }
+                else
+                {
+                    ticketViewModels = ticketViewModels.OrderByDescending(t => t.Date).ToList();
+                }
+
+                var totalCount = ticketViewModels.Count;
+                var pagedItems = ticketViewModels
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToList();
+
+                var pagedResult = new PagedResult<TicketListViewModel>(pagedItems, totalCount, request.PageNumber, request.PageSize);
+                return ApiResponse<PagedResult<TicketListViewModel>>.SuccessResult(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<PagedResult<TicketListViewModel>>.ErrorResult($"Failed to get tickets by status: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<TicketDetailViewModel?>> GetTicketByIdAsync(int id)
+        {
+            try
+            {
+                var ticket = await _ticketRepository.GetByIdWithOrdersAsync(id);
+                if (ticket == null)
+                {
+                    return ApiResponse<TicketDetailViewModel?>.ErrorResult("Ticket not found");
+                }
+
+                var ticketDetail = new TicketDetailViewModel
+                {
+                    Id = ticket.Id,
+                    TicketNumber = ticket.TicketNumber,
+                    Date = ticket.Date,
+                    LastUpdateTime = ticket.LastUpdateTime,
+                    LastOrderDate = ticket.LastOrderDate,
+                    LastPaymentDate = ticket.LastPaymentDate,
+                    IsClosed = ticket.IsClosed,
+                    IsLocked = ticket.IsLocked,
+                    RemainingAmount = ticket.RemainingAmount,
+                    TotalAmount = ticket.TotalAmount,
+                    DepartmentId = ticket.DepartmentId,
+                    TicketTypeId = ticket.TicketTypeId,
+                    Note = ticket.Note,
+                    LastModifiedUserName = ticket.LastModifiedUserName,
+                    TicketTags = ticket.TicketTags,
+                    TicketStates = ticket.TicketStates,
+                    ExchangeRate = ticket.ExchangeRate,
+                    TaxIncluded = ticket.TaxIncluded,
+                    Name = ticket.Name,
+                    CustomerId = ticket.CustomerId,
+                    CustomerAddressId = ticket.CustomerAddressId
+                };
+
+                // Map Customer details
+                if (ticket.Customer != null)
+                {
+                    ticketDetail.Customer = new CustomerViewModel
+                    {
+                        Id = ticket.Customer.Id,
+                        FirstName = ticket.Customer.FirstName,
+                        LastName = ticket.Customer.LastName,
+                        Email = ticket.Customer.Email,
+                        Phone = ticket.Customer.Phone,
+                        Mobile = ticket.Customer.Mobile,
+                        IsActive = ticket.Customer.IsActive,
+                        IsVerified = ticket.Customer.IsVerified,
+                        LoyaltyPoints = ticket.Customer.LoyaltyPoints,
+                        TotalOrders = ticket.Customer.TotalOrders,
+                        TotalSpent = ticket.Customer.TotalSpent
+                    };
+                }
+
+                // Map Customer Address details
+                if (ticket.CustomerAddress != null)
+                {
+                    ticketDetail.CustomerAddress = new CustomerAddressViewModel
+                    {
+                        Id = ticket.CustomerAddress.Id,
+                        AddressType = ticket.CustomerAddress.AddressType,
+                        IsDefault = ticket.CustomerAddress.IsDefault,
+                        Label = ticket.CustomerAddress.Label,
+                        ContactName = ticket.CustomerAddress.ContactName,
+                        ContactPhone = ticket.CustomerAddress.ContactPhone,
+                        AddressLine1 = ticket.CustomerAddress.AddressLine1,
+                        AddressLine2 = ticket.CustomerAddress.AddressLine2,
+                        BuildingNumber = ticket.CustomerAddress.BuildingNumber,
+                        Floor = ticket.CustomerAddress.Floor,
+                        Apartment = ticket.CustomerAddress.Apartment,
+                        Landmark = ticket.CustomerAddress.Landmark,
+                        City = ticket.CustomerAddress.City,
+                        State = ticket.CustomerAddress.State,
+                        Country = ticket.CustomerAddress.Country,
+                        PostalCode = ticket.CustomerAddress.PostalCode,
+                        Latitude = ticket.CustomerAddress.Latitude,
+                        Longitude = ticket.CustomerAddress.Longitude,
+                        DeliveryInstructions = ticket.CustomerAddress.DeliveryInstructions
+                    };
+                }
+
+                // Map Order details
+                ticketDetail.Orders = ticket.Orders?.Select(o => new OrderItemViewModel
+                {
+                    Id = o.Id,
+                    MenuItemId = o.MenuItemId,
+                    MenuItemName = o.MenuItemName ?? o.MenuItem?.Name ?? "",
+                    PortionId = o.PortionId,
+                    PortionName = o.PortionName,
+                    PortionDetailId = o.PortionDetailId,
+                    Price = o.Price,
+                    Quantity = o.Quantity,
+                    PortionCount = o.PortionCount,
+                    CreatedDateTime = o.CreatedDateTime
+                }).OrderBy(o => o.CreatedDateTime).ToList() ?? new List<OrderItemViewModel>();
+
+                return ApiResponse<TicketDetailViewModel?>.SuccessResult(ticketDetail);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<TicketDetailViewModel?>.ErrorResult($"Failed to get ticket: {ex.Message}");
+            }
+        }
+    }
+}
+

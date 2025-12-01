@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using DotNet_Starter_Template.Models.Entities;
+using DotNet_Starter_Template.Data.Configurations;
 
 namespace DotNet_Starter_Template.Data
 {
@@ -18,6 +19,15 @@ namespace DotNet_Starter_Template.Data
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Portion> Portions { get; set; }
         public DbSet<PortionDetail> PortionDetails { get; set; }
+
+        // Customer Management entities
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<CustomerAddress> CustomerAddresses { get; set; }
+        public DbSet<CustomerPreference> CustomerPreferences { get; set; }
+
+        // Order Management entities
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -57,6 +67,13 @@ namespace DotNet_Starter_Template.Data
 
             // Configure Menu Management entities
             ConfigureMenuEntities(builder);
+
+            // Apply entity configurations from separate files
+            builder.ApplyConfiguration(new CustomerConfiguration());
+            builder.ApplyConfiguration(new CustomerAddressConfiguration());
+            builder.ApplyConfiguration(new CustomerPreferenceConfiguration());
+            builder.ApplyConfiguration(new TicketConfiguration());
+            builder.ApplyConfiguration(new OrderConfiguration());
 
             // Seed initial data
             SeedData(builder);

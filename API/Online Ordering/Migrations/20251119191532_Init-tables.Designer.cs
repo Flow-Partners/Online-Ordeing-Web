@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DotNet_Starter_Template.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251117151552_CreateMenuManagementTables")]
-    partial class CreateMenuManagementTables
+    [Migration("20251119191532_Init-tables")]
+    partial class Inittables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,583 @@ namespace DotNet_Starter_Template.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("ImageUrl");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_Categories_CreatedAt");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_Categories_DisplayOrder");
+
+                    b.HasIndex("IsVisible")
+                        .HasDatabaseName("IX_Categories_IsVisible");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Categories_Name");
+
+                    b.HasIndex("UpdatedAt")
+                        .HasDatabaseName("IX_Categories_UpdatedAt");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Customer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AlternatePhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("DefaultPaymentMethod")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ExternalCustomerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("FirstOrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Gender")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("InternalNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsBlocked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("LastOrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LoyaltyPoints")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Mobile")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("NotificationEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PreferredCurrency")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("PreferredLanguage")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("en");
+
+                    b.Property<bool>("PromotionalEmails")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("SavedPaymentMethods")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalOrders")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<decimal>("TotalSpent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_Customers_CreatedAt");
+
+                    b.HasIndex("Email")
+                        .HasDatabaseName("IX_Customers_Email")
+                        .HasFilter("[Email] IS NOT NULL");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_Customers_IsActive");
+
+                    b.HasIndex("Phone")
+                        .HasDatabaseName("IX_Customers_Phone");
+
+                    b.ToTable("Customers", (string)null);
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.CustomerAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AddressLine1")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("AddressType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Home");
+
+                    b.Property<string>("Apartment")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("BuildingNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ContactName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DeliveryInstructions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Floor")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Landmark")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("decimal(18,10)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("decimal(18,10)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("City")
+                        .HasDatabaseName("IX_CustomerAddresses_City");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_CustomerAddresses_CustomerId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_CustomerAddresses_IsActive");
+
+                    b.HasIndex("CustomerId", "IsDefault")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CustomerAddresses_DefaultPerCustomer")
+                        .HasFilter("[IsDefault] = 1");
+
+                    b.ToTable("CustomerAddresses", (string)null);
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.CustomerPreference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Allergies")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("AutoReorder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DietaryRestrictions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FavoriteCategoryIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FavoriteMenuItemIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan?>("PreferredOrderTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("SpiceLevel")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CustomerPreferences_CustomerId");
+
+                    b.ToTable("CustomerPreferences", (string)null);
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.MenuItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BaseImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("BaseImageUrl");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PreparationTime")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("IX_MenuItems_CategoryId");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_MenuItems_CreatedAt");
+
+                    b.HasIndex("IsAvailable")
+                        .HasDatabaseName("IX_MenuItems_IsAvailable");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_MenuItems_Name");
+
+                    b.HasIndex("UpdatedAt")
+                        .HasDatabaseName("IX_MenuItems_UpdatedAt");
+
+                    b.HasIndex("CategoryId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_MenuItems_Category_Name");
+
+                    b.ToTable("MenuItems");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountTransactionTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CalculatePrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("CreatingUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("DecreaseInventory")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IncreaseInventory")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("Locked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MenuItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MenuItemName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrderStates")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderTags")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PortionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PortionDetailId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PortionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PortionName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(16,2)");
+
+                    b.Property<string>("PriceTag")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("ProductTimerValueId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(16,3)");
+
+                    b.Property<string>("Tag")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Taxes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WarehouseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedDateTime")
+                        .HasDatabaseName("IX_Orders_CreatedDateTime");
+
+                    b.HasIndex("MenuItemId")
+                        .HasDatabaseName("IX_Orders_MenuItemId");
+
+                    b.HasIndex("PortionDetailId")
+                        .HasDatabaseName("IX_Orders_PortionDetailId")
+                        .HasFilter("[PortionDetailId] IS NOT NULL");
+
+                    b.HasIndex("PortionId")
+                        .HasDatabaseName("IX_Orders_PortionId")
+                        .HasFilter("[PortionId] IS NOT NULL");
+
+                    b.HasIndex("TicketId")
+                        .HasDatabaseName("IX_Orders_TicketId");
+
+                    b.ToTable("Orders", (string)null);
+                });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Permission", b =>
                 {
@@ -120,7 +697,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 1,
                             Action = "Create",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3221),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8007),
                             Description = "Create users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -137,7 +714,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 2,
                             Action = "Read",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3243),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8014),
                             Description = "View users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -154,7 +731,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 3,
                             Action = "Update",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3246),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8016),
                             Description = "Update users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -171,7 +748,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 4,
                             Action = "Delete",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3248),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8018),
                             Description = "Delete users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -188,7 +765,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 5,
                             Action = "Activate",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3250),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8019),
                             Description = "Activate/deactivate users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -205,7 +782,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 6,
                             Action = "ResetPassword",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3254),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8022),
                             Description = "Reset user passwords",
                             IsActive = true,
                             IsDeprecated = false,
@@ -222,7 +799,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 7,
                             Action = "AssignRoles",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3256),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8024),
                             Description = "Assign roles to users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -239,7 +816,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 8,
                             Action = "ViewAuditLog",
                             Category = "Audit",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3257),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8025),
                             Description = "View user audit logs",
                             IsActive = true,
                             IsDeprecated = false,
@@ -256,7 +833,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 9,
                             Action = "Create",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3259),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8026),
                             Description = "Create roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -273,7 +850,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 10,
                             Action = "Read",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3262),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8028),
                             Description = "View roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -290,7 +867,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 11,
                             Action = "Update",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3266),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8030),
                             Description = "Update roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -307,7 +884,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 12,
                             Action = "Delete",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3267),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8032),
                             Description = "Delete roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -324,7 +901,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 13,
                             Action = "AssignPermissions",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3283),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8076),
                             Description = "Assign permissions to roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -341,7 +918,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 14,
                             Action = "AssignUsers",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3285),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8078),
                             Description = "Assign users to roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -358,7 +935,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 15,
                             Action = "Create",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3287),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8079),
                             Description = "Create permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -375,7 +952,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 16,
                             Action = "Read",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3288),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8080),
                             Description = "View permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -392,7 +969,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 17,
                             Action = "Update",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3290),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8082),
                             Description = "Update permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -409,7 +986,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 18,
                             Action = "Delete",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3293),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8084),
                             Description = "Delete permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -426,7 +1003,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 19,
                             Action = "Assign",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3295),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8085),
                             Description = "Assign permissions to roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -443,7 +1020,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 20,
                             Action = "Settings",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3296),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8087),
                             Description = "Manage system settings",
                             IsActive = true,
                             IsDeprecated = false,
@@ -460,7 +1037,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 21,
                             Action = "Backup",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3298),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8089),
                             Description = "Create system backups",
                             IsActive = true,
                             IsDeprecated = false,
@@ -477,7 +1054,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 22,
                             Action = "Restore",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3299),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8090),
                             Description = "Restore system backups",
                             IsActive = true,
                             IsDeprecated = false,
@@ -494,7 +1071,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 23,
                             Action = "Logs",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3301),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8092),
                             Description = "View system logs",
                             IsActive = true,
                             IsDeprecated = false,
@@ -511,7 +1088,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 24,
                             Action = "Monitoring",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3303),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8093),
                             Description = "System monitoring access",
                             IsActive = true,
                             IsDeprecated = false,
@@ -528,7 +1105,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 25,
                             Action = "Maintenance",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3304),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8095),
                             Description = "System maintenance access",
                             IsActive = true,
                             IsDeprecated = false,
@@ -540,6 +1117,139 @@ namespace DotNet_Starter_Template.Migrations
                             Scope = "Global",
                             Type = "Functional"
                         });
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Portion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("ImageUrl");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxSelection")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MenuItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinSelection")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_Portions_CreatedAt");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_Portions_DisplayOrder");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_Portions_IsActive");
+
+                    b.HasIndex("MenuItemId")
+                        .HasDatabaseName("IX_Portions_MenuItemId");
+
+                    b.HasIndex("UpdatedAt")
+                        .HasDatabaseName("IX_Portions_UpdatedAt");
+
+                    b.HasIndex("MenuItemId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Portions_MenuItem_Name");
+
+                    b.ToTable("Portions");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.PortionDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PortionId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_PortionDetails_CreatedAt");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_PortionDetails_Name");
+
+                    b.HasIndex("PortionId")
+                        .HasDatabaseName("IX_PortionDetails_PortionId");
+
+                    b.HasIndex("UpdatedAt")
+                        .HasDatabaseName("IX_PortionDetails_UpdatedAt");
+
+                    b.HasIndex("PortionId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PortionDetails_Portion_Name");
+
+                    b.ToTable("PortionDetails");
                 });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Role", b =>
@@ -604,7 +1314,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "1",
                             Category = "System",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3474),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8201),
                             Description = "Full system access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -616,7 +1326,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "2",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3602),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8260),
                             Description = "Administrative access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -628,7 +1338,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "3",
                             Category = "Management",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3607),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8263),
                             Description = "Management access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -640,7 +1350,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "4",
                             Category = "User",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3622),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8266),
                             Description = "Basic user access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -652,7 +1362,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "5",
                             Category = "Guest",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3625),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8283),
                             Description = "Limited guest access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -700,7 +1410,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 1,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(861),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(233),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -708,7 +1418,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 2,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(866),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(238),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -716,7 +1426,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 3,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(957),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(242),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -724,7 +1434,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 4,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(959),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(981),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -732,7 +1442,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 5,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(960),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(994),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -740,7 +1450,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 6,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(961),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(996),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -748,7 +1458,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 7,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(963),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(998),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -756,7 +1466,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 8,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(965),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(999),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -764,7 +1474,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 9,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(965),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1000),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -772,7 +1482,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 10,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(966),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1001),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -780,7 +1490,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 11,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(966),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1002),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -788,7 +1498,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 12,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(967),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1004),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -796,7 +1506,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 13,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(967),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1005),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -804,7 +1514,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 14,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(968),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1006),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -812,7 +1522,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 15,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(969),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1008),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -820,7 +1530,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 16,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(970),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1009),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -828,7 +1538,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 17,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(970),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1010),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -836,7 +1546,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 18,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(971),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1012),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -844,7 +1554,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 19,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(972),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1013),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -852,7 +1562,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 20,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(973),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1013),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -860,7 +1570,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 21,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(974),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1014),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -868,7 +1578,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 22,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(974),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1015),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -876,7 +1586,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 23,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(976),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1016),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -884,7 +1594,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 24,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(976),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1016),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -892,10 +1602,133 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 25,
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(977),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(1017),
                             AssignedBy = "System",
                             IsActive = true
                         });
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Ticket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CustomerAddressId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ExchangeRate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(1m);
+
+                    b.Property<bool>("IsClosed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsLocked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LastModifiedUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("LastOrderDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateTime>("LastPaymentDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateTime>("LastUpdateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("RemainingAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(16,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<bool>("TaxIncluded")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("TicketLogs")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TicketNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TicketStates")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TicketTags")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TicketTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(16,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<int?>("TransactionDocument_Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerAddressId")
+                        .HasDatabaseName("IX_Tickets_CustomerAddressId")
+                        .HasFilter("[CustomerAddressId] IS NOT NULL");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_Tickets_CustomerId")
+                        .HasFilter("[CustomerId] IS NOT NULL");
+
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_Tickets_Date");
+
+                    b.HasIndex("DepartmentId")
+                        .HasDatabaseName("IX_Tickets_DepartmentId");
+
+                    b.HasIndex("IsClosed")
+                        .HasDatabaseName("IX_Tickets_IsClosed");
+
+                    b.HasIndex("TicketNumber")
+                        .HasDatabaseName("IX_Tickets_TicketNumber")
+                        .HasFilter("[TicketNumber] IS NOT NULL");
+
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.User", b =>
@@ -1032,8 +1865,8 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2bdc1d64-19ee-4979-89d1-b86d2d388e93",
-                            CreatedAt = new DateTime(2025, 11, 17, 15, 15, 51, 659, DateTimeKind.Utc).AddTicks(3800),
+                            ConcurrencyStamp = "332fdb3d-f9bc-48d9-96b1-a3f66e550522",
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 15, 31, 611, DateTimeKind.Utc).AddTicks(8390),
                             Email = "superadmin@example.com",
                             EmailConfirmed = true,
                             FirstName = "Super",
@@ -1043,9 +1876,9 @@ namespace DotNet_Starter_Template.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SUPERADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAENlouKfUrfZu7/x5eS7zFryHXpvIjbq0qskJQB7GgxKrVzHH8jjlW8NzY0WdBNF9sA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEL40morZ8nsIIQxv22Qr6JfsJC6qwdM56w5wAbz+eiPXhJghTAFV0xz63x4EizUoRw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5123f419-1e28-4342-b2f6-a5a1eac3816c",
+                            SecurityStamp = "6f29a55b-67e0-47b6-8b1e-6ec166597265",
                             Theme = "light",
                             TwoFactorEnabled = false,
                             UserName = "superadmin@example.com"
@@ -1090,7 +1923,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             UserId = "1",
                             RoleId = "1",
-                            AssignedAt = new DateTime(2025, 11, 17, 15, 15, 51, 793, DateTimeKind.Utc).AddTicks(639),
+                            AssignedAt = new DateTime(2025, 11, 19, 19, 15, 31, 679, DateTimeKind.Utc).AddTicks(73),
                             AssignedBy = "System",
                             IsActive = true,
                             IsPrimary = true
@@ -1203,6 +2036,94 @@ namespace DotNet_Starter_Template.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.CustomerAddress", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Customer", "Customer")
+                        .WithMany("CustomerAddresses")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.CustomerPreference", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Customer", "Customer")
+                        .WithOne("CustomerPreference")
+                        .HasForeignKey("DotNet_Starter_Template.Models.Entities.CustomerPreference", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.MenuItem", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Category", "Category")
+                        .WithMany("MenuItems")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Order", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.MenuItem", "MenuItem")
+                        .WithMany()
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.PortionDetail", "PortionDetail")
+                        .WithMany()
+                        .HasForeignKey("PortionDetailId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Portion", "Portion")
+                        .WithMany()
+                        .HasForeignKey("PortionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Ticket", "Ticket")
+                        .WithMany("Orders")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MenuItem");
+
+                    b.Navigation("Portion");
+
+                    b.Navigation("PortionDetail");
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Portion", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.MenuItem", "MenuItem")
+                        .WithMany("Portions")
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MenuItem");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.PortionDetail", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Portion", "Portion")
+                        .WithMany("PortionDetails")
+                        .HasForeignKey("PortionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Portion");
+                });
+
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.RolePermission", b =>
                 {
                     b.HasOne("DotNet_Starter_Template.Models.Entities.Permission", "Permission")
@@ -1220,6 +2141,23 @@ namespace DotNet_Starter_Template.Migrations
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Ticket", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.CustomerAddress", "CustomerAddress")
+                        .WithMany("Tickets")
+                        .HasForeignKey("CustomerAddressId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.Customer", "Customer")
+                        .WithMany("Tickets")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("CustomerAddress");
                 });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.UserRole", b =>
@@ -1292,9 +2230,38 @@ namespace DotNet_Starter_Template.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Category", b =>
+                {
+                    b.Navigation("MenuItems");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Customer", b =>
+                {
+                    b.Navigation("CustomerAddresses");
+
+                    b.Navigation("CustomerPreference");
+
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.CustomerAddress", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.MenuItem", b =>
+                {
+                    b.Navigation("Portions");
+                });
+
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Portion", b =>
+                {
+                    b.Navigation("PortionDetails");
                 });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Role", b =>
@@ -1302,6 +2269,11 @@ namespace DotNet_Starter_Template.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Ticket", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.User", b =>
