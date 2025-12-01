@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://192.168.0.120:7020/api',
+  apiUrl: 'http://localhost:5071/api',
   apiTimeout: 30000,
   tokenKey: 'auth_token',
   refreshTokenKey: 'refresh_token',
@@ -9,4 +9,3 @@ export const environment = {
   appVersion: '1.0.0-dev',
   appName: 'Angular Base Template (Dev)'
 };
-

@@ -6,7 +6,7 @@ import { PageNotFoundComponent } from './shared/components/page-not-found/page-n
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/menu',
     pathMatch: 'full'
   },
   {
