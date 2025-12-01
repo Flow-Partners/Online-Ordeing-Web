@@ -29,7 +29,7 @@ class RoleGuardService {
 
     if (!hasRole) {
       this.notificationService.error('You do not have permission to access this page');
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/menu']);
       return false;
     }
 
