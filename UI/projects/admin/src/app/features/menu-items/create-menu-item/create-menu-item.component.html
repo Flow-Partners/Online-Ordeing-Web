@@ -329,6 +329,44 @@
               </div>
             </div>
 
+            <!-- Min Selection -->
+            <div class="col-12 col-md-6">
+              <label [for]="'minSelection' + i" class="form-label">
+                Min Selection <span class="text-danger">*</span>
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                [id]="'minSelection' + i"
+                formControlName="minSelection"
+                min="0"
+                placeholder="1"
+                [class.is-invalid]="portion.get('minSelection')?.invalid && portion.get('minSelection')?.touched">
+              <div class="invalid-feedback d-block" *ngIf="portion.get('minSelection')?.invalid && portion.get('minSelection')?.touched">
+                Min Selection must be at least 0
+              </div>
+              <div class="form-text small">Minimum number of portion details that must be selected</div>
+            </div>
+
+            <!-- Max Selection -->
+            <div class="col-12 col-md-6">
+              <label [for]="'maxSelection' + i" class="form-label">
+                Max Selection
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                [id]="'maxSelection' + i"
+                formControlName="maxSelection"
+                min="0"
+                placeholder="Leave empty for unlimited"
+                [class.is-invalid]="portion.get('maxSelection')?.invalid && portion.get('maxSelection')?.touched">
+              <div class="invalid-feedback d-block" *ngIf="portion.get('maxSelection')?.errors?.['maxLessThanMin']">
+                Max Selection must be greater than or equal to Min Selection
+              </div>
+              <div class="form-text small">Maximum number of portion details that can be selected (leave empty for unlimited)</div>
+            </div>
+
             <!-- Portion Details -->
             <div class="col-12">
               <div class="d-flex justify-content-between align-items-center mb-2">

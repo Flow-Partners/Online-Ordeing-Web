@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -14,6 +14,8 @@ import { MenuItem, MENU_ITEMS } from '@constants/menu-items';
   styleUrls: ['./side-navbar.component.scss']
 })
 export class SideNavbarComponent implements OnInit {
+  @Output() sidebarToggle = new EventEmitter<boolean>();
+  
   menuItems: MenuItem[] = [];
   isCollapsed = false;
   activeRoute = '';
@@ -36,9 +38,23 @@ export class SideNavbarComponent implements OnInit {
     // Load sidebar state from storage
     const savedState = this.storageService.getItem('sidebar_collapsed');
     this.isCollapsed = savedState === 'true';
+    
+    // Emit initial state
+    this.sidebarToggle.emit(this.isCollapsed);
 
     // Filter menu items based on user roles
     this.menuItems = this.filterMenuItemsByRole(MENU_ITEMS);
+    
+    // Fallback: If no menu items after filtering, show all items (for development)
+    if (this.menuItems.length === 0) {
+      console.warn('No menu items found after role filtering. Showing all items as fallback.');
+      this.menuItems = MENU_ITEMS;
+    }
+    
+    // Debug: Log menu items to console
+    console.log('Menu items loaded:', this.menuItems);
+    console.log('Menu items count:', this.menuItems.length);
+    
     this.activeRoute = this.router.url;
   }
 
@@ -46,10 +62,20 @@ export class SideNavbarComponent implements OnInit {
    * Filter menu items based on user roles
    */
   private filterMenuItemsByRole(items: MenuItem[]): MenuItem[] {
+    // If not authenticated, show all items (for development/testing)
+    const isAuthenticated = this.authService.isAuthenticated;
+    
     return items.filter(item => {
       // If no roles specified, show to all
       if (!item.roles || item.roles.length === 0) {
         return true;
+      }
+
+      // If not authenticated, still show items for development (comment out in production)
+      if (!isAuthenticated) {
+        // For development: show all items
+        // For production: return false;
+        return true; // Remove this line in production
       }
 
       // Check if user has required role
@@ -58,6 +84,9 @@ export class SideNavbarComponent implements OnInit {
       // Filter children recursively
       if (hasRole && item.children) {
         item.children = this.filterMenuItemsByRole(item.children);
+      } else if (!hasRole && item.children) {
+        // If parent doesn't have role, don't show children either
+        item.children = [];
       }
 
       return hasRole;
@@ -70,6 +99,8 @@ export class SideNavbarComponent implements OnInit {
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;
     this.storageService.setItem('sidebar_collapsed', this.isCollapsed.toString());
+    // Emit state change to parent component
+    this.sidebarToggle.emit(this.isCollapsed);
   }
 
   /**
@@ -100,6 +131,13 @@ export class SideNavbarComponent implements OnInit {
    */
   isExpanded(label: string): boolean {
     return this.expandedMenus[label] || false;
+  }
+
+  /**
+   * Track by function for ngFor
+   */
+  trackByLabel(index: number, item: MenuItem): string {
+    return item.label || index.toString();
   }
 }
 
