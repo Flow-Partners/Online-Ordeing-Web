@@ -105,12 +105,12 @@
                 </p>
               </div>
 
-              <div class="deal-price my-2">
+              <div class="deal-price">
                 <span *ngIf="getItemPrice(item.id)">{{ formatPrice(getItemPrice(item.id)!) }}</span>
                 <span *ngIf="!getItemPrice(item.id)" class="price-loading">Loading price...</span>
               </div>
               
-              <div class="deal-footer d-flex align-items-center justify-content-between mt-auto">
+              <div class="deal-footer d-flex align-items-center justify-content-between">
                 <button 
                   class="deal-btn btn" 
                   (click)="addToCart(item)"

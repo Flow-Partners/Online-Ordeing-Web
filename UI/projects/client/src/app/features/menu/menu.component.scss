@@ -425,8 +425,9 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   transition: .25s ease;
   cursor: pointer;
-  height: 100%;
+  height: 90%;
   align-items: stretch;
+  width: auto;
 
   &:hover {
     transform: translateY(-3px);
@@ -457,9 +458,10 @@
 
 /* IMAGE BOX */
 .deal-image {
-  width: 125px;
+  margin: 10px;
+  width: 160px;
   min-width: 99px;
-  // height: 95%;
+  height: 160px;
   border-radius: 12px;
   overflow: hidden;
   background: #ececec;
@@ -467,6 +469,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
 
   img {
     width: 100%;
@@ -476,6 +479,7 @@
     display: block;
   }
   
+
   @media (max-width: 1200px) {
     width: 150px;
     min-width: 150px;
@@ -514,7 +518,7 @@
 
 /* Header */
 .deal-header {
-  margin-top: 15px;
+  margin-top: 5px;
   display:block;
   width: 210px;
   justify-content: space-between;
@@ -544,6 +548,7 @@
 
 /* Description */
 .deal-desc {
+  text-wrap: balance;
   font-size: 0.95rem;
   color: #0a0a0a;
   margin: 4px 0 5px;
@@ -601,12 +606,13 @@
 
 /* Bottom action section */
 .deal-footer {
-  margin-top: auto;
+  // margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   // justify-content: flex-start;
   gap: 1rem;
+  margin-bottom: 10px;
 }
 
 /* ADD TO CART BUTTON */
