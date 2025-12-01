@@ -6,7 +6,7 @@ import { PageNotFoundComponent } from './shared/components/page-not-found/page-n
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/menu',
     pathMatch: 'full'
   },
   {
@@ -56,6 +56,10 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'checkout',
+        loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent)
       }
     ]
   },

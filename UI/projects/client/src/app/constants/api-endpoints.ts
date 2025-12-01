@@ -19,6 +19,10 @@ export const API_ENDPOINTS = {
     LIST: '/MenuItems',
     DETAIL: (id: number) => `/MenuItems/${id}`,
     BY_CATEGORY: (categoryId: number) => `/MenuItems/category/${categoryId}`
+  },
+  CATEGORIES: {
+    LIST: '/Categories',
+    DETAIL: (id: number) => `/Categories/${id}`
   }
 };
 
