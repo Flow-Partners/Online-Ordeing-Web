@@ -10,7 +10,7 @@
   <!-- Sidebar Menu -->
   <nav class="sidebar-nav">
     <ul class="nav flex-column">
-      <li class="nav-item" *ngFor="let item of menuItems">
+      <li class="nav-item" *ngFor="let item of menuItems; trackBy: trackByLabel">
         <!-- Menu item with children -->
         <div *ngIf="item.children && item.children.length > 0">
           <button

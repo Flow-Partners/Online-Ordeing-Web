@@ -1,9 +1,9 @@
-<div class="main-wrapper">
+<div class="main-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
   <!-- Top Navigation Bar -->
   <app-top-navbar (toggleSidebar)="onToggleSidebar()"></app-top-navbar>
 
   <!-- Side Navigation Bar -->
-  <app-side-navbar></app-side-navbar>
+  <app-side-navbar (sidebarToggle)="onSidebarToggle($event)"></app-side-navbar>
 
   <!-- Main Content Area -->
   <main class="main-content">

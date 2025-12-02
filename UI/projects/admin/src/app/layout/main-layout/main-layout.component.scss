@@ -5,12 +5,14 @@
 
 .main-content {
   margin-top: 60px;
-  margin-left: 260px;
+  margin-left: 260px; // Default: sidebar expanded width
   min-height: calc(100vh - 60px);
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  width: calc(100% - 260px); // Adjust width when sidebar is expanded
 
   @media (max-width: 991.98px) {
     margin-left: 0;
+    width: 100%;
   }
 }
 
@@ -23,11 +25,15 @@
 }
 
 // Adjust main content when sidebar is collapsed
-:host-context(.sidebar.collapsed) .main-content {
-  margin-left: 70px;
+.main-wrapper.sidebar-collapsed {
+  .main-content {
+    margin-left: 70px; // Sidebar collapsed width
+    width: calc(100% - 70px); // Adjust width when sidebar is collapsed
 
-  @media (max-width: 991.98px) {
-    margin-left: 0;
+    @media (max-width: 991.98px) {
+      margin-left: 0;
+      width: 100%;
+    }
   }
 }
 

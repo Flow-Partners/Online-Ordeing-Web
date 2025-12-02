@@ -161,13 +161,61 @@ export class CreateMenuItemComponent implements OnInit {
              imageUrl: ['', [Validators.maxLength(500)]], // Keep for backward compatibility
              isActive: [true],
              displayOrder: [0],
-             minSelection: [1],
-             maxSelection: [1],
+             minSelection: [1, [Validators.required, Validators.min(0)]],
+             maxSelection: [null as number | null],
              portionDetails: this.fb.array([])
-           });
+           }, { validators: this.validateSelectionRange });
+           
+           // Setup validation listeners
+           this.setupPortionValidationListeners(portionForm);
+           
            this.portions.push(portionForm);
            this.addPortionDetail(this.portions.length - 1);
          }
+
+  /**
+   * Custom validator to ensure maxSelection >= minSelection when maxSelection is provided
+   */
+  validateSelectionRange(group: FormGroup): { [key: string]: any } | null {
+    const minSelection = group.get('minSelection')?.value;
+    const maxSelection = group.get('maxSelection')?.value;
+
+    if (maxSelection !== null && maxSelection !== undefined && maxSelection !== '') {
+      const maxVal = parseInt(maxSelection, 10);
+      const minVal = parseInt(minSelection, 10);
+      
+      if (!isNaN(maxVal) && !isNaN(minVal) && maxVal < minVal) {
+        group.get('maxSelection')?.setErrors({ maxLessThanMin: true });
+        return { maxLessThanMin: true };
+      }
+    }
+    
+    // Clear error if validation passes
+    if (group.get('maxSelection')?.hasError('maxLessThanMin')) {
+      const currentErrors = { ...group.get('maxSelection')?.errors };
+      delete currentErrors['maxLessThanMin'];
+      if (Object.keys(currentErrors).length === 0) {
+        group.get('maxSelection')?.setErrors(null);
+      } else {
+        group.get('maxSelection')?.setErrors(currentErrors);
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Setup validation listeners for portion form
+   */
+  setupPortionValidationListeners(portionForm: FormGroup): void {
+    // Re-validate when minSelection or maxSelection changes
+    portionForm.get('minSelection')?.valueChanges.subscribe(() => {
+      portionForm.updateValueAndValidity();
+    });
+    portionForm.get('maxSelection')?.valueChanges.subscribe(() => {
+      portionForm.updateValueAndValidity();
+    });
+  }
 
   removePortion(index: number): void {
     this.portions.removeAt(index);
@@ -413,10 +461,13 @@ export class CreateMenuItemComponent implements OnInit {
           imageUrl: [portion.imageUrl || '', [Validators.maxLength(500)]],
           isActive: [portion.isActive],
           displayOrder: [portion.displayOrder || 0],
-          minSelection: [portion.minSelection || 1],
-          maxSelection: [portion.maxSelection ?? 1],
+          minSelection: [portion.minSelection ?? 1, [Validators.required, Validators.min(0)]],
+          maxSelection: [portion.maxSelection ?? null],
           portionDetails: this.fb.array([])
-        });
+        }, { validators: this.validateSelectionRange });
+        
+        // Setup validation listeners
+        this.setupPortionValidationListeners(portionForm);
         
         this.portions.push(portionForm);
         const portionIndex = this.portions.length - 1;
@@ -651,8 +702,13 @@ export class CreateMenuItemComponent implements OnInit {
         }
         formData.append(`Portions[${index}].IsActive`, portion.isActive ?? true);
         formData.append(`Portions[${index}].DisplayOrder`, (portion.displayOrder || 0).toString());
-        formData.append(`Portions[${index}].MinSelection`, (portion.minSelection || 1).toString());
-        formData.append(`Portions[${index}].MaxSelection`, (portion.maxSelection ?? 1).toString());
+        formData.append(`Portions[${index}].MinSelection`, (portion.minSelection ?? 1).toString());
+        // Only append MaxSelection if it has a value, otherwise leave it null
+        if (portion.maxSelection !== null && portion.maxSelection !== undefined && portion.maxSelection !== '') {
+          formData.append(`Portions[${index}].MaxSelection`, portion.maxSelection.toString());
+        } else {
+          formData.append(`Portions[${index}].MaxSelection`, '');
+        }
 
         if (portion.portionDetails && portion.portionDetails.length > 0) {
           portion.portionDetails.forEach((detail: any, detailIndex: number) => {
