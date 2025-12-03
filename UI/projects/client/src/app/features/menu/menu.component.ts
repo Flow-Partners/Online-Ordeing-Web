@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { MenuItemService } from '@core/services/menu-item.service';
 import { CategoryService } from '@core/services/category.service';
@@ -10,6 +11,8 @@ import { MenuItem, MenuItemDetail, CartItem } from '@models/menu-item.model';
 import { CategoryListViewModel } from '@models/category.model';
 import { ApiResponse } from '@models/api-response.model';
 import { PagedResult } from '@models/menu-item.model';
+import { ProductPopupSimpleComponent } from '@shared/components/product-popup-simple/product-popup-simple.component';
+import { ProductPopupComplexComponent } from '@shared/components/product-popup-complex/product-popup-complex.component';
 
 export interface CategorySection {
   category: CategoryListViewModel;
@@ -19,7 +22,12 @@ export interface CategorySection {
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    ProductPopupSimpleComponent,
+    ProductPopupComplexComponent
+  ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss']
 })
@@ -53,13 +61,57 @@ export class MenuComponent implements OnInit, OnDestroy {
   private sliderInterval: any;
   private readonly sliderIntervalTime = 5000; // 5 seconds
   
+  // Popup properties
+  showSimplePopup = false;
+  showComplexPopup = false;
+  selectedMenuItemDetail: MenuItemDetail | null = null;
+  
+  // Test: Force show popup for debugging
+  testShowPopup(): void {
+    console.log('TEST: Force showing simple popup');
+    this.showSimplePopup = true;
+    this.showComplexPopup = false;
+    // Create a mock menu item detail for testing
+    this.selectedMenuItemDetail = {
+      id: 1,
+      categoryId: 1,
+      categoryName: 'Test',
+      name: 'Test Item',
+      description: 'Test Description',
+      baseImageUrl: '',
+      isAvailable: true,
+      preparationTime: 15,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      portionCount: 1,
+      portions: [{
+        id: 1,
+        menuItemId: 1,
+        menuItemName: 'Test Item',
+        name: 'Regular',
+        isActive: true,
+        displayOrder: 1,
+        minSelection: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        portionDetails: [{
+          id: 1,
+          name: 'Regular',
+          price: 100
+        }]
+      }]
+    } as MenuItemDetail;
+  }
+  
   private destroy$ = new Subject<void>();
 
   constructor(
     private menuItemService: MenuItemService,
     private categoryService: CategoryService,
     private cartService: CartService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     // Load favorites from storage
     const savedFavorites = localStorage.getItem('favorite_menu_items');
@@ -69,6 +121,21 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Listen to route query params for category selection from header
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const categoryId = params['category'];
+        if (categoryId !== undefined) {
+          const id = categoryId === 'null' || categoryId === null ? null : parseInt(categoryId, 10);
+          if (id !== this.selectedCategoryId) {
+            this.selectedCategoryId = id;
+            this.activeCategoryId = id;
+            this.loadMenuItems();
+          }
+        }
+      });
+
     this.loadCategories();
     this.loadMenuItems();
     this.startSlider();
@@ -232,52 +299,134 @@ export class MenuComponent implements OnInit, OnDestroy {
     return this.favoriteItems.has(menuItemId);
   }
 
+  // Open product popup (called when clicking on product card)
+  openProductPopup(menuItem: MenuItem, event?: Event): void {
+    // Prevent default and stop propagation
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    console.log('=== openProductPopup CALLED ===');
+    console.log('Menu item:', menuItem);
+    console.log('Menu item ID:', menuItem?.id);
+    console.log('Menu item name:', menuItem?.name);
+    
+    if (!menuItem) {
+      console.error('Menu item is null or undefined');
+      alert('Error: Menu item is null');
+      return;
+    }
+    
+    if (!menuItem.id) {
+      console.error('Menu item ID is missing');
+      alert('Error: Menu item ID is missing');
+      return;
+    }
+    
+    // Call addToCart which handles the popup logic
+    console.log('Calling addToCart with menu item:', menuItem);
+    this.addToCart(menuItem);
+  }
+
   addToCart(menuItem: MenuItem): void {
-    // First, get the menu item details to access portions and prices
+    console.log('=== addToCart METHOD CALLED ===');
+    console.log('Menu item:', menuItem);
+    console.log('Menu item ID:', menuItem?.id);
+    console.log('Menu item available:', menuItem?.isAvailable);
+    
+    if (!menuItem || !menuItem.id) {
+      console.error('Invalid menu item:', menuItem);
+      this.notificationService.error('Invalid menu item');
+      return;
+    }
+    
+    // Get the menu item details to show appropriate popup
+    console.log('Calling getMenuItemById with ID:', menuItem.id);
     this.menuItemService
       .getMenuItemById(menuItem.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: ApiResponse<MenuItemDetail>) => {
+          console.log('Menu item detail response:', response);
           if (response.success && response.data) {
-            const menuItemDetail = response.data;
+            this.selectedMenuItemDetail = response.data;
+            console.log('Selected menu item detail:', this.selectedMenuItemDetail);
+            console.log('Portion count:', this.selectedMenuItemDetail.portionCount);
+            console.log('Portions array:', this.selectedMenuItemDetail.portions);
+            console.log('Portions length:', this.selectedMenuItemDetail.portions?.length);
             
-            // If there are portions, we need to show a dialog to select portion
-            // For now, let's add the first available portion detail
-            if (menuItemDetail.portions && menuItemDetail.portions.length > 0) {
-              const firstPortion = menuItemDetail.portions[0];
-              if (firstPortion.portionDetails && firstPortion.portionDetails.length > 0) {
-                const firstPortionDetail = firstPortion.portionDetails[0];
-                
-                const cartItem: CartItem = {
-                  menuItemId: menuItem.id,
-                  menuItemName: menuItem.name,
-                  menuItemImage: menuItem.baseImageUrl,
-                  portionId: firstPortion.id,
-                  portionName: firstPortion.name,
-                  portionDetailId: firstPortionDetail.id,
-                  portionDetailName: firstPortionDetail.name,
-                  price: firstPortionDetail.price,
-                  quantity: 1
-                };
-                
-                this.cartService.addToCart(cartItem);
-                this.notificationService.success(`${menuItem.name} added to cart!`);
-              } else {
-                this.notificationService.warning('No portion details available for this item');
-              }
-            } else {
-              this.notificationService.warning('No portions available for this item');
+            // Close any existing popups first
+            this.showSimplePopup = false;
+            this.showComplexPopup = false;
+            
+            // Count total portion details (options) across all portions
+            let totalPortionDetails = 0;
+            if (this.selectedMenuItemDetail.portions && this.selectedMenuItemDetail.portions.length > 0) {
+              this.selectedMenuItemDetail.portions.forEach(portion => {
+                if (portion.portionDetails && portion.portionDetails.length > 0) {
+                  totalPortionDetails += portion.portionDetails.length;
+                }
+              });
             }
+            
+            const hasPortions = this.selectedMenuItemDetail.portions && 
+                              this.selectedMenuItemDetail.portions.length > 0;
+            
+            console.log('Total portion details count:', totalPortionDetails);
+            console.log('Portions array length:', this.selectedMenuItemDetail.portions?.length);
+            console.log('PortionCount property:', this.selectedMenuItemDetail.portionCount);
+            
+            if (!hasPortions || totalPortionDetails === 0) {
+              console.log('No portions available');
+              this.notificationService.warning('No portions available for this item');
+              this.selectedMenuItemDetail = null;
+              return;
+            }
+            
+            // Show simple popup if only one portion detail option, complex popup if multiple options
+            if (totalPortionDetails === 1) {
+              console.log('Showing SIMPLE popup - totalPortionDetails:', totalPortionDetails);
+              this.showSimplePopup = true;
+              this.showComplexPopup = false;
+              console.log('showSimplePopup set to:', this.showSimplePopup);
+            } else {
+              console.log('Showing COMPLEX popup - totalPortionDetails:', totalPortionDetails);
+              this.showSimplePopup = false;
+              this.showComplexPopup = true;
+              console.log('showComplexPopup set to:', this.showComplexPopup);
+            }
+            
+            // Log popup state
+            setTimeout(() => {
+              console.log('=== POPUP STATE CHECK ===');
+              console.log('showSimplePopup:', this.showSimplePopup);
+              console.log('showComplexPopup:', this.showComplexPopup);
+              console.log('selectedMenuItemDetail exists:', !!this.selectedMenuItemDetail);
+              console.log('selectedMenuItemDetail:', this.selectedMenuItemDetail);
+            }, 100);
           } else {
+            console.error('Response not successful:', response);
             this.notificationService.error('Failed to load menu item details');
           }
         },
         error: (error) => {
           console.error('Error loading menu item details:', error);
-          this.notificationService.error('Failed to add item to cart');
+          this.notificationService.error('Failed to load item details');
         }
       });
+  }
+
+  onClosePopup(): void {
+    this.showSimplePopup = false;
+    this.showComplexPopup = false;
+    this.selectedMenuItemDetail = null;
+  }
+
+  onAddToCartFromPopup(cartItem: CartItem): void {
+    this.cartService.addToCart(cartItem);
+    this.notificationService.success(`${cartItem.menuItemName} added to cart!`);
+    this.onClosePopup();
   }
 
   scrollToTop(): void {

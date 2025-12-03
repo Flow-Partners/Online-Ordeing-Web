@@ -130,6 +130,27 @@ namespace DotNet_Starter_Template.Controllers
                 return StatusCode(500, ApiResponse<TicketDetailViewModel?>.ErrorResult("An error occurred while retrieving the ticket"));
             }
         }
+
+        [HttpGet("all")]
+        public async Task<ActionResult<ApiResponse<PagedResult<OrderListViewModel>>>> GetAllOrders([FromQuery] PaginationRequest request)
+        {
+            try
+            {
+                var result = await _orderService.GetAllOrdersAsync(request);
+                
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all orders");
+                return StatusCode(500, ApiResponse<PagedResult<OrderListViewModel>>.ErrorResult("An error occurred while retrieving orders"));
+            }
+        }
     }
 }
 

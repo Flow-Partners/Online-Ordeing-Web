@@ -30,7 +30,53 @@ export class MenuItemService {
    * Get menu item by ID
    */
   getMenuItemById(id: number): Observable<ApiResponse<MenuItemDetail>> {
-    return this.apiService.get<MenuItemDetail>(API_ENDPOINTS.MENU_ITEMS.DETAIL(id));
+    return this.apiService.get<any>(API_ENDPOINTS.MENU_ITEMS.DETAIL(id)).pipe(
+      map((response: ApiResponse<any>) => {
+        if (response.success && response.data) {
+          // Map API response to frontend model (handle case sensitivity)
+          const apiData = response.data;
+          const mappedData: MenuItemDetail = {
+            id: apiData.id,
+            categoryId: apiData.categoryId,
+            categoryName: apiData.categoryName || '',
+            name: apiData.name,
+            description: apiData.description,
+            baseImageUrl: apiData.baseImageUrl,
+            isAvailable: apiData.isAvailable,
+            preparationTime: apiData.preparationTime,
+            createdAt: apiData.createdAt,
+            updatedAt: apiData.updatedAt,
+            createdBy: apiData.createdBy,
+            updatedBy: apiData.updatedBy,
+            portionCount: (apiData.Portions || apiData.portions || []).length,
+            portions: (apiData.Portions || apiData.portions || []).map((p: any) => ({
+              id: p.id,
+              menuItemId: p.menuItemId,
+              menuItemName: p.menuItemName || apiData.name,
+              name: p.name,
+              description: p.description,
+              imageUrl: p.imageUrl,
+              isActive: p.isActive,
+              displayOrder: p.displayOrder,
+              minSelection: p.minSelection,
+              maxSelection: p.maxSelection,
+              createdAt: p.createdAt,
+              updatedAt: p.updatedAt,
+              portionDetails: (p.PortionDetails || p.portionDetails || []).map((pd: any) => ({
+                id: pd.id,
+                name: pd.name,
+                price: pd.price
+              }))
+            }))
+          };
+          return {
+            ...response,
+            data: mappedData
+          } as ApiResponse<MenuItemDetail>;
+        }
+        return response as ApiResponse<MenuItemDetail>;
+      })
+    );
   }
 
   /**

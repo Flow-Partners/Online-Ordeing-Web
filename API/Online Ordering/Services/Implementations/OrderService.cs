@@ -563,6 +563,94 @@ namespace DotNet_Starter_Template.Services.Implementations
                 return ApiResponse<TicketDetailViewModel?>.ErrorResult($"Failed to get ticket: {ex.Message}");
             }
         }
+
+        public async Task<ApiResponse<PagedResult<OrderListViewModel>>> GetAllOrdersAsync(PaginationRequest request)
+        {
+            try
+            {
+                var orders = await _orderRepository.GetAllAsync();
+                
+                // Include related entities for better data
+                var ordersWithDetails = orders.Select(o => new OrderListViewModel
+                {
+                    Id = o.Id,
+                    TicketId = o.TicketId,
+                    TicketNumber = o.Ticket?.TicketNumber,
+                    MenuItemId = o.MenuItemId,
+                    MenuItemName = o.MenuItemName ?? o.MenuItem?.Name ?? "Unknown",
+                    PortionName = o.PortionName,
+                    Price = o.Price,
+                    Quantity = o.Quantity,
+                    TotalAmount = o.Price * o.Quantity,
+                    CreatedDateTime = o.CreatedDateTime,
+                    CreatingUserName = o.CreatingUserName,
+                    CustomerId = o.Ticket?.CustomerId ?? 0,
+                    CustomerName = o.Ticket?.Customer != null 
+                        ? $"{o.Ticket.Customer.FirstName} {o.Ticket.Customer.LastName}" 
+                        : null,
+                    CustomerPhone = o.Ticket?.Customer?.Phone,
+                    CustomerAddress = o.Ticket?.CustomerAddress != null 
+                        ? $"{o.Ticket.CustomerAddress.AddressLine1}, {o.Ticket.CustomerAddress.City}" 
+                        : null,
+                    TicketIsClosed = o.Ticket?.IsClosed ?? false,
+                    OrderNumber = o.OrderNumber
+                }).ToList();
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+                {
+                    var searchTerm = request.SearchTerm.ToLower();
+                    ordersWithDetails = ordersWithDetails
+                        .Where(o => 
+                            (o.TicketNumber != null && o.TicketNumber.ToLower().Contains(searchTerm)) ||
+                            (o.MenuItemName != null && o.MenuItemName.ToLower().Contains(searchTerm)) ||
+                            (o.CustomerName != null && o.CustomerName.ToLower().Contains(searchTerm)) ||
+                            (o.CustomerPhone != null && o.CustomerPhone.Contains(searchTerm)))
+                        .ToList();
+                }
+
+                // Apply sorting
+                if (!string.IsNullOrWhiteSpace(request.SortBy))
+                {
+                    ordersWithDetails = request.SortBy.ToLower() switch
+                    {
+                        "date" => request.SortDescending
+                            ? ordersWithDetails.OrderByDescending(o => o.CreatedDateTime).ToList()
+                            : ordersWithDetails.OrderBy(o => o.CreatedDateTime).ToList(),
+                        "ticketnumber" => request.SortDescending
+                            ? ordersWithDetails.OrderByDescending(o => o.TicketNumber).ToList()
+                            : ordersWithDetails.OrderBy(o => o.TicketNumber).ToList(),
+                        "totalamount" => request.SortDescending
+                            ? ordersWithDetails.OrderByDescending(o => o.TotalAmount).ToList()
+                            : ordersWithDetails.OrderBy(o => o.TotalAmount).ToList(),
+                        "customer" => request.SortDescending
+                            ? ordersWithDetails.OrderByDescending(o => o.CustomerName).ToList()
+                            : ordersWithDetails.OrderBy(o => o.CustomerName).ToList(),
+                        "menuitem" => request.SortDescending
+                            ? ordersWithDetails.OrderByDescending(o => o.MenuItemName).ToList()
+                            : ordersWithDetails.OrderBy(o => o.MenuItemName).ToList(),
+                        _ => ordersWithDetails.OrderByDescending(o => o.CreatedDateTime).ToList()
+                    };
+                }
+                else
+                {
+                    ordersWithDetails = ordersWithDetails.OrderByDescending(o => o.CreatedDateTime).ToList();
+                }
+
+                var totalCount = ordersWithDetails.Count;
+                var pagedItems = ordersWithDetails
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToList();
+
+                var pagedResult = new PagedResult<OrderListViewModel>(pagedItems, totalCount, request.PageNumber, request.PageSize);
+                return ApiResponse<PagedResult<OrderListViewModel>>.SuccessResult(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<PagedResult<OrderListViewModel>>.ErrorResult($"Failed to get orders: {ex.Message}");
+            }
+        }
     }
 }
 

@@ -3,9 +3,13 @@
 ################################################################################
 
 /API/.vs
+/API/Online Ordering/bin/
 /API/Online Ordering/bin/Debug/net8.0
 /API/Online Ordering/Logs
 /API/Online Ordering/obj
+/API/Online Ordering/dependencies/
+/API/Online Ordering/wwwroot/images/
 /UI/.angular/cache/19.2.18
 /UI/node_modules
+/UI/images/
 /.vs

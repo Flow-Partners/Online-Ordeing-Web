@@ -66,6 +66,10 @@ export const routes: Routes = [
             loadComponent: () => import('./features/menu-items/create-menu-item/create-menu-item.component').then(m => m.CreateMenuItemComponent)
           }
         ]
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./features/orders/list-orders/list-orders.component').then(m => m.ListOrdersComponent)
       }
     ]
   },

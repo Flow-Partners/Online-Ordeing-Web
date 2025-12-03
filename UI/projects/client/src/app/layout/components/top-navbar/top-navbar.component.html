@@ -1,209 +1,232 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
-  <div class="container-fluid">
-    <!-- Toggle Sidebar Button -->
-    <button class="btn btn-link text-dark d-lg-none" (click)="onToggleSidebar()">
-      <i class="bi bi-list fs-4"></i>
-    </button>
-
-    <!-- Brand/Logo -->
-    <a class="navbar-brand d-flex align-items-center" routerLink="/dashboard">
-      <i class="bi bi-layers-fill text-primary me-2 fs-4"></i>
-      <span class="fw-bold">Angular Template</span>
-    </a>
-
-    <!-- Right Side Items -->
-    <div class="d-flex align-items-center gap-3">
-      <!-- Search (Optional - Can be expanded) -->
-      <div class="search-box d-none d-md-block">
-        <div class="input-group">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-search"></i>
-          </span>
-          <input 
-            type="text" 
-            class="form-control border-start-0" 
-            placeholder="Search..."
-            style="max-width: 200px;">
-        </div>
-      </div>
-
-      <!-- Shopping Cart -->
-      <div class="dropdown" (appClickOutside)="closeDropdowns()">
-        <button 
-          class="btn btn-link text-dark position-relative" 
-          (click)="toggleCart()">
-          <i class="bi bi-cart3 fs-5"></i>
-          <span 
-            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            *ngIf="cartItemCount > 0">
-            {{ cartItemCount }}
-            <span class="visually-hidden">items in cart</span>
-          </span>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end cart-dropdown" [class.show]="isCartOpen">
-          <div class="cart-header">
-            <h6 class="mb-0">Shopping Cart</h6>
-            <span class="badge bg-primary" *ngIf="cartItemCount > 0">{{ cartItemCount }} items</span>
-          </div>
-          
-          <!-- Cart Items -->
-          <div class="cart-items" *ngIf="cartItems.length > 0">
-            <div class="cart-item" *ngFor="let item of cartItems">
-              <div class="cart-item-image">
-                <img 
-                  [src]="getImageUrl(item.menuItemImage)" 
-                  [alt]="item.menuItemName"
-                  (error)="onImageError($event)"
-                />
+<!-- Header Section -->
+<header class="main-header">
+  <!-- Section 1: Logo, Location, Cart, Auth -->
+  <div class="header-top-section">
+    <div class="header-container">
+      <div class="header-top-content">
+        <!-- Left Section: Logo + Location -->
+        <div class="header-left-group">
+          <!-- Logo Section -->
+          <div class="header-logo">
+            <a routerLink="/menu" class="logo-link">
+              <div class="logo-container">
+                <div class="logo-circles">
+                  <span class="circle"></span>
+                  <span class="circle"></span>
+                  <span class="circle"></span>
+                </div>
+                <div class="logo-text">
+                  <h1 class="logo-title">M21</h1>
+                  <p class="logo-subtitle">KITCHEN</p>
+                </div>
+                <i class="bi bi-mortarboard-fill logo-icon"></i>
               </div>
-              <div class="cart-item-content">
-                <div class="cart-item-info">
-                  <h6 class="cart-item-name">{{ item.menuItemName }}</h6>
-                  <p class="cart-item-details text-muted small mb-2">
-                    {{ item.portionName }} - {{ item.portionDetailName }}
-                  </p>
-                  <div class="cart-item-price-section">
-                    <span class="price">{{ formatPrice(item.price) }}</span>
-                    <span class="quantity-indicator">x{{ item.quantity }}</span>
+            </a>
+          </div>
+
+          <!-- Location Section (Right next to logo) -->
+          <div class="header-location" (appClickOutside)="closeDropdowns()">
+            <button class="location-btn" (click)="toggleLocationDropdown()">
+              <i class="bi bi-geo-alt-fill me-2"></i>
+              <div class="location-text">
+                <span class="location-label">Deliver to <i class="bi bi-chevron-down"></i></span>
+                <span class="location-address">{{ deliveryAddress }} {{ estimatedTime }}</span>
+              </div>
+            </button>
+            <!-- Location Dropdown -->
+            <div class="location-dropdown" [class.show]="isLocationDropdownOpen">
+              <div class="dropdown-content">
+                <p class="text-muted">Change delivery location</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Section (Cart & Auth) -->
+        <div class="header-right">
+          <!-- Shopping Cart -->
+          <div class="cart-wrapper" (appClickOutside)="closeDropdowns()">
+            <button 
+              class="cart-btn" 
+              (click)="toggleCart()"
+              type="button">
+              <i class="bi bi-bag"></i>
+              <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+            </button>
+            <!-- Cart Dropdown -->
+            <div class="cart-dropdown" [class.show]="isCartOpen">
+              <div class="cart-header">
+                <h6 class="mb-0">Shopping Cart</h6>
+                <span class="badge bg-primary" *ngIf="cartItemCount > 0">{{ cartItemCount }} items</span>
+              </div>
+              
+              <!-- Cart Items -->
+              <div class="cart-items" *ngIf="cartItems.length > 0">
+                <div class="cart-item" *ngFor="let item of cartItems">
+                  <div class="cart-item-image">
+                    <img 
+                      [src]="getImageUrl(item.menuItemImage)" 
+                      [alt]="item.menuItemName"
+                      (error)="onImageError($event)"
+                    />
+                  </div>
+                  <div class="cart-item-content">
+                    <div class="cart-item-info">
+                      <h6 class="cart-item-name">{{ item.menuItemName }}</h6>
+                      <p class="cart-item-details text-muted small mb-2">
+                        {{ item.portionName }} - {{ item.portionDetailName }}
+                      </p>
+                      <div class="cart-item-price-section">
+                        <span class="price">{{ formatPrice(item.price) }}</span>
+                        <span class="quantity-indicator">x{{ item.quantity }}</span>
+                      </div>
+                    </div>
+                    <div class="cart-item-actions">
+                      <div class="quantity-controls">
+                        <button 
+                          class="btn btn-sm quantity-btn"
+                          (click)="updateQuantity(item, -1)"
+                          [disabled]="item.quantity <= 1">
+                          <i class="bi bi-dash"></i>
+                        </button>
+                        <span class="quantity">{{ item.quantity }}</span>
+                        <button 
+                          class="btn btn-sm quantity-btn"
+                          (click)="updateQuantity(item, 1)">
+                          <i class="bi bi-plus"></i>
+                        </button>
+                      </div>
+                      <button 
+                        class="btn btn-link text-danger p-0 remove-btn"
+                        (click)="removeFromCart(item)"
+                        title="Remove">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div class="cart-item-actions">
-                  <div class="quantity-controls">
-                    <button 
-                      class="btn btn-sm quantity-btn"
-                      (click)="updateQuantity(item, -1)"
-                      [disabled]="item.quantity <= 1">
-                      <i class="bi bi-dash"></i>
-                    </button>
-                    <span class="quantity">{{ item.quantity }}</span>
-                    <button 
-                      class="btn btn-sm quantity-btn"
-                      (click)="updateQuantity(item, 1)">
-                      <i class="bi bi-plus"></i>
-                    </button>
+              </div>
+
+              <!-- Empty Cart -->
+              <div class="empty-cart text-center py-4" *ngIf="cartItems.length === 0">
+                <i class="bi bi-cart-x fs-1 text-muted"></i>
+                <p class="text-muted mb-0 mt-2">Your cart is empty</p>
+              </div>
+
+              <!-- Cart Footer -->
+              <div class="cart-footer" *ngIf="cartItems.length > 0">
+                <div class="cart-summary">
+                  <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span class="summary-value">{{ formatPrice(getSubtotal()) }}</span>
                   </div>
-                  <button 
-                    class="btn btn-link text-danger p-0 remove-btn"
-                    (click)="removeFromCart(item)"
-                    title="Remove">
-                    <i class="bi bi-x-lg"></i>
+                  <div class="summary-row">
+                    <span>Delivery Charges:</span>
+                    <span class="summary-value">{{ formatPrice(getDeliveryCharges()) }}</span>
+                  </div>
+                  <div class="summary-row total-row">
+                    <span><strong>Total:</strong></span>
+                    <span class="summary-value"><strong>{{ formatPrice(getTotal()) }}</strong></span>
+                  </div>
+                </div>
+                <div class="cart-actions">
+                  <button class="btn btn-primary w-100 checkout-btn" routerLink="/checkout" (click)="closeDropdowns()">
+                    Proceed to Checkout
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Empty Cart -->
-          <div class="empty-cart text-center py-4" *ngIf="cartItems.length === 0">
-            <i class="bi bi-cart-x fs-1 text-muted"></i>
-            <p class="text-muted mb-0 mt-2">Your cart is empty</p>
-          </div>
+          <!-- Auth Section -->
+          <div class="auth-wrapper" (appClickOutside)="closeDropdowns()">
+            <!-- Sign In / Register Button (if not logged in) -->
+            <a 
+              *ngIf="!authService.isAuthenticated"
+              routerLink="/auth/login"
+              class="signin-btn">
+              Sign In / Register
+            </a>
 
-          <!-- Cart Footer -->
-          <div class="cart-footer" *ngIf="cartItems.length > 0">
-            <div class="cart-summary">
-              <div class="summary-row">
-                <span>Subtotal:</span>
-                <span class="summary-value">{{ formatPrice(getSubtotal()) }}</span>
-              </div>
-              <div class="summary-row">
-                <span>Delivery Charges:</span>
-                <span class="summary-value">{{ formatPrice(getDeliveryCharges()) }}</span>
-              </div>
-              <div class="summary-row total-row">
-                <span><strong>Total:</strong></span>
-                <span class="summary-value"><strong>{{ formatPrice(getTotal()) }}</strong></span>
-              </div>
-            </div>
-            <div class="cart-actions">
-              <button class="btn btn-primary w-100 checkout-btn" routerLink="/checkout" (click)="closeDropdowns()">
-                Proceed to Checkout
+            <!-- Profile Icon (if logged in) -->
+            <div *ngIf="authService.isAuthenticated" class="profile-menu">
+              <button 
+                class="profile-btn"
+                (click)="toggleUserMenu()"
+                type="button">
+                <img 
+                  [src]="currentUser?.avatar || 'https://ui-avatars.com/api/?name=' + (currentUser?.name || 'User')" 
+                  alt="User Avatar" 
+                  class="profile-avatar">
               </button>
+              <ul class="user-dropdown" [class.show]="isUserMenuOpen">
+                <li><h6 class="dropdown-header">{{ currentUser?.email }}</h6></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" routerLink="/profile" (click)="closeDropdowns()">
+                    <i class="bi bi-person me-2"></i>
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" routerLink="/settings" (click)="closeDropdowns()">
+                    <i class="bi bi-gear me-2"></i>
+                    Settings
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <button class="dropdown-item text-danger" (click)="onLogout()">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Notifications -->
-      <div class="dropdown" (appClickOutside)="closeDropdowns()">
-        <button 
-          class="btn btn-link text-dark position-relative" 
-          (click)="toggleNotifications()">
-          <i class="bi bi-bell fs-5"></i>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            3
-            <span class="visually-hidden">unread notifications</span>
-          </span>
+  <!-- Section 2: Category Tabs Navigation -->
+  <div class="header-categories-section">
+    <div class="header-container">
+      <div class="category-tabs-container">
+        <button
+          class="category-tab"
+          [class.active]="selectedCategoryId === null"
+          (click)="selectCategory(null)"
+          type="button">
+          All
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" [class.show]="isNotificationOpen">
-          <li><h6 class="dropdown-header">Notifications</h6></li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" href="#">
-              <div class="d-flex">
-                <i class="bi bi-info-circle text-info me-2"></i>
-                <div>
-                  <p class="mb-0 small">New update available</p>
-                  <small class="text-muted">2 hours ago</small>
-                </div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              <div class="d-flex">
-                <i class="bi bi-check-circle text-success me-2"></i>
-                <div>
-                  <p class="mb-0 small">Profile updated successfully</p>
-                  <small class="text-muted">1 day ago</small>
-                </div>
-              </div>
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-center small" href="#">View all notifications</a></li>
-        </ul>
-      </div>
-
-      <!-- User Menu -->
-      <div class="dropdown" (appClickOutside)="closeDropdowns()">
-        <button 
-          class="btn btn-link text-dark d-flex align-items-center gap-2 text-decoration-none" 
-          (click)="toggleUserMenu()">
-          <img 
-            [src]="currentUser?.avatar || 'https://ui-avatars.com/api/?name=' + (currentUser?.name || 'User')" 
-            alt="User Avatar" 
-            class="rounded-circle"
-            width="32"
-            height="32">
-          <span class="d-none d-md-inline">{{ currentUser?.name || 'User' }}</span>
-          <i class="bi bi-chevron-down"></i>
+        <button
+          *ngFor="let category of categories"
+          class="category-tab"
+          [class.active]="selectedCategoryId === category.id"
+          (click)="selectCategory(category.id)"
+          type="button">
+          {{ category.name }}
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" [class.show]="isUserMenuOpen">
-          <li><h6 class="dropdown-header">{{ currentUser?.email }}</h6></li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" routerLink="/profile">
-              <i class="bi bi-person me-2"></i>
-              Profile
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" routerLink="/settings">
-              <i class="bi bi-gear me-2"></i>
-              Settings
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <button class="dropdown-item text-danger" (click)="onLogout()">
-              <i class="bi bi-box-arrow-right me-2"></i>
-              Logout
-            </button>
-          </li>
-        </ul>
+        <div class="category-arrow">
+          <i class="bi bi-chevron-right"></i>
+        </div>
       </div>
     </div>
   </div>
-</nav>
 
+  <!-- Section 3: Search Bar -->
+  <div class="header-search-section">
+    <div class="header-container">
+      <div class="search-container">
+        <i class="bi bi-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search for Kabab St"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()">
+      </div>
+    </div>
+  </div>
+</header>

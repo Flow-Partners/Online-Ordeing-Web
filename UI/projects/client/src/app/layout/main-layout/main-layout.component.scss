@@ -4,8 +4,9 @@
 }
 
 .main-content {
-  margin-top: 60px;
-  min-height: calc(100vh - 60px);
+  margin-top: 0; // Header is now sticky and positioned
+  padding-top: 0; // No padding needed as header is sticky
+  min-height: calc(100vh - 120px); // Account for header height
   transition: margin-left 0.3s ease;
 
   @media (max-width: 991.98px) {
