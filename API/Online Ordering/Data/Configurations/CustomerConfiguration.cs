@@ -20,7 +20,6 @@ namespace DotNet_Starter_Template.Data.Configurations
                 .HasMaxLength(50);
 
             builder.Property(e => e.LastName)
-                .IsRequired()
                 .HasMaxLength(50);
 
             builder.Property(e => e.Email)
@@ -98,6 +97,9 @@ namespace DotNet_Starter_Template.Data.Configurations
                 .HasColumnType("datetime2")
                 .HasDefaultValueSql("GETDATE()");
 
+            builder.Property(e => e.UserId)
+                .HasMaxLength(450);
+
             // Indexes
             builder.HasIndex(e => e.Email)
                 .HasDatabaseName("IX_Customers_Email")
@@ -127,6 +129,16 @@ namespace DotNet_Starter_Template.Data.Configurations
                 .WithOne(t => t.Customer)
                 .HasForeignKey(t => t.CustomerId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Relationship to User (ASP.NET Identity)
+            builder.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasIndex(e => e.UserId)
+                .HasDatabaseName("IX_Customers_UserId")
+                .HasFilter("[UserId] IS NOT NULL");
         }
     }
 }

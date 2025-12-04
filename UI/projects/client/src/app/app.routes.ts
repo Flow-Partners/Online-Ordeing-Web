@@ -60,6 +60,14 @@ export const routes: Routes = [
       {
         path: 'checkout',
         loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent)
+      },
+      {
+        path: 'orders/:customerId',
+        loadComponent: () => import('./features/orders/orders.component').then(m => m.OrdersComponent)
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./features/orders/orders.component').then(m => m.OrdersComponent)
       }
     ]
   },

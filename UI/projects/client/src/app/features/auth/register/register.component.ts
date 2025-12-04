@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '@core/services/auth.service';
+import { CustomerAuthService } from '@core/services/customer-auth.service';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
@@ -20,15 +20,20 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private customerAuthService: CustomerAuthService,
     private notificationService: NotificationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     // Redirect if already logged in
-    if (this.authService.isAuthenticated) {
-      this.router.navigate(['/dashboard']);
+    if (this.customerAuthService.isAuthenticated) {
+      const customerId = this.customerAuthService.customerId;
+      if (customerId) {
+        this.router.navigate(['/orders', customerId]);
+      } else {
+        this.router.navigate(['/menu']);
+      }
     }
 
     this.initForm();
@@ -36,9 +41,11 @@ export class RegisterComponent implements OnInit {
 
   initForm(): void {
     this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8), this.passwordStrength]],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: [''],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]+$/)]],
+      email: ['', [Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
     }, {
       validators: this.passwordMatch
@@ -49,21 +56,6 @@ export class RegisterComponent implements OnInit {
     return this.registerForm.controls;
   }
 
-  /**
-   * Custom validator for password strength
-   */
-  passwordStrength(control: AbstractControl): ValidationErrors | null {
-    const value = control.value;
-    if (!value) return null;
-
-    const hasNumber = /[0-9]/.test(value);
-    const hasUpper = /[A-Z]/.test(value);
-    const hasLower = /[a-z]/.test(value);
-
-    const passwordValid = hasNumber && hasUpper && hasLower;
-
-    return !passwordValid ? { passwordStrength: true } : null;
-  }
 
   /**
    * Custom validator for password match
@@ -94,22 +86,33 @@ export class RegisterComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    const userData = this.registerForm.value;
+    const formValue = this.registerForm.value;
+    
+    // Parse name into first and last name if needed
+    const customerData = {
+      firstName: formValue.firstName,
+      lastName: formValue.lastName || undefined,
+      phone: formValue.phone,
+      email: formValue.email || undefined,
+      password: formValue.password,
+      confirmPassword: formValue.confirmPassword
+    };
 
-    this.authService.register(userData).subscribe({
+    this.customerAuthService.register(customerData).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.router.navigate(['/dashboard']);
+        this.isSubmitting = false;
+        if (response.success && response.data) {
+          this.notificationService.success('Registration successful!');
+          const customerId = response.data.customerId;
+          this.router.navigate(['/orders', customerId]);
+        } else {
+          this.notificationService.error(response.message || 'Registration failed. Please try again.');
         }
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.notificationService.error(
-          error.message || 'Registration failed. Please try again.'
-        );
-      },
-      complete: () => {
-        this.isSubmitting = false;
+        const errorMessage = error.error?.message || error.message || 'Registration failed. Please try again.';
+        this.notificationService.error(errorMessage);
       }
     });
   }

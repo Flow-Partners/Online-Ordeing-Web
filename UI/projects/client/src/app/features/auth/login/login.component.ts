@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '@core/services/auth.service';
+import { CustomerAuthService } from '@core/services/customer-auth.service';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
@@ -19,15 +19,20 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private customerAuthService: CustomerAuthService,
     private notificationService: NotificationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     // Redirect if already logged in
-    if (this.authService.isAuthenticated) {
-      this.router.navigate(['/dashboard']);
+    if (this.customerAuthService.isAuthenticated) {
+      const customerId = this.customerAuthService.customerId;
+      if (customerId) {
+        this.router.navigate(['/orders', customerId]);
+      } else {
+        this.router.navigate(['/menu']);
+      }
     }
 
     this.initForm();
@@ -35,7 +40,7 @@ export class LoginComponent implements OnInit {
 
   initForm(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      phoneOrEmail: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false]
     });
@@ -58,22 +63,27 @@ export class LoginComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    const credentials = this.loginForm.value;
+    const credentials = {
+      phoneOrEmail: this.loginForm.value.phoneOrEmail,
+      password: this.loginForm.value.password,
+      rememberMe: this.loginForm.value.rememberMe
+    };
 
-    this.authService.login(credentials).subscribe({
+    this.customerAuthService.login(credentials).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.router.navigate(['/dashboard']);
+        this.isSubmitting = false;
+        if (response.success && response.data) {
+          this.notificationService.success('Login successful!');
+          const customerId = response.data.customerId;
+          this.router.navigate(['/orders', customerId]);
+        } else {
+          this.notificationService.error(response.message || 'Login failed. Please check your credentials.');
         }
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.notificationService.error(
-          error.message || 'Login failed. Please check your credentials.'
-        );
-      },
-      complete: () => {
-        this.isSubmitting = false;
+        const errorMessage = error.error?.message || error.message || 'Login failed. Please check your credentials.';
+        this.notificationService.error(errorMessage);
       }
     });
   }
