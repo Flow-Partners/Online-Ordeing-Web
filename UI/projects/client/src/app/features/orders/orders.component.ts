@@ -7,6 +7,7 @@ import { OrderService, CustomerOrder, PagedResult } from '@core/services/order.s
 import { NotificationService } from '@core/services/notification.service';
 import { CustomerAuthService } from '@core/services/customer-auth.service';
 import { ApiResponse } from '@models/api-response.model';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-orders',
@@ -101,19 +102,44 @@ export class OrdersComponent implements OnInit, OnDestroy {
       next: (response: ApiResponse<PagedResult<CustomerOrder>>) => {
         this.loading = false;
         if (response.success && response.data) {
-          this.orders = response.data.items;
-          this.totalCount = response.data.totalCount;
-          this.totalPages = response.data.totalPages;
-          this.currentPage = response.data.pageNumber;
-          this.hasPreviousPage = response.data.hasPreviousPage;
-          this.hasNextPage = response.data.hasNextPage;
+          this.orders = response.data.items || [];
+          this.totalCount = response.data.totalCount || 0;
+          this.totalPages = response.data.totalPages || 1;
+          this.currentPage = response.data.pageNumber || 1;
+          this.hasPreviousPage = response.data.hasPreviousPage || false;
+          this.hasNextPage = response.data.hasNextPage || false;
         } else {
-          this.notificationService.error(response.message || 'Failed to load orders');
+          // If customer not found, show empty state instead of error
+          if (response.message?.toLowerCase().includes('customer not found')) {
+            this.orders = [];
+            this.totalCount = 0;
+            this.totalPages = 1;
+            // Don't show error notification for "customer not found"
+          } else {
+            this.notificationService.error(response.message || 'Failed to load orders');
+          }
         }
       },
       error: (error) => {
         this.loading = false;
-        console.error('Error loading orders:', error);
+        const errorMessage = error.error?.message || error.message || '';
+        
+        // Handle "Customer not found" gracefully - show empty state
+        if (errorMessage.toLowerCase().includes('customer not found')) {
+          this.orders = [];
+          this.totalCount = 0;
+          this.totalPages = 1;
+          this.currentPage = 1;
+          this.hasPreviousPage = false;
+          this.hasNextPage = false;
+          // Don't show error notification or log to console
+          return;
+        }
+        
+        // Only log and show error for other types of errors
+        if (environment.enableLogging) {
+          console.error('Error loading orders:', error);
+        }
         this.notificationService.error('Failed to load orders. Please try again.');
       }
     });

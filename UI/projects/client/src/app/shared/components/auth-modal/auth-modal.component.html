@@ -1,0 +1,245 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Close Button -->
+    <button class="modal-close-btn" (click)="closeModal()" type="button" aria-label="Close">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <!-- Email Step -->
+    <div *ngIf="currentStep === 'email'" class="modal-content">
+      <h2 class="modal-title">Enter your email address</h2>
+      <p class="modal-subtitle">Please enter your email address</p>
+
+      <form [formGroup]="emailForm" (ngSubmit)="onEmailSubmit()">
+        <div class="form-group">
+          <input
+            type="email"
+            class="form-control"
+            formControlName="email"
+            placeholder="Enter your email address"
+            [class.is-invalid]="emailF['email'].invalid && emailF['email'].touched"
+            autofocus>
+          <div class="invalid-feedback" *ngIf="emailF['email'].invalid && emailF['email'].touched">
+            <span *ngIf="emailF['email'].errors?.['required']">Email is required</span>
+            <span *ngIf="emailF['email'].errors?.['email']">Please enter a valid email</span>
+          </div>
+        </div>
+
+        <a href="#" class="help-link">> Need help?</a>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-login"
+          [disabled]="isCheckingEmail || emailForm.invalid">
+          <span *ngIf="!isCheckingEmail">Login</span>
+          <span *ngIf="isCheckingEmail">
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            Checking...
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Login Step -->
+    <div *ngIf="currentStep === 'login'" class="modal-content">
+      <h2 class="modal-title">Enter your email address</h2>
+      <p class="modal-subtitle">Please enter your password</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+        <div class="form-group">
+          <input
+            type="email"
+            class="form-control"
+            formControlName="phoneOrEmail"
+            placeholder="Enter your email address"
+            readonly
+            [class.is-invalid]="loginF['phoneOrEmail'].invalid && loginF['phoneOrEmail'].touched">
+        </div>
+
+        <div class="form-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.is-invalid]="loginF['password'].invalid && loginF['password'].touched"
+            autofocus>
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()">
+            <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+          </button>
+          <div class="invalid-feedback" *ngIf="loginF['password'].invalid && loginF['password'].touched">
+            <span *ngIf="loginF['password'].errors?.['required']">Password is required</span>
+            <span *ngIf="loginF['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <a href="#" class="help-link">> Need help?</a>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-login"
+          [disabled]="isSubmitting || loginForm.invalid">
+          <span *ngIf="!isSubmitting">Login</span>
+          <span *ngIf="isSubmitting">
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            Logging in...
+          </span>
+        </button>
+
+        <div class="text-center mt-3">
+          <a href="#" class="text-link" (click)="switchToRegister(); $event.preventDefault()">
+            Don't have an account? Register
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Register Step -->
+    <div *ngIf="currentStep === 'register'" class="modal-content">
+      <h2 class="modal-title">Register</h2>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="firstName"
+            placeholder="Enter your name"
+            [class.is-invalid]="registerF['firstName'].invalid && registerF['firstName'].touched">
+          <div class="invalid-feedback" *ngIf="registerF['firstName'].invalid && registerF['firstName'].touched">
+            <span *ngIf="registerF['firstName'].errors?.['required']">Full name is required</span>
+            <span *ngIf="registerF['firstName'].errors?.['minlength']">Name must be at least 2 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input
+            type="email"
+            class="form-control"
+            formControlName="email"
+            [value]="enteredEmail"
+            readonly
+            [class.is-invalid]="registerF['email'].invalid && registerF['email'].touched">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Gender (Optional)</label>
+          <select
+            class="form-control"
+            formControlName="gender">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date Of Birth (Optional)</label>
+          <div class="date-input-wrapper">
+            <input
+              type="text"
+              class="form-control"
+              formControlName="dateOfBirth"
+              placeholder="dd-mm-yyyy"
+              (focus)="onDateInputFocus($event)"
+              (blur)="onDateInputBlur($event)">
+            <i class="bi bi-calendar date-icon"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          <div class="phone-input-wrapper">
+            <select class="country-code-select" [(ngModel)]="selectedCountryCode" [ngModelOptions]="{standalone: true}">
+              <option *ngFor="let country of countryCodes" [value]="country.code">
+                {{ country.flag }} {{ country.code }}
+              </option>
+            </select>
+            <input
+              type="tel"
+              class="form-control phone-input"
+              formControlName="phone"
+              placeholder="Enter mobile number"
+              [class.is-invalid]="registerF['phone'].invalid && registerF['phone'].touched">
+          </div>
+          <div class="invalid-feedback" *ngIf="registerF['phone'].invalid && registerF['phone'].touched">
+            <span *ngIf="registerF['phone'].errors?.['required']">Mobile number is required</span>
+            <span *ngIf="registerF['phone'].errors?.['pattern']">Please enter a valid mobile number</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-control"
+              formControlName="password"
+              placeholder="Enter password"
+              [class.is-invalid]="registerF['password'].invalid && registerF['password'].touched">
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()">
+              <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback" *ngIf="registerF['password'].invalid && registerF['password'].touched">
+            <span *ngIf="registerF['password'].errors?.['required']">Password is required</span>
+            <span *ngIf="registerF['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              class="form-control"
+              formControlName="confirmPassword"
+              placeholder="Confirm password"
+              [class.is-invalid]="(registerF['confirmPassword'].invalid && registerF['confirmPassword'].touched) || 
+                                  (registerForm.errors?.['passwordMismatch'] && registerF['confirmPassword'].touched)">
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPasswordVisibility()">
+              <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback" 
+               *ngIf="(registerF['confirmPassword'].invalid && registerF['confirmPassword'].touched) || 
+                      (registerForm.errors?.['passwordMismatch'] && registerF['confirmPassword'].touched)">
+            <span *ngIf="registerF['confirmPassword'].errors?.['required']">Please confirm your password</span>
+            <span *ngIf="registerForm.errors?.['passwordMismatch']">Passwords do not match</span>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-register"
+          [disabled]="isSubmitting || registerForm.invalid">
+          <span *ngIf="!isSubmitting">Register</span>
+          <span *ngIf="isSubmitting">
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            Registering...
+          </span>
+        </button>
+
+        <div class="text-center mt-3">
+          <p class="login-link-text">
+            Already have an Account?
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

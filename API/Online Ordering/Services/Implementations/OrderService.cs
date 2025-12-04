@@ -656,16 +656,38 @@ namespace DotNet_Starter_Template.Services.Implementations
         {
             try
             {
-                // Verify customer exists
-                var customer = await _customerRepository.GetByIdAsync(customerId);
-                if (customer == null)
+                // Always return success, even if customer doesn't exist - just return empty list
+                List<Ticket> ticketList = new List<Ticket>();
+                
+                try
                 {
-                    return ApiResponse<PagedResult<TicketListViewModel>>.ErrorResult("Customer not found");
+                    // Try to get customer
+                    var customer = await _customerRepository.GetByIdAsync(customerId);
+                    
+                    if (customer != null)
+                    {
+                        // Get tickets for the customer
+                        // Use the enhanced method that also checks by phone/email if CustomerId is NULL
+                        var tickets = await _ticketRepository.GetByCustomerIdOrPhoneAsync(
+                            customerId, 
+                            customer.Phone, 
+                            customer.Email);
+                        ticketList = tickets.ToList();
+                    }
+                    else
+                    {
+                        // Customer not found - try to find tickets by customerId directly anyway
+                        // This handles cases where customer was deleted but tickets still exist
+                        var tickets = await _ticketRepository.GetByCustomerIdAsync(customerId);
+                        ticketList = tickets.ToList();
+                    }
                 }
-
-                // Get tickets for the customer
-                var tickets = await _ticketRepository.GetByCustomerIdAsync(customerId);
-                var ticketList = tickets.ToList();
+                catch (Exception)
+                {
+                    // If any error occurs during customer/ticket lookup, just use empty list
+                    // Don't fail the request - return empty list instead
+                    ticketList = new List<Ticket>();
+                }
 
                 // Map to view models
                 var ticketViewModels = ticketList.Select(t => new TicketListViewModel
