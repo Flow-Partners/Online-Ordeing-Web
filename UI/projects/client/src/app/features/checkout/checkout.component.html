@@ -224,9 +224,13 @@
         type="button"
         class="btn btn-dark w-100 place-order-btn"
         (click)="onPlaceOrder()"
-        [disabled]="cartItems.length === 0"
+        [disabled]="cartItems.length === 0 || isPlacingOrder"
       >
-        Place Order
+        <span *ngIf="!isPlacingOrder">Place Order</span>
+        <span *ngIf="isPlacingOrder">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Placing Order...
+        </span>
       </button>
     </div>
 

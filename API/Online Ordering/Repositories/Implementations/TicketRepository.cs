@@ -43,6 +43,9 @@ namespace DotNet_Starter_Template.Repositories.Implementations
         public async Task<IEnumerable<Ticket>> GetByCustomerIdAsync(int customerId)
         {
             return await _dbSet
+                .Include(t => t.Customer)
+                .Include(t => t.CustomerAddress)
+                .Include(t => t.Orders)
                 .Where(t => t.CustomerId == customerId)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();

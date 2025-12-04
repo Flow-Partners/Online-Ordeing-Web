@@ -165,8 +165,46 @@
         </ul>
       </div>
 
-      <!-- User Menu -->
-      <div class="dropdown" (appClickOutside)="closeDropdowns()">
+      <!-- Customer Menu (if logged in as customer) -->
+      <div class="dropdown" (appClickOutside)="closeDropdowns()" *ngIf="customerAuthService.isAuthenticated">
+        <button 
+          class="btn btn-link text-dark d-flex align-items-center gap-2 text-decoration-none" 
+          (click)="toggleUserMenu()">
+          <i class="bi bi-person-circle fs-4"></i>
+          <span class="d-none d-md-inline">{{ currentCustomer?.fullName || currentCustomer?.firstName || 'Customer' }}</span>
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" [class.show]="isUserMenuOpen">
+          <li><h6 class="dropdown-header">{{ currentCustomer?.phone }}</h6></li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" (click)="navigateToOrders(); closeDropdowns()">
+              <i class="bi bi-bag me-2"></i>
+              My Orders
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <button class="dropdown-item text-danger" (click)="onCustomerLogout(); closeDropdowns()">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Logout
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Login/Signup Buttons (if not logged in) -->
+      <div class="d-flex align-items-center gap-2" *ngIf="!customerAuthService.isAuthenticated && !authService.isAuthenticated">
+        <a routerLink="/auth/login" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-box-arrow-in-right"></i> Sign In
+        </a>
+        <a routerLink="/auth/register" class="btn btn-primary btn-sm">
+          <i class="bi bi-person-plus"></i> Sign Up
+        </a>
+      </div>
+
+      <!-- User Menu (for admin/system users) -->
+      <div class="dropdown" (appClickOutside)="closeDropdowns()" *ngIf="authService.isAuthenticated && !customerAuthService.isAuthenticated">
         <button 
           class="btn btn-link text-dark d-flex align-items-center gap-2 text-decoration-none" 
           (click)="toggleUserMenu()">

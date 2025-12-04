@@ -106,13 +106,11 @@ export class ApiService {
 
     if (environment.enableLogging) {
       console.error('API Error:', error);
+      console.error('API Error - error.error:', error.error);
     }
 
-    return throwError(() => ({
-      success: false,
-      message: errorMessage,
-      errors: error.error?.errors || []
-    }));
+    // Preserve the full error structure so components can access validation errors
+    return throwError(() => error);
   }
 
   /**

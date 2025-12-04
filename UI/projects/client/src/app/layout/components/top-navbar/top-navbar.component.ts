@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { CustomerAuthService, CustomerAuthResponse } from '@core/services/customer-auth.service';
 import { CartService } from '@core/services/cart.service';
 import { User } from '@models/user.model';
 import { CartItem } from '@models/menu-item.model';
@@ -19,6 +20,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   @Output() toggleSidebar = new EventEmitter<void>();
 
   currentUser: User | null = null;
+  currentCustomer: CustomerAuthResponse | null = null;
   isUserMenuOpen = false;
   isNotificationOpen = false;
   isCartOpen = false;
@@ -30,10 +32,16 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
 
   constructor(
     public authService: AuthService,
-    public cartService: CartService
+    public customerAuthService: CustomerAuthService,
+    public cartService: CartService,
+    private router: Router
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+    });
+    
+    this.customerAuthService.currentCustomer$.subscribe(customer => {
+      this.currentCustomer = customer;
     });
   }
 
@@ -76,7 +84,22 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    this.authService.logout();
+    if (this.customerAuthService.isAuthenticated) {
+      this.customerAuthService.logout();
+    } else {
+      this.authService.logout();
+    }
+  }
+
+  onCustomerLogout(): void {
+    this.customerAuthService.logout();
+  }
+
+  navigateToOrders(): void {
+    const customerId = this.customerAuthService.customerId;
+    if (customerId) {
+      this.router.navigate(['/orders', customerId]);
+    }
   }
 
   removeFromCart(item: CartItem): void {

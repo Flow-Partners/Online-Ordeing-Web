@@ -12,9 +12,8 @@ namespace DotNet_Starter_Template.Models.Entities
         [StringLength(50)]
         public string FirstName { get; set; } = string.Empty;
 
-        [Required]
         [StringLength(50)]
-        public string LastName { get; set; } = string.Empty;
+        public string? LastName { get; set; }
 
         [StringLength(100)]
         public string? Email { get; set; }
@@ -98,7 +97,12 @@ namespace DotNet_Starter_Template.Models.Entities
         [Column(TypeName = "datetime2")]
         public DateTime? LastLoginAt { get; set; }
 
+        // Link to ASP.NET Identity User
+        [StringLength(450)]
+        public string? UserId { get; set; }
+
         // Navigation properties
+        public virtual User? User { get; set; }
         public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
         public virtual CustomerPreference? CustomerPreference { get; set; }
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
