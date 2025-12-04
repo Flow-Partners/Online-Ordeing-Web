@@ -52,12 +52,24 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Show error notification (except for 401 which redirects)
-      if (error.status !== 401) {
+      // Check if this is a silent check request (email existence check)
+      const isSilentCheck = req.headers.has('X-Silent-Check') || 
+                           req.url?.includes('CustomerAuth/login') && 
+                           error.status === 400 && 
+                           errorMessage.toLowerCase().includes('invalid phone/email or password');
+      
+      // Check if this is a "Customer not found" error for orders (should be handled gracefully)
+      const isCustomerNotFound = error.status === 400 && 
+                                errorMessage.toLowerCase().includes('customer not found') &&
+                                req.url?.includes('/Orders/customer/');
+
+      // Show error notification (except for 401 which redirects, silent checks, and customer not found for orders)
+      if (error.status !== 401 && !isSilentCheck && !isCustomerNotFound) {
         notificationService.error(errorMessage);
       }
 
-      if (environment.enableLogging) {
+      // Skip console logging for silent checks and customer not found errors
+      if (environment.enableLogging && !isSilentCheck && !isCustomerNotFound) {
         console.error('HTTP Error:', error);
       }
 

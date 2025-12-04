@@ -1,46 +1,5 @@
 <div class="menu-container">
 
-  <!-- Slider Section -->
-  <div class="slider-container w-100 mb-4 mb-md-3" *ngIf="sliderImages && sliderImages.length > 0">
-    <div class="slider-wrapper position-relative w-100">
-      <button class="slider-nav-btn slider-prev d-none d-md-flex" (click)="prevSlide()" aria-label="Previous slide" type="button">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      
-      <div class="slider-content w-100">
-        <div 
-          class="slider-slide" 
-          *ngFor="let image of sliderImages; let i = index"
-          [class.active]="i === currentSlideIndex"
-        >
-          <img 
-            [src]="getSliderImageUrl(image)" 
-            [alt]="'Slide ' + (i + 1)"
-            (error)="onImageError($event)"
-            loading="eager"
-            class="w-100 h-100"
-          />
-        </div>
-      </div>
-      
-      <button class="slider-nav-btn slider-next d-none d-md-flex" (click)="nextSlide()" aria-label="Next slide" type="button">
-        <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
-    
-    <!-- Slider Indicators -->
-    <div class="slider-indicators d-flex justify-content-center py-2 py-md-3">
-      <button 
-        *ngFor="let image of sliderImages; let i = index"
-        class="slider-indicator"
-        [class.active]="i === currentSlideIndex"
-        (click)="goToSlide(i)"
-        [attr.aria-label]="'Go to slide ' + (i + 1)"
-        type="button"
-      ></button>
-    </div>
-  </div>
-
   <!-- Category Tabs Section - Now moved to header, hidden here -->
   <!-- <div class="category-tabs-section w-100 mb-3 mb-md-2 mb-lg-4" *ngIf="categories.length > 0">
     <div class="category-tabs-container d-flex align-items-center overflow-auto px-2 px-md-3">
@@ -99,8 +58,8 @@
             <!-- RIGHT: Content -->
             <div class="deal-content d-flex flex-column" (click)="openProductPopup(item, $event)">
               <div class="deal-header" (click)="openProductPopup(item, $event)">
-                <h3 class="deal-title mb-2" (click)="openProductPopup(item, $event)">{{ item.name }}</h3>
-                <p class="deal-desc mb-2">
+                <h3 class="deal-title" (click)="openProductPopup(item, $event)">{{ item.name }}</h3>
+                <p class="deal-desc">
                   {{ truncateDescription(item.description) }}
                 </p>
               </div>

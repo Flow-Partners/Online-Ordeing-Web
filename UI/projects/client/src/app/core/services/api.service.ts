@@ -104,15 +104,19 @@ export class ApiService {
       errorMessage = error.error?.message || `Server Error: ${error.status}`;
     }
 
-    if (environment.enableLogging) {
+    // Check if this is a "Customer not found" error for orders (should be handled gracefully)
+    const errorUrl = error.url || '';
+    const isCustomerNotFound = error.status === 400 && 
+                              errorMessage.toLowerCase().includes('customer not found') &&
+                              errorUrl.includes('/Orders/customer/');
+
+    if (environment.enableLogging && !isCustomerNotFound) {
       console.error('API Error:', error);
+      console.error('API Error - error.error:', error.error);
     }
 
-    return throwError(() => ({
-      success: false,
-      message: errorMessage,
-      errors: error.error?.errors || []
-    }));
+    // Preserve the full error structure so components can access validation errors
+    return throwError(() => error);
   }
 
   /**

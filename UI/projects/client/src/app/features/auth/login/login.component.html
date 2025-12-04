@@ -2,24 +2,23 @@
   <h3 class="text-center mb-4">Sign In</h3>
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <!-- Email Field -->
+    <!-- Phone or Email Field -->
     <div class="mb-3">
-      <label for="email" class="form-label">Email Address</label>
+      <label for="phoneOrEmail" class="form-label">Phone Number or Email</label>
       <div class="input-group">
         <span class="input-group-text">
-          <i class="bi bi-envelope"></i>
+          <i class="bi bi-telephone"></i>
         </span>
         <input
-          type="email"
+          type="text"
           class="form-control"
-          id="email"
-          formControlName="email"
-          placeholder="Enter your email"
-          [class.is-invalid]="f['email'].invalid && f['email'].touched">
+          id="phoneOrEmail"
+          formControlName="phoneOrEmail"
+          placeholder="Enter your phone number or email"
+          [class.is-invalid]="f['phoneOrEmail'].invalid && f['phoneOrEmail'].touched">
       </div>
-      <div class="invalid-feedback d-block" *ngIf="f['email'].invalid && f['email'].touched">
-        <span *ngIf="f['email'].errors?.['required']">Email is required</span>
-        <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+      <div class="invalid-feedback d-block" *ngIf="f['phoneOrEmail'].invalid && f['phoneOrEmail'].touched">
+        <span *ngIf="f['phoneOrEmail'].errors?.['required']">Phone number or email is required</span>
       </div>
     </div>
 

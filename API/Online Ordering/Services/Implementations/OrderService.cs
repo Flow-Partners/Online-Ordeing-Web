@@ -6,6 +6,7 @@ using DotNet_Starter_Template.Models.ViewModels.Tickets;
 using DotNet_Starter_Template.Models.Entities;
 using DotNet_Starter_Template.Repositories.Interfaces;
 using DotNet_Starter_Template.Services.Interfaces;
+using DotNet_Starter_Template.Data;
 
 namespace DotNet_Starter_Template.Services.Implementations
 {
@@ -17,6 +18,7 @@ namespace DotNet_Starter_Template.Services.Implementations
         private readonly IMenuItemRepository _menuItemRepository;
         private readonly IPortionRepository _portionRepository;
         private readonly IPortionDetailRepository _portionDetailRepository;
+        private readonly ApplicationDbContext _context;
 
         public OrderService(
             ITicketRepository ticketRepository,
@@ -24,7 +26,8 @@ namespace DotNet_Starter_Template.Services.Implementations
             ICustomerRepository customerRepository,
             IMenuItemRepository menuItemRepository,
             IPortionRepository portionRepository,
-            IPortionDetailRepository portionDetailRepository)
+            IPortionDetailRepository portionDetailRepository,
+            ApplicationDbContext context)
         {
             _ticketRepository = ticketRepository;
             _orderRepository = orderRepository;
@@ -32,35 +35,108 @@ namespace DotNet_Starter_Template.Services.Implementations
             _menuItemRepository = menuItemRepository;
             _portionRepository = portionRepository;
             _portionDetailRepository = portionDetailRepository;
+            _context = context;
         }
 
         public async Task<ApiResponse<OrderResponseViewModel>> PlaceOrderAsync(PlaceOrderDto placeOrderDto)
         {
             try
             {
-                // Validate customer exists
-                var customer = await _customerRepository.GetByIdAsync(placeOrderDto.CustomerId);
-                if (customer == null)
-                {
-                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer not found");
-                }
-
-                if (!customer.IsActive)
-                {
-                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer account is inactive");
-                }
-
-                // Validate order items
+                // Validate order items first
                 if (placeOrderDto.OrderItems == null || placeOrderDto.OrderItems.Count == 0)
                 {
                     return ApiResponse<OrderResponseViewModel>.ErrorResult("Order must contain at least one item");
                 }
 
-                // Get or set customer address
+                // Handle customer - create if doesn't exist
+                Customer customer;
+                int customerId;
+
+                // PRIORITY: Always check CustomerInfo first if provided (regardless of CustomerId)
+                // This ensures we can create customers even if CustomerId is accidentally sent
+                if (placeOrderDto.CustomerInfo != null)
+                {
+                    // Validate required fields in CustomerInfo
+                    if (string.IsNullOrWhiteSpace(placeOrderDto.CustomerInfo.Phone))
+                    {
+                        return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer phone number is required");
+                    }
+                    if (string.IsNullOrWhiteSpace(placeOrderDto.CustomerInfo.FirstName))
+                    {
+                        return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer first name is required");
+                    }
+
+                    // Check if customer already exists by phone
+                    var existingCustomer = await _customerRepository.GetByPhoneAsync(placeOrderDto.CustomerInfo.Phone.Trim());
+                    if (existingCustomer != null)
+                    {
+                        customer = existingCustomer;
+                        customerId = customer.Id;
+                    }
+                    else
+                    {
+                        // Create new customer
+                        try
+                        {
+                            customer = await CreateCustomerFromInfoAsync(placeOrderDto.CustomerInfo);
+                            if (customer == null)
+                            {
+                                return ApiResponse<OrderResponseViewModel>.ErrorResult("Failed to create customer. Please check your information and try again.");
+                            }
+                            customerId = customer.Id;
+                        }
+                        catch (Exception ex)
+                        {
+                            return ApiResponse<OrderResponseViewModel>.ErrorResult($"Failed to create customer: {ex.Message}");
+                        }
+                    }
+                }
+                else if (placeOrderDto.CustomerId.HasValue && placeOrderDto.CustomerId.Value > 0)
+                {
+                    // Only use CustomerId if CustomerInfo is NOT provided
+                    customer = await _customerRepository.GetByIdAsync(placeOrderDto.CustomerId.Value);
+                    if (customer == null)
+                    {
+                        return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer not found. Please provide customer information.");
+                    }
+                    customerId = customer.Id;
+                }
+                else
+                {
+                    // Neither CustomerInfo nor valid CustomerId provided
+                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer information is required. Please provide CustomerInfo with firstName and phone.");
+                }
+
+                // Validate customer is active
+                if (!customer.IsActive)
+                {
+                    return ApiResponse<OrderResponseViewModel>.ErrorResult("Customer account is inactive");
+                }
+
+                // Handle customer address
                 int? customerAddressId = placeOrderDto.CustomerAddressId;
+                
+                // If address info is provided in CustomerInfo, create it
+                // Only create address if it has valid data (not just empty strings)
+                if (placeOrderDto.CustomerInfo?.Address != null && !customerAddressId.HasValue)
+                {
+                    var addressInfo = placeOrderDto.CustomerInfo.Address;
+                    // Validate that address has required fields if address object is provided
+                    if (!string.IsNullOrWhiteSpace(addressInfo.AddressLine1) && 
+                        !string.IsNullOrWhiteSpace(addressInfo.City))
+                    {
+                        var address = await CreateCustomerAddressFromInfoAsync(customerId, addressInfo);
+                        if (address != null)
+                        {
+                            customerAddressId = address.Id;
+                        }
+                    }
+                }
+
+                // If no address ID yet, try to get default address
                 if (!customerAddressId.HasValue)
                 {
-                    var defaultAddress = await _customerRepository.GetDefaultAddressAsync(placeOrderDto.CustomerId);
+                    var defaultAddress = await _customerRepository.GetDefaultAddressAsync(customerId);
                     customerAddressId = defaultAddress?.Id;
                 }
 
@@ -128,7 +204,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                     ExchangeRate = placeOrderDto.ExchangeRate,
                     TaxIncluded = placeOrderDto.TaxIncluded,
                     Name = placeOrderDto.Name,
-                    CustomerId = placeOrderDto.CustomerId,
+                    CustomerId = customerId,
                     CustomerAddressId = customerAddressId
                 };
 
@@ -243,7 +319,11 @@ namespace DotNet_Starter_Template.Services.Implementations
                     IsClosed = t.IsClosed,
                     IsLocked = t.IsLocked,
                     CustomerId = t.CustomerId ?? 0,
-                    CustomerName = t.Customer != null ? $"{t.Customer.FirstName} {t.Customer.LastName}" : null,
+                    CustomerName = t.Customer != null 
+                        ? (string.IsNullOrWhiteSpace(t.Customer.LastName) 
+                            ? t.Customer.FirstName 
+                            : $"{t.Customer.FirstName} {t.Customer.LastName}") 
+                        : null,
                     CustomerPhone = t.Customer?.Phone,
                     CustomerAddressId = t.CustomerAddressId,
                     CustomerAddress = t.CustomerAddress != null 
@@ -321,7 +401,11 @@ namespace DotNet_Starter_Template.Services.Implementations
                     IsClosed = t.IsClosed,
                     IsLocked = t.IsLocked,
                     CustomerId = t.CustomerId ?? 0,
-                    CustomerName = t.Customer != null ? $"{t.Customer.FirstName} {t.Customer.LastName}" : null,
+                    CustomerName = t.Customer != null 
+                        ? (string.IsNullOrWhiteSpace(t.Customer.LastName) 
+                            ? t.Customer.FirstName 
+                            : $"{t.Customer.FirstName} {t.Customer.LastName}") 
+                        : null,
                     CustomerPhone = t.Customer?.Phone,
                     CustomerAddressId = t.CustomerAddressId,
                     CustomerAddress = t.CustomerAddress != null 
@@ -399,7 +483,11 @@ namespace DotNet_Starter_Template.Services.Implementations
                     IsClosed = t.IsClosed,
                     IsLocked = t.IsLocked,
                     CustomerId = t.CustomerId ?? 0,
-                    CustomerName = t.Customer != null ? $"{t.Customer.FirstName} {t.Customer.LastName}" : null,
+                    CustomerName = t.Customer != null 
+                        ? (string.IsNullOrWhiteSpace(t.Customer.LastName) 
+                            ? t.Customer.FirstName 
+                            : $"{t.Customer.FirstName} {t.Customer.LastName}") 
+                        : null,
                     CustomerPhone = t.Customer?.Phone,
                     CustomerAddressId = t.CustomerAddressId,
                     CustomerAddress = t.CustomerAddress != null 
@@ -561,6 +649,215 @@ namespace DotNet_Starter_Template.Services.Implementations
             catch (Exception ex)
             {
                 return ApiResponse<TicketDetailViewModel?>.ErrorResult($"Failed to get ticket: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<PagedResult<TicketListViewModel>>> GetCustomerOrdersAsync(int customerId, PaginationRequest request)
+        {
+            try
+            {
+                // Always return success, even if customer doesn't exist - just return empty list
+                List<Ticket> ticketList = new List<Ticket>();
+                
+                try
+                {
+                    // Try to get customer
+                    var customer = await _customerRepository.GetByIdAsync(customerId);
+                    
+                    if (customer != null)
+                    {
+                        // Get tickets for the customer
+                        // Use the enhanced method that also checks by phone/email if CustomerId is NULL
+                        var tickets = await _ticketRepository.GetByCustomerIdOrPhoneAsync(
+                            customerId, 
+                            customer.Phone, 
+                            customer.Email);
+                        ticketList = tickets.ToList();
+                    }
+                    else
+                    {
+                        // Customer not found - try to find tickets by customerId directly anyway
+                        // This handles cases where customer was deleted but tickets still exist
+                        var tickets = await _ticketRepository.GetByCustomerIdAsync(customerId);
+                        ticketList = tickets.ToList();
+                    }
+                }
+                catch (Exception)
+                {
+                    // If any error occurs during customer/ticket lookup, just use empty list
+                    // Don't fail the request - return empty list instead
+                    ticketList = new List<Ticket>();
+                }
+
+                // Map to view models
+                var ticketViewModels = ticketList.Select(t => new TicketListViewModel
+                {
+                    Id = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    Date = t.Date,
+                    TotalAmount = t.TotalAmount,
+                    RemainingAmount = t.RemainingAmount,
+                    IsClosed = t.IsClosed,
+                    IsLocked = t.IsLocked,
+                    CustomerId = t.CustomerId ?? 0,
+                    CustomerName = t.Customer != null 
+                        ? (string.IsNullOrWhiteSpace(t.Customer.LastName) 
+                            ? t.Customer.FirstName 
+                            : $"{t.Customer.FirstName} {t.Customer.LastName}") 
+                        : null,
+                    CustomerPhone = t.Customer?.Phone,
+                    CustomerAddressId = t.CustomerAddressId,
+                    CustomerAddress = t.CustomerAddress != null 
+                        ? $"{t.CustomerAddress.AddressLine1}, {t.CustomerAddress.City}" 
+                        : null,
+                    OrderCount = t.Orders?.Count ?? 0,
+                    LastUpdateTime = t.LastUpdateTime
+                }).ToList();
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+                {
+                    var searchTerm = request.SearchTerm.ToLower();
+                    ticketViewModels = ticketViewModels
+                        .Where(t => (t.TicketNumber != null && t.TicketNumber.ToLower().Contains(searchTerm)) ||
+                                   (t.CustomerName != null && t.CustomerName.ToLower().Contains(searchTerm)))
+                        .ToList();
+                }
+
+                // Apply sorting (default: newest first)
+                if (!string.IsNullOrWhiteSpace(request.SortBy))
+                {
+                    ticketViewModels = request.SortBy.ToLower() switch
+                    {
+                        "date" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                            : ticketViewModels.OrderBy(t => t.Date).ToList(),
+                        "ticketnumber" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TicketNumber ?? "").ToList()
+                            : ticketViewModels.OrderBy(t => t.TicketNumber ?? "").ToList(),
+                        "totalamount" => request.SortDescending
+                            ? ticketViewModels.OrderByDescending(t => t.TotalAmount).ToList()
+                            : ticketViewModels.OrderBy(t => t.TotalAmount).ToList(),
+                        _ => ticketViewModels.OrderByDescending(t => t.Date).ToList()
+                    };
+                }
+                else
+                {
+                    // Default sort: newest first
+                    ticketViewModels = ticketViewModels.OrderByDescending(t => t.Date).ToList();
+                }
+
+                // Apply pagination
+                var totalCount = ticketViewModels.Count;
+                var pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
+                var pageSize = request.PageSize > 0 ? request.PageSize : 10;
+                var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+                var pagedTickets = ticketViewModels
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var pagedResult = new PagedResult<TicketListViewModel>(
+                    pagedTickets,
+                    totalCount,
+                    pageNumber,
+                    pageSize
+                );
+
+                return ApiResponse<PagedResult<TicketListViewModel>>.SuccessResult(pagedResult, "Customer orders retrieved successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<PagedResult<TicketListViewModel>>.ErrorResult($"Failed to get customer orders: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Creates a customer from customer information DTO
+        /// </summary>
+        private async Task<Customer?> CreateCustomerFromInfoAsync(Models.DTOs.Orders.CustomerInfoDto customerInfo)
+        {
+            try
+            {
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(customerInfo.FirstName) || 
+                    string.IsNullOrWhiteSpace(customerInfo.Phone))
+                {
+                    return null;
+                }
+
+                var customer = new Customer
+                {
+                    FirstName = customerInfo.FirstName.Trim(),
+                    LastName = string.IsNullOrWhiteSpace(customerInfo.LastName) ? null : customerInfo.LastName.Trim(),
+                    Email = string.IsNullOrWhiteSpace(customerInfo.Email) ? null : customerInfo.Email.Trim(),
+                    Phone = customerInfo.Phone.Trim(),
+                    Mobile = string.IsNullOrWhiteSpace(customerInfo.Mobile) ? customerInfo.Phone.Trim() : customerInfo.Mobile.Trim(),
+                    IsActive = true,
+                    IsVerified = false,
+                    IsBlocked = false,
+                    LoyaltyPoints = 0,
+                    TotalOrders = 0,
+                    TotalSpent = 0,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                return await _customerRepository.CreateAsync(customer);
+            }
+            catch (Exception ex)
+            {
+                // Log error - rethrow to get better error message
+                throw new Exception($"Failed to create customer: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Creates a customer address from address information DTO
+        /// </summary>
+        private async Task<CustomerAddress?> CreateCustomerAddressFromInfoAsync(int customerId, Models.DTOs.Orders.CustomerAddressInfoDto addressInfo)
+        {
+            try
+            {
+                // Check if customer has any addresses - if not, this will be the default
+                var existingAddresses = await _customerRepository.GetByIdWithAddressesAsync(customerId);
+                bool isDefault = existingAddresses?.CustomerAddresses == null || !existingAddresses.CustomerAddresses.Any();
+
+                var address = new CustomerAddress
+                {
+                    CustomerId = customerId,
+                    AddressType = addressInfo.AddressType ?? "Home",
+                    IsDefault = isDefault,
+                    IsActive = true,
+                    Label = addressInfo.Label,
+                    ContactName = addressInfo.ContactName,
+                    ContactPhone = addressInfo.ContactPhone,
+                    AddressLine1 = addressInfo.AddressLine1,
+                    AddressLine2 = addressInfo.AddressLine2,
+                    BuildingNumber = addressInfo.BuildingNumber,
+                    Floor = addressInfo.Floor,
+                    Apartment = addressInfo.Apartment,
+                    Landmark = addressInfo.Landmark,
+                    City = addressInfo.City,
+                    State = addressInfo.State,
+                    Country = addressInfo.Country ?? "Pakistan",
+                    PostalCode = addressInfo.PostalCode,
+                    Latitude = addressInfo.Latitude,
+                    Longitude = addressInfo.Longitude,
+                    DeliveryInstructions = addressInfo.DeliveryInstructions,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _context.CustomerAddresses.AddAsync(address);
+                await _context.SaveChangesAsync();
+                return address;
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw - return null to indicate failure
+                return null;
             }
         }
 

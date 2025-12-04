@@ -1,10 +1,10 @@
 <!-- Footer -->
 <footer class="main-footer">
   <div class="container">
-    <div class="row g-4">
+    <div class="row g-3">
       <!-- Left Section - Logo and Contact Info -->
       <div class="col-12 col-lg-6">
-        <div class="footer-logo mb-4">
+        <div class="footer-logo mb-2">
           <div class="logo-container">
             <div class="logo-circles">
               <span class="circle"></span>
@@ -35,7 +35,7 @@
           </div>
         </div>
 
-        <div class="app-downloads mt-4">
+        <div class="app-downloads mt-2">
           <a href="https://play.google.com/store" class="app-button" target="_blank" rel="noopener noreferrer">
             <div class="app-badge google-play">
               <div class="badge-content">
@@ -57,7 +57,7 @@
 
       <!-- Right Section - Timings, Social, Legal -->
       <div class="col-12 col-lg-6">
-        <div class="row g-4">
+        <div class="row g-3">
           <!-- Timings -->
           <div class="col-12 col-md-6">
             <h5 class="section-title">Our Timings</h5>
@@ -116,15 +116,6 @@
 
 <!-- Floating Action Buttons -->
 <div class="floating-buttons">
-  <!-- WhatsApp Button (shown only at top) -->
-  <button 
-    *ngIf="showWhatsApp"
-    class="floating-btn whatsapp-btn"
-    (click)="openWhatsApp()"
-    title="Contact us on WhatsApp">
-    <i class="bi bi-whatsapp"></i>
-  </button>
-
   <!-- Search Button (shown when scrolled down) -->
   <button 
     *ngIf="showSearch"
@@ -141,6 +132,15 @@
     (click)="scrollToTop()"
     title="Scroll to top">
     <i class="bi bi-chevron-up"></i>
+  </button>
+
+  <!-- WhatsApp Button (always shown - positioned at bottom) -->
+  <button 
+    *ngIf="showWhatsApp"
+    class="floating-btn whatsapp-btn"
+    (click)="openWhatsApp()"
+    title="Contact us on WhatsApp">
+    <i class="bi bi-whatsapp"></i>
   </button>
 </div>
 
