@@ -13,6 +13,7 @@ namespace DotNet_Starter_Template.Services.Interfaces
         Task<ApiResponse<PagedResult<TicketListViewModel>>> GetTicketsByStatusAsync(bool isClosed, PaginationRequest request);
         Task<ApiResponse<TicketDetailViewModel?>> GetTicketByIdAsync(int id);
         Task<ApiResponse<PagedResult<TicketListViewModel>>> GetCustomerOrdersAsync(int customerId, PaginationRequest request);
+        Task<ApiResponse<PagedResult<OrderListViewModel>>> GetAllOrdersAsync(PaginationRequest request);
     }
 }
 

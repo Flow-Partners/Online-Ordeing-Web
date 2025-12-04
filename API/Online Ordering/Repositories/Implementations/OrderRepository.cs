@@ -37,6 +37,19 @@ namespace DotNet_Starter_Template.Repositories.Implementations
 
             return maxOrderNumber + 1;
         }
+
+        public new async Task<IEnumerable<Order>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(o => o.Ticket)
+                    .ThenInclude(t => t!.Customer)
+                .Include(o => o.Ticket)
+                    .ThenInclude(t => t!.CustomerAddress)
+                .Include(o => o.MenuItem)
+                .Include(o => o.Portion)
+                .OrderByDescending(o => o.CreatedDateTime)
+                .ToListAsync();
+        }
     }
 }
 

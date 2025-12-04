@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["projects/client/src/app/features/settings/settings.component.scss"],
+  "sourcesContent": [".settings-container {\n  .card {\n    border: none;\n    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);\n\n    .card-header {\n      padding: 1.25rem;\n      border-bottom: 1px solid #e9ecef;\n\n      h5 {\n        font-weight: 600;\n        color: #2c3e50;\n      }\n    }\n  }\n\n  .form-check-label {\n    cursor: pointer;\n    padding-left: 0.5rem;\n\n    strong {\n      color: #2c3e50;\n    }\n  }\n\n  .form-check-input {\n    cursor: pointer;\n    \n    &:checked {\n      background-color: #0d6efd;\n      border-color: #0d6efd;\n    }\n  }\n\n  .form-label {\n    font-weight: 500;\n    color: #495057;\n  }\n\n  .btn {\n    padding: 0.75rem 1rem;\n    font-weight: 500;\n    transition: all 0.2s ease;\n\n    &:hover {\n      transform: translateY(-1px);\n    }\n\n    i {\n      font-size: 1.1rem;\n    }\n  }\n}\n"],
+  "mappings": ";AACE,CAAA,mBAAA,CAAA;AACE,UAAA;AACA,cAAA,EAAA,IAAA,IAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;;AAEA,CAJF,mBAIE,CAJF,KAIE,CAAA;AACE,WAAA;AACA,iBAAA,IAAA,MAAA;;AAEA,CARJ,mBAQI,CARJ,KAQI,CAJF,YAIE;AACE,eAAA;AACA,SAAA;;AAKN,CAfA,mBAeA,CAAA;AACE,UAAA;AACA,gBAAA;;AAEA,CAnBF,mBAmBE,CAJF,iBAIE;AACE,SAAA;;AAIJ,CAxBA,mBAwBA,CAAA;AACE,UAAA;;AAEA,CA3BF,mBA2BE,CAHF,gBAGE;AACE,oBAAA;AACA,gBAAA;;AAIJ,CAjCA,mBAiCA,CAAA;AACE,eAAA;AACA,SAAA;;AAGF,CAtCA,mBAsCA,CAAA;AACE,WAAA,QAAA;AACA,eAAA;AACA,cAAA,IAAA,KAAA;;AAEA,CA3CF,mBA2CE,CALF,GAKE;AACE,aAAA,WAAA;;AAGF,CA/CF,mBA+CE,CATF,IASE;AACE,aAAA;;",
+  "names": []
+}

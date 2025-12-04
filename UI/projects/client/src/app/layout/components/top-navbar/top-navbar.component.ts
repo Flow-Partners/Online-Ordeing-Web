@@ -4,29 +4,43 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { CustomerAuthService, CustomerAuthResponse } from '@core/services/customer-auth.service';
 import { CartService } from '@core/services/cart.service';
+import { CategoryService } from '@core/services/category.service';
 import { User } from '@models/user.model';
 import { CartItem } from '@models/menu-item.model';
+import { CategoryListViewModel } from '@models/category.model';
 import { ClickOutsideDirective } from '../../../shared/directives/click-outside.directive';
 import { Subject, takeUntil } from 'rxjs';
+import { ApiResponse } from '@models/api-response.model';
+import { PagedResult } from '@models/menu-item.model';
 
 @Component({
   selector: 'app-top-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, ClickOutsideDirective],
+  imports: [CommonModule, RouterModule, FormsModule, ClickOutsideDirective],
   templateUrl: './top-navbar.component.html',
   styleUrls: ['./top-navbar.component.scss']
 })
 export class TopNavbarComponent implements OnInit, OnDestroy {
   @Output() toggleSidebar = new EventEmitter<void>();
+  @Output() categorySelected = new EventEmitter<number | null>();
 
   currentUser: User | null = null;
   currentCustomer: CustomerAuthResponse | null = null;
   isUserMenuOpen = false;
-  isNotificationOpen = false;
   isCartOpen = false;
+  isLocationDropdownOpen = false;
   cartItems: CartItem[] = [];
   cartItemCount = 0;
   cartTotal = 0;
+  searchTerm = '';
+  
+  // Categories for header tabs
+  categories: CategoryListViewModel[] = [];
+  selectedCategoryId: number | null = null;
+  
+  // Location info
+  deliveryAddress = 'Ahmed Avenue, Lahore';
+  estimatedTime = '~ eta 45 min';
 
   private destroy$ = new Subject<void>();
 
@@ -54,11 +68,32 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
         this.cartItemCount = this.cartService.cartItemCount;
         this.cartTotal = this.cartService.cartTotal;
       });
+
+    // Load categories for header tabs
+    this.loadCategories();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadCategories(): void {
+    this.categoryService.getCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: ApiResponse<PagedResult<CategoryListViewModel>>) => {
+          if (response.success && response.data) {
+            const data = response.data as any;
+            this.categories = (data.items || data.Items || []).filter((cat: CategoryListViewModel) => cat.isVisible);
+            // Sort by display order
+            this.categories.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+          }
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+        }
+      });
   }
 
   onToggleSidebar(): void {
@@ -67,20 +102,30 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
 
   toggleUserMenu(): void {
     this.isUserMenuOpen = !this.isUserMenuOpen;
-    this.isNotificationOpen = false;
     this.isCartOpen = false;
-  }
-
-  toggleNotifications(): void {
-    this.isNotificationOpen = !this.isNotificationOpen;
-    this.isUserMenuOpen = false;
-    this.isCartOpen = false;
+    this.isLocationDropdownOpen = false;
   }
 
   toggleCart(): void {
     this.isCartOpen = !this.isCartOpen;
     this.isUserMenuOpen = false;
-    this.isNotificationOpen = false;
+    this.isLocationDropdownOpen = false;
+  }
+
+  toggleLocationDropdown(): void {
+    this.isLocationDropdownOpen = !this.isLocationDropdownOpen;
+    this.isUserMenuOpen = false;
+    this.isCartOpen = false;
+  }
+
+  selectCategory(categoryId: number | null): void {
+    this.selectedCategoryId = categoryId;
+    this.categorySelected.emit(categoryId);
+  }
+
+  onSearch(): void {
+    // Emit search event or navigate to search results
+    console.log('Searching for:', this.searchTerm);
   }
 
   onLogout(): void {
@@ -117,8 +162,8 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
 
   closeDropdowns(): void {
     this.isUserMenuOpen = false;
-    this.isNotificationOpen = false;
     this.isCartOpen = false;
+    this.isLocationDropdownOpen = false;
   }
 
   formatPrice(price: number): string {
@@ -126,7 +171,6 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   }
 
   getDeliveryCharges(): number {
-    // You can make this configurable or fetch from API
     return 200;
   }
 
@@ -156,4 +200,3 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     }
   }
 }
-

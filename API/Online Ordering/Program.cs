@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
+using Microsoft.Data.SqlClient;
 using DotNet_Starter_Template.Data;
 using DotNet_Starter_Template.Models.Entities;
 using DotNet_Starter_Template.Repositories.Interfaces;
@@ -179,10 +180,17 @@ try
     var app = builder.Build();
 
     // Configure the HTTP request pipeline
+    // IMPORTANT: Swagger must be configured BEFORE database operations
+    // so that Swagger UI is available even if database connection fails
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "DotNet Starter Template API v1");
+            c.RoutePrefix = "swagger";
+            c.DisplayRequestDuration();
+        });
     }
 
     // Add middleware
@@ -204,19 +212,94 @@ try
     // Map health checks
     app.MapHealthChecks("/health");
 
-    // Ensure database is migrated
-    using (var scope = app.Services.CreateScope())
+    // Ensure database exists and is migrated (with error handling to not block app startup)
+    try
     {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        try
+        using (var scope = app.Services.CreateScope())
         {
-            context.Database.Migrate();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            
+            try
+            {
+                // Extract database name from connection string
+                var databaseName = "FOO"; // Default database name
+                if (connectionString != null)
+                {
+                    var dbNameMatch = System.Text.RegularExpressions.Regex.Match(connectionString, @"Database=([^;]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    if (dbNameMatch.Success)
+                    {
+                        databaseName = dbNameMatch.Groups[1].Value.Trim();
+                    }
+                }
+
+                // Create connection string to master database to check/create the database
+                var masterConnectionString = connectionString?.Replace($"Database={databaseName}", "Database=master") 
+                    ?? "Server=localhost,1433;Database=master;User Id=sa;Password=FaisalShabbir@55;TrustServerCertificate=True;Encrypt=False;";
+
+                // Ensure the database exists
+                using (var masterConnection = new SqlConnection(masterConnectionString))
+                {
+                    masterConnection.Open();
+                    var command = masterConnection.CreateCommand();
+                    command.CommandText = $@"
+                        IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '{databaseName}')
+                        BEGIN
+                            CREATE DATABASE [{databaseName}];
+                            PRINT 'Database {databaseName} created successfully.';
+                        END
+                        ELSE
+                        BEGIN
+                            PRINT 'Database {databaseName} already exists.';
+                        END";
+                    command.ExecuteNonQuery();
+                    Log.Information($"Database '{databaseName}' ensured to exist.");
+                }
+
+                // Now connect to the actual database and run migrations
+                if (context.Database.CanConnect())
+                {
+                    Log.Information("Connected to database. Running migrations...");
+                    context.Database.Migrate();
+                    Log.Information("Database migration completed successfully");
+                }
+                else
+                {
+                    Log.Warning("Cannot connect to database after creation. Please check your connection string.");
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                Log.Error(sqlEx, $"SQL Server error: {sqlEx.Message}. Please check your SQL Server connection settings.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error during database initialization. Trying alternative method...");
+                try
+                {
+                    // Fallback: Try EnsureCreated if migrations fail
+                    if (!context.Database.CanConnect())
+                    {
+                        context.Database.EnsureCreated();
+                        Log.Information("Database created using EnsureCreated method");
+                    }
+                    else
+                    {
+                        context.Database.Migrate();
+                        Log.Information("Database migration completed successfully (fallback method)");
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    Log.Error(ex2, "Failed to create/migrate database. The application will continue but database operations may fail. Please check your SQL Server connection settings.");
+                }
+            }
         }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Database migration failed, trying to ensure database exists");
-            context.Database.EnsureCreated();
-        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during database initialization. Application will continue to start. Please check your SQL Server connection settings.");
     }
 
     // Ensure wwwroot/images directory exists

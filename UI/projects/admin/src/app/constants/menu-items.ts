@@ -47,6 +47,12 @@ export const MENU_ITEMS: MenuItem[] = [
     ]
   },
   {
+    label: 'Orders',
+    icon: 'bi-receipt',
+    route: '/orders',
+    roles: ['admin']
+  },
+  {
     label: 'Admin',
     icon: 'bi-shield-lock',
     roles: ['admin'],

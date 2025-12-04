@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["projects/client/src/app/layout/main-layout/main-layout.component.scss"],
+  "sourcesContent": [".main-wrapper {\n  min-height: 100vh;\n  background-color: #f8f9fa;\n}\n\n.main-content {\n  margin-top: 0; // Header is now sticky and positioned\n  padding-top: 0; // No padding needed as header is sticky\n  min-height: calc(100vh - 120px); // Account for header height\n  transition: margin-left 0.3s ease;\n\n  @media (max-width: 991.98px) {\n    margin-left: 0;\n  }\n}\n\n.content-container {\n  padding: 2rem;\n\n \n}\n\n\n\n"],
+  "mappings": ";AAAA,CAAA;AACE,cAAA;AACA,oBAAA;;AAGF,CAAA;AACE,cAAA;AACA,eAAA;AACA,cAAA,KAAA,MAAA,EAAA;AACA,cAAA,YAAA,KAAA;;AAEA,OAAA,CAAA,SAAA,EAAA;AANF,GAAA;AAOI,iBAAA;;;AAIJ,CAAA;AACE,WAAA;;",
+  "names": []
+}

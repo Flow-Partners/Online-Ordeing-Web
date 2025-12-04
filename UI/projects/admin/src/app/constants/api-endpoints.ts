@@ -33,6 +33,12 @@ export const API_ENDPOINTS = {
     TOGGLE_AVAILABILITY: (id: number) => `/MenuItems/${id}/toggle-availability`,
     BY_CATEGORY: (categoryId: number) => `/MenuItems/category/${categoryId}`,
     CHECK_NAME: '/MenuItems/check-name'
+  },
+  ORDERS: {
+    LIST: '/Orders/all',
+    GET: (id: number) => `/Orders/${id}`,
+    GET_BY_TICKET: (ticketId: number) => `/Orders/tickets/${ticketId}`,
+    UPDATE_STATUS: (id: number) => `/Orders/${id}/status`
   }
 };
 

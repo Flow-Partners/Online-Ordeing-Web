@@ -1,0 +1,146 @@
+<!-- Footer -->
+<footer class="main-footer">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Left Section - Logo and Contact Info -->
+      <div class="col-12 col-lg-6">
+        <div class="footer-logo mb-4">
+          <div class="logo-container">
+            <div class="logo-circles">
+              <span class="circle"></span>
+              <span class="circle"></span>
+              <span class="circle"></span>
+            </div>
+            <div class="logo-text">
+              <h2 class="logo-title">M21 KITCHEN</h2>
+              <p class="logo-subtitle">THE KITCHEN OF 21 CENTURY</p>
+            </div>
+            <i class="bi bi-mortarboard-fill logo-icon"></i>
+          </div>
+        </div>
+        
+        <div class="contact-info">
+          <h5 class="contact-title">M21 Kitchen</h5>
+          <div class="contact-item">
+            <i class="bi bi-whatsapp me-2"></i>
+            <span>WhatsApp: <a href="https://wa.me/923045777621" target="_blank" class="text-white">+923045777621</a></span>
+          </div>
+          <div class="contact-item">
+            <i class="bi bi-envelope me-2"></i>
+            <span>Email: <a href="mailto:m21kitchen&#64;gmail.com" class="text-white">m21kitchen&#64;gmail.com</a></span>
+          </div>
+          <div class="contact-item">
+            <i class="bi bi-geo-alt me-2"></i>
+            <span>Address: M21 Kitchen - Wapda Town, 230-C, PIA Road, Main Blvd, WAPDA Town, Lahore, 54000</span>
+          </div>
+        </div>
+
+        <div class="app-downloads mt-4">
+          <a href="https://play.google.com/store" class="app-button" target="_blank" rel="noopener noreferrer">
+            <div class="app-badge google-play">
+              <div class="badge-content">
+                <span class="badge-text">GET IT ON</span>
+                <span class="badge-title">Google Play</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://apps.apple.com" class="app-button" target="_blank" rel="noopener noreferrer">
+            <div class="app-badge app-store">
+              <div class="badge-content">
+                <span class="badge-text">Download on the</span>
+                <span class="badge-title">App Store</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Section - Timings, Social, Legal -->
+      <div class="col-12 col-lg-6">
+        <div class="row g-4">
+          <!-- Timings -->
+          <div class="col-12 col-md-6">
+            <h5 class="section-title">Our Timings</h5>
+            <div class="timings">
+              <p class="mb-1">Monday - Sunday</p>
+              <p class="mb-0"><strong>11:00 AM - 05:00 AM</strong></p>
+            </div>
+          </div>
+
+          <!-- Social Media -->
+          <div class="col-12 col-md-6">
+            <h5 class="section-title">Follow Us</h5>
+            <div class="social-links">
+              <a href="#" class="social-link facebook" target="_blank" title="Facebook">
+                <i class="bi bi-facebook"></i>
+              </a>
+              <a href="#" class="social-link instagram" target="_blank" title="Instagram">
+                <i class="bi bi-instagram"></i>
+              </a>
+              <a href="#" class="social-link twitter" target="_blank" title="Twitter/X">
+                <i class="bi bi-twitter"></i>
+              </a>
+              <a href="#" class="social-link youtube" target="_blank" title="YouTube">
+                <i class="bi bi-youtube"></i>
+              </a>
+              <a href="#" class="social-link tiktok" target="_blank" title="TikTok">
+                <i class="bi bi-tiktok"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Legal Links -->
+          <div class="col-12">
+            <div class="legal-links">
+              <a href="#" class="legal-link">Terms and conditions</a>
+              <span class="separator">|</span>
+              <a href="#" class="legal-link">Privacy Policy</a>
+              <span class="separator">|</span>
+              <a href="#" class="legal-link">Sitemap</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copyright Section -->
+    <div class="footer-divider"></div>
+    <div class="copyright-section">
+      <p class="copyright-text">
+        © 2025 Powered by
+        <span class="blink-logo">Blink Co.</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- Floating Action Buttons -->
+<div class="floating-buttons">
+  <!-- WhatsApp Button (shown only at top) -->
+  <button 
+    *ngIf="showWhatsApp"
+    class="floating-btn whatsapp-btn"
+    (click)="openWhatsApp()"
+    title="Contact us on WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+  </button>
+
+  <!-- Search Button (shown when scrolled down) -->
+  <button 
+    *ngIf="showSearch"
+    class="floating-btn search-btn"
+    (click)="openSearch()"
+    title="Search">
+    <i class="bi bi-search"></i>
+  </button>
+
+  <!-- Scroll to Top Button (shown when scrolled down) -->
+  <button 
+    *ngIf="showScrollTop"
+    class="floating-btn scroll-top-btn"
+    (click)="scrollToTop()"
+    title="Scroll to top">
+    <i class="bi bi-chevron-up"></i>
+  </button>
+</div>
+

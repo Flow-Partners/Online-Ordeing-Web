@@ -1,6 +1,9 @@
 <div class="main-wrapper">
   <!-- Top Navigation Bar -->
-  <app-top-navbar (toggleSidebar)="onToggleSidebar()"></app-top-navbar>
+  <app-top-navbar 
+    (toggleSidebar)="onToggleSidebar()"
+    (categorySelected)="onCategorySelected($event)">
+  </app-top-navbar>
 
   <!-- Side Navigation Bar -->
   <!-- <app-side-navbar></app-side-navbar> -->
@@ -11,5 +14,8 @@
       <router-outlet></router-outlet>
     </div>
   </main>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
 </div>
 

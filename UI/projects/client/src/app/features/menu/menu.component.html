@@ -41,8 +41,8 @@
     </div>
   </div>
 
-  <!-- Category Tabs Section -->
-  <div class="category-tabs-section w-100 mb-3 mb-md-2 mb-lg-4" *ngIf="categories.length > 0">
+  <!-- Category Tabs Section - Now moved to header, hidden here -->
+  <!-- <div class="category-tabs-section w-100 mb-3 mb-md-2 mb-lg-4" *ngIf="categories.length > 0">
     <div class="category-tabs-container d-flex align-items-center overflow-auto px-2 px-md-3">
       <button
         class="category-tab"
@@ -65,7 +65,7 @@
         <i class="bi bi-chevron-right"></i>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Loading -->
   <div *ngIf="loading" class="loading-container">
@@ -84,10 +84,10 @@
         
         <!-- Deals Grid for this Category -->
         <div class="deal-grid row g-2 g-md-3 d-md-grid">
-          <div *ngFor="let item of section.items" class="deal-card col-12 col-md-6 col-lg-4 me-3">
+          <div *ngFor="let item of section.items" class="deal-card col-12 col-md-6 col-lg-4 me-3" style="cursor: pointer;">
             
             <!-- LEFT: Image -->
-            <div class="deal-image d-flex align-items-center justify-content-center">
+            <div class="deal-image d-flex align-items-center justify-content-center" (click)="openProductPopup(item, $event)">
               <img 
                 [src]="getImageUrl(item.baseImageUrl)" 
                 [alt]="item.name"
@@ -97,9 +97,9 @@
             </div>
 
             <!-- RIGHT: Content -->
-            <div class="deal-content d-flex flex-column">
-              <div class="deal-header">
-                <h3 class="deal-title mb-2">{{ item.name }}</h3>
+            <div class="deal-content d-flex flex-column" (click)="openProductPopup(item, $event)">
+              <div class="deal-header" (click)="openProductPopup(item, $event)">
+                <h3 class="deal-title mb-2" (click)="openProductPopup(item, $event)">{{ item.name }}</h3>
                 <p class="deal-desc mb-2">
                   {{ truncateDescription(item.description) }}
                 </p>
@@ -113,15 +113,17 @@
               <div class="deal-footer d-flex align-items-center justify-content-between">
                 <button 
                   class="deal-btn btn" 
-                  (click)="addToCart(item)"
+                  (click)="addToCart(item); $event.stopPropagation()"
                   [disabled]="!item.isAvailable"
+                  type="button"
                 >
                   Add To Cart
                 </button>
                 <button 
                   class="fav-btn btn border-0 bg-transparent"
-                  (click)="toggleFavorite(item.id)"
+                  (click)="toggleFavorite(item.id); $event.stopPropagation()"
                   [class.active]="isFavorite(item.id)"
+                  type="button"
                 >
                   <i class="bi" 
                      [class.bi-heart]="!isFavorite(item.id)" 
@@ -144,3 +146,20 @@
     <h3>No menu items found</h3>
   </div>
 </div>
+
+
+<!-- Simple Popup (Single Portion) -->
+<app-product-popup-simple
+  *ngIf="showSimplePopup && selectedMenuItemDetail"
+  [menuItemDetail]="selectedMenuItemDetail!"
+  (close)="onClosePopup()"
+  (addToCart)="onAddToCartFromPopup($event)">
+</app-product-popup-simple>
+
+<!-- Complex Popup (Multiple Portions) -->
+<app-product-popup-complex
+  *ngIf="showComplexPopup && selectedMenuItemDetail"
+  [menuItemDetail]="selectedMenuItemDetail!"
+  (close)="onClosePopup()"
+  (addToCart)="onAddToCartFromPopup($event)">
+</app-product-popup-complex>

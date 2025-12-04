@@ -1,0 +1,68 @@
+<div class="popup-overlay" (click)="onClose()">
+  <div class="popup-container" (click)="$event.stopPropagation()">
+    <!-- Close Button -->
+    <button class="close-btn" (click)="onClose()" type="button">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="header-left">
+        <div class="logo-section">
+          <div class="logo-circles">
+            <span class="circle"></span>
+            <span class="circle"></span>
+            <span class="circle"></span>
+          </div>
+          <div class="logo-text">
+            <h2 class="logo-title">M21</h2>
+            <p class="logo-subtitle">KITCHEN</p>
+          </div>
+          <i class="bi bi-mortarboard-fill logo-icon"></i>
+        </div>
+      </div>
+      <div class="header-right">
+        <h1 class="deal-title">
+          <span class="deal-title-white">WINTER</span>
+          <span class="deal-title-blue">DEALS</span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- Deal Info -->
+    <div class="deal-info">
+      <div class="deal-number">Deal-03</div>
+      <div class="deal-description">
+        <p>{{ menuItemDetail.name }}</p>
+        <p *ngIf="menuItemDetail.description">{{ menuItemDetail.description }}</p>
+      </div>
+      <div class="deal-price-section">
+        <div class="deal-label">Winter Deal 3</div>
+        <div class="deal-price">{{ formatPrice(selectedPortionDetail?.price || 0) }}</div>
+      </div>
+    </div>
+
+    <!-- Food Images -->
+    <div class="food-images">
+      <img 
+        [src]="getImageUrl(menuItemDetail.baseImageUrl)" 
+        [alt]="menuItemDetail.name"
+        class="food-image"
+      />
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="quantity-selector">
+        <button class="qty-btn minus" (click)="decreaseQuantity()" type="button">-</button>
+        <span class="qty-value">{{ quantity }}</span>
+        <button class="qty-btn plus" (click)="increaseQuantity()" type="button">+</button>
+      </div>
+      <div class="total-price">{{ formatPrice(totalPrice) }}</div>
+      <button class="add-to-cart-btn" (click)="onAddToCart()" type="button">
+        Add To Cart
+      </button>
+    </div>
+  </div>
+</div>
+

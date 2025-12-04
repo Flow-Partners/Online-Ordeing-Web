@@ -1,0 +1,105 @@
+<div class="popup-overlay" (click)="onClose()">
+  <div class="popup-wrapper" (click)="$event.stopPropagation()">
+    <!-- Left Panel: Food Display -->
+    <div class="food-display-panel">
+      <div class="food-display-content">
+        <!-- Food Image -->
+        <div class="food-image-container">
+          <img 
+            [src]="getImageUrl(menuItemDetail.baseImageUrl)" 
+            [alt]="menuItemDetail.name"
+            class="food-main-image"
+          />
+        </div>
+        
+        <!-- Product Title -->
+        <div class="product-title-section">
+          <h2 class="product-title">{{ menuItemDetail.name }}</h2>
+        </div>
+        
+        <!-- Product Description -->
+        <div class="product-description-section">
+          <p class="product-description">{{ menuItemDetail.description || '' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Ordering Interface -->
+    <div class="ordering-panel">
+      <!-- Close Button -->
+      <button class="close-btn-top" (click)="onClose()" type="button">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <!-- Portion Sections -->
+      <div class="panel-content">
+        <div class="portions-container">
+          <!-- Each Portion as a Collapsible Section -->
+          <div *ngFor="let portion of getPortions()" class="portion-section">
+            <div class="portion-section-header" (click)="togglePortionCollapse(portion.id)">
+              <div class="header-left">
+                <h3 class="section-title">{{ portion.name }}</h3>
+                <span class="required-badge" *ngIf="!hasSelection(portion.id)">Required</span>
+                <span class="selected-badge" *ngIf="hasSelection(portion.id)">Selected</span>
+              </div>
+              <div class="header-right">
+                <i class="bi" 
+                   [class.bi-chevron-up]="!isPortionCollapsed(portion.id)" 
+                   [class.bi-chevron-down]="isPortionCollapsed(portion.id)">
+                </i>
+              </div>
+            </div>
+
+            <!-- Portion Details (Collapsible) -->
+            <div class="portion-details" [class.collapsed]="isPortionCollapsed(portion.id)">
+              <div class="portion-options">
+                <div 
+                  *ngFor="let detail of getPortionDetails(portion)" 
+                  class="portion-option"
+                  [class.selected]="isSelected(portion.id, detail.id)">
+                  <label class="portion-label">
+                    <input 
+                      type="radio" 
+                      [name]="'portion-' + portion.id" 
+                      [value]="detail.id"
+                      [checked]="isSelected(portion.id, detail.id)"
+                      (change)="selectPortionDetail(portion, detail)"
+                      class="portion-radio">
+                    <span class="portion-name">{{ detail.name }}</span>
+                    <span class="portion-price">{{ formatPrice(detail.price) }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions Field -->
+          <div class="instructions-section">
+            <h3 class="section-title">Instructions</h3>
+            <textarea 
+              class="instructions-input"
+              placeholder="e.g. No onions, extra spicy, etc."
+              [(ngModel)]="instructions"
+              rows="3">
+            </textarea>
+          </div>
+        </div>
+
+        <!-- Bottom Bar: Quantity, Add to Cart -->
+        <div class="bottom-bar">
+          <div class="quantity-selector">
+            <button class="qty-btn minus" (click)="decreaseQuantity()" type="button">-</button>
+            <span class="qty-value">{{ quantity }}</span>
+            <button class="qty-btn plus" (click)="increaseQuantity()" type="button">+</button>
+          </div>
+          <button class="add-to-cart-btn" (click)="onAddToCart()" type="button">
+            <span class="price-in-button">
+              <span *ngIf="showFromPrice()">from </span>{{ formatPrice(getCurrentPrice()) }}
+            </span>
+            <span class="button-text">Add To Cart</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
