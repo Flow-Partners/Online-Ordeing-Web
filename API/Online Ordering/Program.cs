@@ -111,6 +111,8 @@ try
     builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 
+
+
     // Register Menu Management repositories
     builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
     builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
