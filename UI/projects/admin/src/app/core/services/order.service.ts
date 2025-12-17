@@ -32,6 +32,82 @@ export interface OrderList {
   orderNumber: number;
 }
 
+export interface TicketDetailViewModel {
+  id: number;
+  ticketNumber?: string;
+  date: string;
+  lastUpdateTime: string;
+  lastOrderDate: string;
+  lastPaymentDate: string;
+  isClosed: boolean;
+  isLocked: boolean;
+  remainingAmount: number;
+  totalAmount: number;
+  departmentId: number;
+  ticketTypeId: number;
+  note?: string;
+  lastModifiedUserName?: string;
+  ticketTags?: string;
+  ticketStates?: string;
+  exchangeRate: number;
+  taxIncluded: boolean;
+  name?: string;
+  customerId?: number;
+  customer?: CustomerViewModel;
+  customerAddressId?: number;
+  customerAddress?: CustomerAddressViewModel;
+  orders: OrderItemViewModel[];
+}
+
+export interface CustomerViewModel {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone: string;
+  mobile?: string;
+  isActive: boolean;
+  isVerified: boolean;
+  loyaltyPoints: number;
+  totalOrders: number;
+  totalSpent: number;
+}
+
+export interface CustomerAddressViewModel {
+  id: number;
+  addressType: string;
+  isDefault: boolean;
+  label?: string;
+  contactName?: string;
+  contactPhone?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  buildingNumber?: string;
+  floor?: string;
+  apartment?: string;
+  landmark?: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode?: string;
+  latitude?: number;
+  longitude?: number;
+  deliveryInstructions?: string;
+}
+
+export interface OrderItemViewModel {
+  id: number;
+  menuItemId: number;
+  menuItemName: string;
+  portionId?: number;
+  portionName?: string;
+  portionDetailId?: number;
+  price: number;
+  quantity: number;
+  portionCount: number;
+  createdDateTime: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -74,6 +150,20 @@ export class OrderService {
    */
   getOrdersByTicketId(ticketId: number): Observable<ApiResponse<OrderList[]>> {
     return this.apiService.get<OrderList[]>(API_ENDPOINTS.ORDERS.GET_BY_TICKET(ticketId));
+  }
+
+  /**
+   * Update ticket status
+   */
+  updateTicketStatus(ticketId: number, status: string): Observable<ApiResponse<any>> {
+    return this.apiService.put<any>(API_ENDPOINTS.ORDERS.UPDATE_STATUS(ticketId), { status });
+  }
+
+  /**
+   * Get all tickets by status
+   */
+  getAllTicketsByStatus(ticketStatus: boolean): Observable<ApiResponse<TicketDetailViewModel[]>> {
+    return this.apiService.get<TicketDetailViewModel[]>(API_ENDPOINTS.ORDERS.GET_ALL_TICKETS_BY_STATUS(ticketStatus));
   }
 }
 

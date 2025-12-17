@@ -201,6 +201,71 @@ namespace DotNet_Starter_Template.Controllers
                 return StatusCode(500, ApiResponse<PagedResult<OrderListViewModel>>.ErrorResult("An error occurred while retrieving orders"));
             }
         }
+
+        [HttpPut("tickets/{ticketId}/status")]
+        public async Task<ActionResult<ApiResponse<Models.ViewModels.Tickets.TicketDetailViewModel?>>> UpdateTicketStatus(int ticketId, [FromBody] Models.DTOs.Orders.UpdateTicketStatusDto updateStatusDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = new List<string>();
+                    foreach (var key in ModelState.Keys)
+                    {
+                        var state = ModelState[key];
+                        if (state != null && state.Errors.Count > 0)
+                        {
+                            foreach (var error in state.Errors)
+                            {
+                                var errorMessage = string.IsNullOrEmpty(error.ErrorMessage) 
+                                    ? error.Exception?.Message ?? "Validation error" 
+                                    : error.ErrorMessage;
+                                errors.Add($"{key}: {errorMessage}");
+                            }
+                        }
+                    }
+                    
+                    _logger.LogWarning("Model validation failed for ticket status update. Errors: {Errors}", string.Join(" | ", errors));
+                    var errorResponse = ApiResponse<Models.ViewModels.Tickets.TicketDetailViewModel?>.ErrorResult("Validation failed", errors);
+                    return BadRequest(errorResponse);
+                }
+
+                var result = await _orderService.UpdateTicketStatusAsync(ticketId, updateStatusDto.Status);
+                
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating ticket status for ticket {TicketId}", ticketId);
+                return StatusCode(500, ApiResponse<Models.ViewModels.Tickets.TicketDetailViewModel?>.ErrorResult("An error occurred while updating ticket status"));
+            }
+        }
+
+        [HttpGet("tickets/all")]
+        public async Task<ActionResult<ApiResponse<List<Models.ViewModels.Tickets.TicketDetailViewModel>>>> GetAllTicketsByStatus([FromQuery] bool ticketStatus)
+        {
+            try
+            {
+                var result = await _orderService.GetAllTicketsByStatusAsync(ticketStatus);
+                
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all tickets by status");
+                return StatusCode(500, ApiResponse<List<Models.ViewModels.Tickets.TicketDetailViewModel>>.ErrorResult("An error occurred while retrieving tickets by status"));
+            }
+        }
     }
 }
 

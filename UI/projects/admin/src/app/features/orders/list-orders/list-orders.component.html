@@ -173,8 +173,17 @@
                 </div>
               </td>
               <td>
-                <span class="badge" [ngClass]="getStatusBadgeClass(order.ticketIsClosed)">
-                  {{ getStatusText(order.ticketIsClosed) }}
+                <select
+                  class="form-select form-select-sm status-dropdown"
+                  [ngClass]="getStatusBadgeClass(order.ticketIsClosed)"
+                  [disabled]="isUpdating(order.ticketId)"
+                  [value]="order.ticketIsClosed ? 'closed' : 'open'"
+                  (change)="onStatusChange(order, $event)">
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+                <span *ngIf="isUpdating(order.ticketId)" class="ms-2">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 </span>
               </td>
             </tr>

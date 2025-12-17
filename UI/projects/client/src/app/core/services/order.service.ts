@@ -104,6 +104,7 @@ export class OrderService {
    * Place an order
    */
   placeOrder(orderData: PlaceOrderDto): Observable<ApiResponse<OrderResponse>> {
+    debugger;
     return this.apiService.post<OrderResponse>('/Orders/place', orderData);
   }
 

@@ -63,35 +63,39 @@
                   {{ truncateDescription(item.description) }}
                 </p>
               </div>
+               
+              <div class="deal-footer-container">
+                <div class="deal-price">
+                  <span *ngIf="getItemPrice(item.id)">{{ formatPrice(getItemPrice(item.id)!) }}</span>
+                  <span *ngIf="!getItemPrice(item.id)" class="price-loading">Loading price...</span>
+                </div>
+                
+                <div class="deal-footer d-flex align-items-center justify-content-between">
+                  <button 
+                    class="deal-btn btn" 
+                    (click)="addToCart(item); $event.stopPropagation()"
+                    [disabled]="!item.isAvailable"
+                    type="button"
+                  >
+                    Add To Cart
+                  </button>
+                  <button 
+                    class="fav-btn btn border-0 bg-transparent"
+                    (click)="toggleFavorite(item.id); $event.stopPropagation()"
+                    [class.active]="isFavorite(item.id)"
+                    type="button"
+                  >
+                    <i class="bi" 
+                       [class.bi-heart]="!isFavorite(item.id)" 
+                       [class.bi-heart-fill]="isFavorite(item.id)">
+                    </i>
+                  </button>
+                </div>
+  
+  
 
-              <div class="deal-price">
-                <span *ngIf="getItemPrice(item.id)">{{ formatPrice(getItemPrice(item.id)!) }}</span>
-                <span *ngIf="!getItemPrice(item.id)" class="price-loading">Loading price...</span>
-              </div>
-              
-              <div class="deal-footer d-flex align-items-center justify-content-between">
-                <button 
-                  class="deal-btn btn" 
-                  (click)="addToCart(item); $event.stopPropagation()"
-                  [disabled]="!item.isAvailable"
-                  type="button"
-                >
-                  Add To Cart
-                </button>
-                <button 
-                  class="fav-btn btn border-0 bg-transparent"
-                  (click)="toggleFavorite(item.id); $event.stopPropagation()"
-                  [class.active]="isFavorite(item.id)"
-                  type="button"
-                >
-                  <i class="bi" 
-                     [class.bi-heart]="!isFavorite(item.id)" 
-                     [class.bi-heart-fill]="isFavorite(item.id)">
-                  </i>
-                </button>
-              </div>
+              </div> 
 
-              
             </div>
           </div>
         </div>

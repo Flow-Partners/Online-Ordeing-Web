@@ -39,8 +39,15 @@
             <div class="portion-section-header" (click)="togglePortionCollapse(portion.id)">
               <div class="header-left">
                 <h3 class="section-title">{{ portion.name }}</h3>
-                <span class="required-badge" *ngIf="!hasSelection(portion.id)">Required</span>
-                <span class="selected-badge" *ngIf="hasSelection(portion.id)">Selected</span>
+                <span class="select-any-badge" *ngIf="(portion.maxSelection || 1) > 1 && !isMaxSelected(portion.id)">
+                  {{ getSelectAnyText(portion) }}
+                </span>
+                <span class="required-badge" *ngIf="!isMaxSelected(portion.id)">
+                  {{ getRequiredText(portion) }}
+                </span>
+                <span class="selected-badge" *ngIf="isMaxSelected(portion.id)">
+                  Selected{{ getSelectionCount(portion.id) > 1 ? ' (' + getSelectionCount(portion.id) + ')' : '' }}
+                </span>
               </div>
               <div class="header-right">
                 <i class="bi" 
@@ -56,17 +63,18 @@
                 <div 
                   *ngFor="let detail of getPortionDetails(portion)" 
                   class="portion-option"
-                  [class.selected]="isSelected(portion.id, detail.id)">
+                  [class.selected]="isSelected(portion.id, detail.id)"
+                  [class.disabled]="(portion.maxSelection || 1) > 1 && !isSelected(portion.id, detail.id) && !canSelectMore(portion.id)">
                   <label class="portion-label">
                     <input 
-                      type="radio" 
-                      [name]="'portion-' + portion.id" 
+                      [type]="(portion.maxSelection || 1) > 1 ? 'checkbox' : 'radio'" 
+                      [name]="(portion.maxSelection || 1) > 1 ? ('portion-' + portion.id + '-' + detail.id) : ('portion-' + portion.id)" 
                       [value]="detail.id"
                       [checked]="isSelected(portion.id, detail.id)"
+                      [disabled]="(portion.maxSelection || 1) > 1 && !isSelected(portion.id, detail.id) && !canSelectMore(portion.id)"
                       (change)="selectPortionDetail(portion, detail)"
-                      class="portion-radio">
+                      class="portion-input">
                     <span class="portion-name">{{ detail.name }}</span>
-                    <span class="portion-price">{{ formatPrice(detail.price) }}</span>
                   </label>
                 </div>
               </div>
@@ -94,7 +102,7 @@
           </div>
           <button class="add-to-cart-btn" (click)="onAddToCart()" type="button">
             <span class="price-in-button">
-              <span *ngIf="showFromPrice()">from </span>{{ formatPrice(getCurrentPrice()) }}
+              <span *ngIf="showFromPrice()">from </span>{{ formatPrice(totalPrice) }}
             </span>
             <span class="button-text">Add To Cart</span>
           </button>

@@ -12,43 +12,43 @@
               <span class="circle"></span>
             </div>
             <div class="logo-text">
-              <h2 class="logo-title">M21 KITCHEN</h2>
-              <p class="logo-subtitle">THE KITCHEN OF 21 CENTURY</p>
+              <h2 class="logo-title">{{ config?.company?.logoTitle || 'M21 KITCHEN' }}</h2>
+              <p class="logo-subtitle">{{ config?.company?.logoSubtitle || 'THE KITCHEN OF 21 CENTURY' }}</p>
             </div>
             <i class="bi bi-mortarboard-fill logo-icon"></i>
           </div>
         </div>
         
         <div class="contact-info">
-          <h5 class="contact-title">M21 Kitchen</h5>
+          <h5 class="contact-title">{{ config.company.name }}</h5>
           <div class="contact-item">
             <i class="bi bi-whatsapp me-2"></i>
-            <span>WhatsApp: <a href="https://wa.me/923045777621" target="_blank" class="text-white">+923045777621</a></span>
+            <span>WhatsApp: <a [href]="'https://wa.me/' + config.contact.whatsapp.number" target="_blank" class="text-white">{{ config.contact.whatsapp.displayNumber }}</a></span>
           </div>
           <div class="contact-item">
             <i class="bi bi-envelope me-2"></i>
-            <span>Email: <a href="mailto:m21kitchen&#64;gmail.com" class="text-white">m21kitchen&#64;gmail.com</a></span>
+            <span>Email: <a [href]="'mailto:' + config.contact.email.address" class="text-white">{{ config.contact.email.displayAddress }}</a></span>
           </div>
           <div class="contact-item">
             <i class="bi bi-geo-alt me-2"></i>
-            <span>Address: M21 Kitchen - Wapda Town, 230-C, PIA Road, Main Blvd, WAPDA Town, Lahore, 54000</span>
+            <span>Address: {{ config.contact.address }}</span>
           </div>
         </div>
 
         <div class="app-downloads mt-2">
-          <a href="https://play.google.com/store" class="app-button" target="_blank" rel="noopener noreferrer">
+          <a *ngIf="config.appDownloads.googlePlay.enabled" [href]="config.appDownloads.googlePlay.url" class="app-button" target="_blank" rel="noopener noreferrer">
             <div class="app-badge google-play">
               <div class="badge-content">
-                <span class="badge-text">GET IT ON</span>
-                <span class="badge-title">Google Play</span>
+                <span class="badge-text">{{ config.appDownloads.googlePlay.text }}</span>
+                <span class="badge-title">{{ config.appDownloads.googlePlay.title }}</span>
               </div>
             </div>
           </a>
-          <a href="https://apps.apple.com" class="app-button" target="_blank" rel="noopener noreferrer">
+          <a *ngIf="config.appDownloads.appStore.enabled" [href]="config.appDownloads.appStore.url" class="app-button" target="_blank" rel="noopener noreferrer">
             <div class="app-badge app-store">
               <div class="badge-content">
-                <span class="badge-text">Download on the</span>
-                <span class="badge-title">App Store</span>
+                <span class="badge-text">{{ config.appDownloads.appStore.text }}</span>
+                <span class="badge-title">{{ config.appDownloads.appStore.title }}</span>
               </div>
             </div>
           </a>
@@ -62,8 +62,8 @@
           <div class="col-12 col-md-6">
             <h5 class="section-title">Our Timings</h5>
             <div class="timings">
-              <p class="mb-1">Monday - Sunday</p>
-              <p class="mb-0"><strong>11:00 AM - 05:00 AM</strong></p>
+              <p class="mb-1">{{ config.timings.days }}</p>
+              <p class="mb-0"><strong>{{ config.timings.hours }}</strong></p>
             </div>
           </div>
 
@@ -71,19 +71,19 @@
           <div class="col-12 col-md-6">
             <h5 class="section-title">Follow Us</h5>
             <div class="social-links">
-              <a href="#" class="social-link facebook" target="_blank" title="Facebook">
+              <a *ngIf="config.socialMedia.facebook.enabled" [href]="config.socialMedia.facebook.url" class="social-link facebook" target="_blank" [title]="config.socialMedia.facebook.title">
                 <i class="bi bi-facebook"></i>
               </a>
-              <a href="#" class="social-link instagram" target="_blank" title="Instagram">
+              <a *ngIf="config.socialMedia.instagram.enabled" [href]="config.socialMedia.instagram.url" class="social-link instagram" target="_blank" [title]="config.socialMedia.instagram.title">
                 <i class="bi bi-instagram"></i>
               </a>
-              <a href="#" class="social-link twitter" target="_blank" title="Twitter/X">
+              <a *ngIf="config.socialMedia.twitter.enabled" [href]="config.socialMedia.twitter.url" class="social-link twitter" target="_blank" [title]="config.socialMedia.twitter.title">
                 <i class="bi bi-twitter"></i>
               </a>
-              <a href="#" class="social-link youtube" target="_blank" title="YouTube">
+              <a *ngIf="config.socialMedia.youtube.enabled" [href]="config.socialMedia.youtube.url" class="social-link youtube" target="_blank" [title]="config.socialMedia.youtube.title">
                 <i class="bi bi-youtube"></i>
               </a>
-              <a href="#" class="social-link tiktok" target="_blank" title="TikTok">
+              <a *ngIf="config.socialMedia.tiktok.enabled" [href]="config.socialMedia.tiktok.url" class="social-link tiktok" target="_blank" [title]="config.socialMedia.tiktok.title">
                 <i class="bi bi-tiktok"></i>
               </a>
             </div>
@@ -92,11 +92,11 @@
           <!-- Legal Links -->
           <div class="col-12">
             <div class="legal-links">
-              <a href="#" class="legal-link">Terms and conditions</a>
-              <span class="separator">|</span>
-              <a href="#" class="legal-link">Privacy Policy</a>
-              <span class="separator">|</span>
-              <a href="#" class="legal-link">Sitemap</a>
+              <a *ngIf="config.legalLinks.termsAndConditions.enabled" [href]="config.legalLinks.termsAndConditions.url" class="legal-link">{{ config.legalLinks.termsAndConditions.text }}</a>
+              <span *ngIf="config.legalLinks.termsAndConditions.enabled && (config.legalLinks.privacyPolicy.enabled || config.legalLinks.sitemap.enabled)" class="separator">|</span>
+              <a *ngIf="config.legalLinks.privacyPolicy.enabled" [href]="config.legalLinks.privacyPolicy.url" class="legal-link">{{ config.legalLinks.privacyPolicy.text }}</a>
+              <span *ngIf="config.legalLinks.privacyPolicy.enabled && config.legalLinks.sitemap.enabled" class="separator">|</span>
+              <a *ngIf="config.legalLinks.sitemap.enabled" [href]="config.legalLinks.sitemap.url" class="legal-link">{{ config.legalLinks.sitemap.text }}</a>
             </div>
           </div>
         </div>
@@ -107,8 +107,8 @@
     <div class="footer-divider"></div>
     <div class="copyright-section">
       <p class="copyright-text">
-        © 2025 Powered by
-        <span class="blink-logo">Blink Co.</span>
+        © {{ config.copyright.year }} Powered by
+        <span class="blink-logo">{{ config.copyright.poweredBy }}</span>
       </p>
     </div>
   </div>

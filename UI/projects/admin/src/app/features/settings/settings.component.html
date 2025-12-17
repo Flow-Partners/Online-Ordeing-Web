@@ -118,13 +118,34 @@
             </select>
           </div>
 
-          <div class="mb-0">
+          <div class="mb-3">
             <label for="theme" class="form-label">Theme</label>
             <select class="form-select" id="theme" [(ngModel)]="settings.theme">
               <option value="light">Light</option>
               <option value="dark">Dark</option>
               <option value="auto">Auto</option>
             </select>
+          </div>
+
+          <div class="mb-0">
+            <label for="orderReceivedRefreshTime" class="form-label">
+              <i class="bi bi-arrow-repeat me-2"></i>
+              Order Received Refresh Time
+            </label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control"
+                id="orderReceivedRefreshTime"
+                [(ngModel)]="settings.orderReceivedRefreshTime"
+                (ngModelChange)="onRefreshTimeChange()"
+                min="0"
+                placeholder="Enter refresh time in seconds">
+              <span class="input-group-text">seconds</span>
+            </div>
+            <small class="form-text text-muted">
+              Page will automatically refresh every <strong>{{ settings.orderReceivedRefreshTime || 0 }}</strong> seconds. Set to 0 to disable auto-refresh.
+            </small>
           </div>
         </div>
       </div>
