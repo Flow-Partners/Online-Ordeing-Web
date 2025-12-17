@@ -948,6 +948,230 @@ namespace DotNet_Starter_Template.Services.Implementations
                 return ApiResponse<PagedResult<OrderListViewModel>>.ErrorResult($"Failed to get orders: {ex.Message}");
             }
         }
+
+        public async Task<ApiResponse<TicketDetailViewModel?>> UpdateTicketStatusAsync(int ticketId, string status)
+        {
+            try
+            {
+                var ticket = await _ticketRepository.GetByIdAsync(ticketId);
+                if (ticket == null)
+                {
+                    return ApiResponse<TicketDetailViewModel?>.ErrorResult("Ticket not found");
+                }
+
+                // Validate status
+                if (string.IsNullOrWhiteSpace(status) || 
+                    (status.ToLower() != "open" && status.ToLower() != "accept" && status.ToLower() != "closed"))
+                {
+                    return ApiResponse<TicketDetailViewModel?>.ErrorResult("Invalid status. Must be 'open', 'accept', or 'closed'");
+                }
+
+                // Update ticket status in TicketStates column
+                ticket.TicketStates = status.ToLower();
+                ticket.IsClosed = status.ToLower() == "closed";
+                ticket.LastUpdateTime = DateTime.UtcNow;
+                
+                // If closing the ticket, update payment date
+                if (status.ToLower() == "closed")
+                {
+                    ticket.LastPaymentDate = DateTime.UtcNow;
+                }
+
+                await _ticketRepository.UpdateAsync(ticket);
+
+                // Get updated ticket with all details
+                var updatedTicket = await _ticketRepository.GetByIdWithOrdersAsync(ticketId);
+                if (updatedTicket == null)
+                {
+                    return ApiResponse<TicketDetailViewModel?>.ErrorResult("Failed to retrieve updated ticket");
+                }
+
+                // Map to view model
+                var ticketDetail = new TicketDetailViewModel
+                {
+                    Id = updatedTicket.Id,
+                    TicketNumber = updatedTicket.TicketNumber,
+                    Date = updatedTicket.Date,
+                    LastUpdateTime = updatedTicket.LastUpdateTime,
+                    LastOrderDate = updatedTicket.LastOrderDate,
+                    LastPaymentDate = updatedTicket.LastPaymentDate,
+                    IsClosed = updatedTicket.IsClosed,
+                    IsLocked = updatedTicket.IsLocked,
+                    RemainingAmount = updatedTicket.RemainingAmount,
+                    TotalAmount = updatedTicket.TotalAmount,
+                    DepartmentId = updatedTicket.DepartmentId,
+                    TicketTypeId = updatedTicket.TicketTypeId,
+                    Note = updatedTicket.Note,
+                    LastModifiedUserName = updatedTicket.LastModifiedUserName,
+                    TicketTags = updatedTicket.TicketTags,
+                    TicketStates = updatedTicket.TicketStates,
+                    ExchangeRate = updatedTicket.ExchangeRate,
+                    TaxIncluded = updatedTicket.TaxIncluded,
+                    Name = updatedTicket.Name,
+                    CustomerId = updatedTicket.CustomerId,
+                    CustomerAddressId = updatedTicket.CustomerAddressId
+                };
+
+                // Map Customer details
+                if (updatedTicket.Customer != null)
+                {
+                    ticketDetail.Customer = new CustomerViewModel
+                    {
+                        Id = updatedTicket.Customer.Id,
+                        FirstName = updatedTicket.Customer.FirstName,
+                        LastName = updatedTicket.Customer.LastName,
+                        Email = updatedTicket.Customer.Email,
+                        Phone = updatedTicket.Customer.Phone,
+                        Mobile = updatedTicket.Customer.Mobile,
+                        IsActive = updatedTicket.Customer.IsActive,
+                        IsVerified = updatedTicket.Customer.IsVerified,
+                        LoyaltyPoints = updatedTicket.Customer.LoyaltyPoints,
+                        TotalOrders = updatedTicket.Customer.TotalOrders,
+                        TotalSpent = updatedTicket.Customer.TotalSpent
+                    };
+                }
+
+                // Map Customer Address details
+                if (updatedTicket.CustomerAddress != null)
+                {
+                    ticketDetail.CustomerAddress = new CustomerAddressViewModel
+                    {
+                        Id = updatedTicket.CustomerAddress.Id,
+                        AddressType = updatedTicket.CustomerAddress.AddressType,
+                        IsDefault = updatedTicket.CustomerAddress.IsDefault,
+                        Label = updatedTicket.CustomerAddress.Label,
+                        ContactName = updatedTicket.CustomerAddress.ContactName,
+                        ContactPhone = updatedTicket.CustomerAddress.ContactPhone,
+                        AddressLine1 = updatedTicket.CustomerAddress.AddressLine1,
+                        AddressLine2 = updatedTicket.CustomerAddress.AddressLine2,
+                        BuildingNumber = updatedTicket.CustomerAddress.BuildingNumber,
+                        Floor = updatedTicket.CustomerAddress.Floor,
+                        Apartment = updatedTicket.CustomerAddress.Apartment,
+                        Landmark = updatedTicket.CustomerAddress.Landmark,
+                        City = updatedTicket.CustomerAddress.City,
+                        State = updatedTicket.CustomerAddress.State,
+                        Country = updatedTicket.CustomerAddress.Country,
+                        PostalCode = updatedTicket.CustomerAddress.PostalCode,
+                        Latitude = updatedTicket.CustomerAddress.Latitude,
+                        Longitude = updatedTicket.CustomerAddress.Longitude,
+                        DeliveryInstructions = updatedTicket.CustomerAddress.DeliveryInstructions
+                    };
+                }
+
+                // Map Order details
+                ticketDetail.Orders = updatedTicket.Orders?.Select(o => new OrderItemViewModel
+                {
+                    Id = o.Id,
+                    MenuItemId = o.MenuItemId,
+                    MenuItemName = o.MenuItemName ?? o.MenuItem?.Name ?? "",
+                    PortionId = o.PortionId,
+                    PortionName = o.PortionName,
+                    PortionDetailId = o.PortionDetailId,
+                    Price = o.Price,
+                    Quantity = o.Quantity,
+                    PortionCount = o.PortionCount,
+                    CreatedDateTime = o.CreatedDateTime
+                }).OrderBy(o => o.CreatedDateTime).ToList() ?? new List<OrderItemViewModel>();
+
+                var statusText = status.ToLower() == "closed" ? "Closed" : status.ToLower() == "accept" ? "Accept" : "Open";
+                return ApiResponse<TicketDetailViewModel?>.SuccessResult(ticketDetail, $"Ticket status updated to {statusText}");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<TicketDetailViewModel?>.ErrorResult($"Failed to update ticket status: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<List<TicketDetailViewModel>>> GetAllTicketsByStatusAsync(bool ticketStatus)
+        {
+            try
+            {
+                var tickets = await _ticketRepository.GetByStatusWithDetailsAsync(ticketStatus);
+
+                var ticketDetails = tickets.Select(ticket => new TicketDetailViewModel
+                {
+                    Id = ticket.Id,
+                    TicketNumber = ticket.TicketNumber,
+                    Date = ticket.Date,
+                    LastUpdateTime = ticket.LastUpdateTime,
+                    LastOrderDate = ticket.LastOrderDate,
+                    LastPaymentDate = ticket.LastPaymentDate,
+                    IsClosed = ticket.IsClosed,
+                    IsLocked = ticket.IsLocked,
+                    RemainingAmount = ticket.RemainingAmount,
+                    TotalAmount = ticket.TotalAmount,
+                    DepartmentId = ticket.DepartmentId,
+                    TicketTypeId = ticket.TicketTypeId,
+                    Note = ticket.Note,
+                    LastModifiedUserName = ticket.LastModifiedUserName,
+                    TicketTags = ticket.TicketTags,
+                    TicketStates = ticket.TicketStates,
+                    ExchangeRate = ticket.ExchangeRate,
+                    TaxIncluded = ticket.TaxIncluded,
+                    Name = ticket.Name,
+                    CustomerId = ticket.CustomerId,
+                    CustomerAddressId = ticket.CustomerAddressId,
+                    // Map Customer details
+                    Customer = ticket.Customer != null ? new CustomerViewModel
+                    {
+                        Id = ticket.Customer.Id,
+                        FirstName = ticket.Customer.FirstName,
+                        LastName = ticket.Customer.LastName,
+                        Email = ticket.Customer.Email,
+                        Phone = ticket.Customer.Phone,
+                        Mobile = ticket.Customer.Mobile,
+                        IsActive = ticket.Customer.IsActive,
+                        IsVerified = ticket.Customer.IsVerified,
+                        LoyaltyPoints = ticket.Customer.LoyaltyPoints,
+                        TotalOrders = ticket.Customer.TotalOrders,
+                        TotalSpent = ticket.Customer.TotalSpent
+                    } : null,
+                    // Map Customer Address details
+                    CustomerAddress = ticket.CustomerAddress != null ? new CustomerAddressViewModel
+                    {
+                        Id = ticket.CustomerAddress.Id,
+                        AddressType = ticket.CustomerAddress.AddressType,
+                        IsDefault = ticket.CustomerAddress.IsDefault,
+                        Label = ticket.CustomerAddress.Label,
+                        ContactName = ticket.CustomerAddress.ContactName,
+                        ContactPhone = ticket.CustomerAddress.ContactPhone,
+                        AddressLine1 = ticket.CustomerAddress.AddressLine1,
+                        AddressLine2 = ticket.CustomerAddress.AddressLine2,
+                        BuildingNumber = ticket.CustomerAddress.BuildingNumber,
+                        Floor = ticket.CustomerAddress.Floor,
+                        Apartment = ticket.CustomerAddress.Apartment,
+                        Landmark = ticket.CustomerAddress.Landmark,
+                        City = ticket.CustomerAddress.City,
+                        State = ticket.CustomerAddress.State,
+                        Country = ticket.CustomerAddress.Country,
+                        PostalCode = ticket.CustomerAddress.PostalCode,
+                        Latitude = ticket.CustomerAddress.Latitude,
+                        Longitude = ticket.CustomerAddress.Longitude,
+                        DeliveryInstructions = ticket.CustomerAddress.DeliveryInstructions
+                    } : null,
+                    // Map Order details
+                    Orders = ticket.Orders?.Select(o => new OrderItemViewModel
+                    {
+                        Id = o.Id,
+                        MenuItemId = o.MenuItemId,
+                        MenuItemName = o.MenuItemName ?? o.MenuItem?.Name ?? "",
+                        PortionId = o.PortionId,
+                        PortionName = o.PortionName,
+                        PortionDetailId = o.PortionDetailId,
+                        Price = o.Price,
+                        Quantity = o.Quantity,
+                        PortionCount = o.PortionCount,
+                        CreatedDateTime = o.CreatedDateTime
+                    }).OrderBy(o => o.CreatedDateTime).ToList() ?? new List<OrderItemViewModel>()
+                }).ToList();
+
+                return ApiResponse<List<TicketDetailViewModel>>.SuccessResult(ticketDetails);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<List<TicketDetailViewModel>>.ErrorResult($"Failed to get tickets by status: {ex.Message}");
+            }
+        }
     }
 }
 

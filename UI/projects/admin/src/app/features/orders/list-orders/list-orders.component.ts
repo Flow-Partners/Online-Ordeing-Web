@@ -24,6 +24,7 @@ interface PagedResult<T> {
 export class ListOrdersComponent implements OnInit {
   orders: OrderList[] = [];
   isLoading = false;
+  updatingTicketIds = new Set<number>(); // Track which tickets are being updated
   currentPage = 1;
   pageSize = 10;
   totalCount = 0;
@@ -52,6 +53,7 @@ export class ListOrdersComponent implements OnInit {
       this.sortDescending
     ).subscribe({
       next: (response: ApiResponse<PagedResult<OrderList>>) => {
+        debugger;
         this.isLoading = false;
         if (response.success && response.data) {
           let orders = response.data.items || [];
@@ -158,6 +160,94 @@ export class ListOrdersComponent implements OnInit {
 
   getStatusText(isClosed: boolean): string {
     return isClosed ? 'Closed' : 'Open';
+  }
+
+  /**
+   * Handle status change from dropdown
+   */
+  onStatusChange(order: OrderList, event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value; // 'open' or 'closed'
+    
+    // Determine current status from ticketIsClosed
+    const currentStatus = order.ticketIsClosed ? 'closed' : 'open';
+    
+    // If status hasn't changed, do nothing
+    if (currentStatus === newStatus) {
+      // Reset dropdown to current value
+      target.value = currentStatus;
+      return;
+    }
+
+    this.updateTicketStatus(order, newStatus, target);
+  }
+
+  /**
+   * Update ticket status
+   */
+  updateTicketStatus(order: OrderList, status: string, selectElement?: HTMLSelectElement): void {
+    if (!order.ticketId) {
+      this.notificationService.error('Ticket ID is missing');
+      if (selectElement) {
+        selectElement.value = order.ticketIsClosed ? 'closed' : 'open';
+      }
+      return;
+    }
+
+    // Validate status
+    if (status !== 'open' && status !== 'closed') {
+      this.notificationService.error('Invalid status');
+      if (selectElement) {
+        selectElement.value = order.ticketIsClosed ? 'closed' : 'open';
+      }
+      return;
+    }
+
+    const statusText = status === 'closed' ? 'Closed' : 'Open';
+
+    // Add ticket to updating set
+    this.updatingTicketIds.add(order.ticketId);
+
+    this.orderService.updateTicketStatus(order.ticketId, status).subscribe({
+      next: (response: ApiResponse<any>) => {
+        this.updatingTicketIds.delete(order.ticketId);
+        
+        if (response.success) {
+          this.notificationService.success(`Order status updated to ${statusText}`);
+          // Update all orders with the same ticketId in the local array
+          this.orders.forEach(o => {
+            if (o.ticketId === order.ticketId) {
+              o.ticketIsClosed = status === 'closed';
+            }
+          });
+        } else {
+          this.notificationService.error(response.message || 'Failed to update order status');
+          // Reset dropdown on error
+          if (selectElement) {
+            selectElement.value = order.ticketIsClosed ? 'closed' : 'open';
+          }
+        }
+      },
+      error: (error: unknown) => {
+        this.updatingTicketIds.delete(order.ticketId);
+        console.error('Error updating ticket status:', error);
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to update order status';
+        this.notificationService.error(errorMessage);
+        // Reset dropdown on error
+        if (selectElement) {
+          selectElement.value = order.ticketIsClosed ? 'closed' : 'open';
+        }
+      }
+    });
+  }
+
+  /**
+   * Check if a ticket is being updated
+   */
+  isUpdating(ticketId: number): boolean {
+    return this.updatingTicketIds.has(ticketId);
   }
 }
 

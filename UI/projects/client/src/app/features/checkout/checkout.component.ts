@@ -8,6 +8,7 @@ import { MenuItemService } from '@core/services/menu-item.service';
 import { NotificationService } from '@core/services/notification.service';
 import { OrderService } from '@core/services/order.service';
 import { CustomerAuthService } from '@core/services/customer-auth.service';
+import { WhatsAppService } from '@core/services/whatsapp.service';
 
 @Component({
   selector: 'app-checkout',
@@ -31,7 +32,8 @@ export class CheckoutComponent implements OnInit {
     private notificationService: NotificationService,
     private router: Router,
     private orderService: OrderService,
-    private customerAuthService: CustomerAuthService
+    private customerAuthService: CustomerAuthService,
+    private whatsappService: WhatsAppService
   ) {
     this.initForm();
   }
@@ -70,11 +72,94 @@ export class CheckoutComponent implements OnInit {
   initForm(): void {
     this.checkoutForm = this.fb.group({
       fullName: ['', [Validators.required]],
-      mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
-      emailAddress: ['', [Validators.email]],
+      mobileNumber: ['', [Validators.required, this.mobileNumberValidator]],
+      emailAddress: ['', [this.emailValidator]], // Optional - only validate format if provided
       address: ['', [Validators.required]],
       specialInstructions: ['']
     });
+  }
+
+  
+   
+  private mobileNumberValidator(control: { value: string | null | undefined }) {
+    if (!control.value) {
+      return { required: true };
+    }
+
+    // Remove dashes and spaces for validation
+    const cleanValue = control.value.replace(/[-\s]/g, '');
+
+    // Check if empty
+    if (cleanValue.length === 0) {
+      return { required: true };
+    }
+
+    // Check if starts with 0
+    if (cleanValue.startsWith('0')) {
+      return { startsWithZero: true };
+    }
+
+    // Check if contains only digits
+    if (!/^\d+$/.test(cleanValue)) {
+      return { invalidCharacters: true };
+    }
+
+    // Check length (should be 10 digits)
+    if (cleanValue.length !== 10) {
+      return { invalidLength: true, actualLength: cleanValue.length };
+    }
+
+    return null; // Valid
+  }
+
+  /**
+   * Format mobile number as XXX-XXXXXXX
+   * Prevents leading zero
+   */
+  formatMobileNumber(value: string): string {
+    // Remove all non-digit characters
+    let digits = value.replace(/\D/g, '');
+
+    // Prevent leading zero - remove it if present
+    if (digits.startsWith('0')) {
+      digits = digits.substring(1);
+    }
+
+    // Limit to 10 digits
+    const limitedDigits = digits.substring(0, 10);
+
+    // Format as XXX-XXXXXXX
+    if (limitedDigits.length <= 3) {
+      return limitedDigits;
+    } else {
+      return `${limitedDigits.substring(0, 3)}-${limitedDigits.substring(3)}`;
+    }
+  }
+
+  /**
+   * Handle mobile number input
+   */
+  onMobileNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatMobileNumber(input.value);
+    
+    // Update form control value without triggering validation errors
+    this.checkoutForm.patchValue({ mobileNumber: formatted }, { emitEvent: false });
+    
+    // Set the input value directly to maintain cursor position
+    input.value = formatted;
+  }
+
+  /**
+   * Custom email validator - only validates format if email is provided
+   */
+  private emailValidator(control: { value: string | null | undefined }) {
+    if (!control.value || control.value.trim() === '') {
+      return null; // Empty is valid (optional field)
+    }
+    // Validate email format if provided
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(control.value) ? null : { email: true };
   }
 
   loadCartItems(): void {
@@ -151,180 +236,108 @@ export class CheckoutComponent implements OnInit {
     const formValue = this.checkoutForm.value;
 
     // Parse full name into first and last name
-    const nameParts = formValue.fullName.trim().split(' ').filter((part: string) => part.length > 0);
-    const firstName = nameParts[0] || formValue.fullName;
-    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ').trim() : null;
+    const nameParts = formValue.fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || undefined;
 
-    // Parse address - simple parsing (can be improved)
-    // Only include address if it's not empty
-    let addressInfo = undefined;
-    if (formValue.address && formValue.address.trim().length > 0) {
-      const addressParts = formValue.address.split(',');
-      const addressLine1 = addressParts[0]?.trim() || formValue.address.trim();
-      const city = addressParts.length > 1 
-        ? addressParts[addressParts.length - 1]?.trim() || 'Unknown'
-        : 'Unknown';
-      
-      // Only create address object if we have valid data
-      if (addressLine1.length > 0 && city.length > 0) {
-        const addressLine2 = addressParts.length > 2 ? addressParts.slice(1, -1).join(', ').trim() : '';
-        
-        addressInfo = {
-          addressType: 'Home',
-          addressLine1: addressLine1,
-          city: city,
-          country: 'Pakistan',
-          ...(addressLine2 && { addressLine2: addressLine2 }),
-          ...(formValue.specialInstructions && formValue.specialInstructions.trim() && { 
-            deliveryInstructions: formValue.specialInstructions.trim() 
-          })
-        };
-      }
-    }
-    
-    // Prepare customer info with address - remove undefined values
-    const customerInfo: any = {
+    // Parse address - try to extract city (last part after comma, or use default)
+    const addressParts = formValue.address.split(',').map((part: string) => part.trim());
+    const city = addressParts.length > 1 ? addressParts[addressParts.length - 1] : 'Unknown';
+
+    // Clean mobile number (remove dashes) before sending to API
+    const cleanMobileNumber = formValue.mobileNumber.replace(/[-\s]/g, '');
+
+    // Prepare customer info
+    const customerInfo = {
       firstName: firstName,
-      phone: formValue.mobileNumber,
-      mobile: formValue.mobileNumber
+      lastName: lastName,
+      email: formValue.emailAddress || undefined,
+      phone: cleanMobileNumber,
+      mobile: cleanMobileNumber,
+      address: {
+        addressLine1: formValue.address,
+        city: city,
+        country: 'Pakistan',
+        deliveryInstructions: formValue.specialInstructions || undefined
+      }
     };
-    
-    // Only add lastName if it exists and is not empty
-    if (lastName && lastName.length > 0) {
-      customerInfo.lastName = lastName;
-    }
-    
-    // Only add email if it exists
-    if (formValue.emailAddress && formValue.emailAddress.trim()) {
-      customerInfo.email = formValue.emailAddress.trim();
-    }
-    
-    // Only add address if it exists
-    if (addressInfo) {
-      customerInfo.address = addressInfo;
-    }
 
     // Convert cart items to order items
     const orderItems = this.orderService.convertCartItemsToOrderItems(this.cartItems);
 
-    // Prepare order data - API will create customer if it doesn't exist
-    // DO NOT send customerId - only send customerInfo
-    const orderData: any = {
-      // Explicitly do NOT include customerId - API will create customer from customerInfo
-      customerInfo: customerInfo, // Send customer info instead of customerId
+    // Prepare order data
+    const orderData = {
+      customerInfo: customerInfo,
       departmentId: this.orderService.getDefaultDepartmentId(),
       ticketTypeId: this.orderService.getDefaultTicketTypeId(),
       orderItems: orderItems,
+      note: formValue.specialInstructions || undefined,
       exchangeRate: 1,
-      taxIncluded: false
+      taxIncluded: false,
+      name: `Order from ${formValue.fullName}`
     };
-    
-    // Only add optional fields if they have values
-    if (formValue.specialInstructions && formValue.specialInstructions.trim()) {
-      orderData.note = formValue.specialInstructions.trim();
-    }
-    
-    if (formValue.fullName && formValue.fullName.trim()) {
-      orderData.name = formValue.fullName.trim();
-    }
 
-    // Debug log (remove in production)
-    console.log('=== PLACING ORDER ===');
-    console.log('Order data:', JSON.stringify(orderData, null, 2));
-    console.log('Order items:', orderItems);
-    console.log('Customer info:', customerInfo);
-    console.log('Order items count:', orderItems.length);
-    console.log('========================');
-
-    // Place the order - API will handle customer creation
+    debugger;
+    // Place order via API
     this.orderService.placeOrder(orderData).subscribe({
       next: (response) => {
-        this.isPlacingOrder = false;
-        
+        // Keep button disabled until we're done processing
         if (response.success && response.data) {
-          this.notificationService.success(`Order placed successfully! Ticket #${response.data.ticketNumber || response.data.ticketId}`);
+          const orderResponse = response.data;
+          
+          // Format order items for WhatsApp message
+          const whatsappOrderItems = orderResponse.orderItems.map(item => ({
+            name: item.menuItemName,
+            portion: item.portionName || 'Standard',
+            portionDetail: '',
+            quantity: item.quantity,
+            price: item.price
+          }));
+
+          // Prepare order details for WhatsApp with ticket number
+          const orderDetails = {
+            ticketNumber: orderResponse.ticketNumber || `#${orderResponse.ticketId}`,
+            customerName: formValue.fullName,
+            mobileNumber: cleanMobileNumber,
+            email: formValue.emailAddress || undefined,
+            address: formValue.address,
+            specialInstructions: formValue.specialInstructions || undefined,
+            paymentMethod: this.selectedPaymentMethod === 'cash' ? 'Cash On Delivery' : 'Credit/Debit Card, JazzCash, Easypaisa',
+            items: whatsappOrderItems,
+            subtotal: orderResponse.totalAmount,
+            deliveryCharges: this.getDeliveryCharges(),
+            grandTotal: orderResponse.totalAmount + this.getDeliveryCharges()
+          };
+
+          // Format and send WhatsApp message
+          const message = this.whatsappService.formatOrderMessage(orderDetails);
+          this.whatsappService.openWhatsApp(message);
+
+          // Show success notification
+          this.notificationService.success(`Order placed successfully! Ticket: ${orderResponse.ticketNumber || orderResponse.ticketId}`);
           
           // Clear cart
           this.cartService.clearCart();
           
-          // Navigate to order confirmation or dashboard
+          // Navigate after a short delay (button stays disabled during this time)
           setTimeout(() => {
-            this.router.navigate(['/menu'], { queryParams: { orderPlaced: 'true' } });
-          }, 1500);
+            this.isPlacingOrder = false;
+            this.router.navigate(['/menu'], { queryParams: { orderPlaced: 'success', ticketNumber: orderResponse.ticketNumber || orderResponse.ticketId } });
+          }, 2000);
         } else {
-          this.notificationService.error(response.message || 'Failed to place order');
+          // Re-enable button on error
+          this.isPlacingOrder = false;
+          this.notificationService.error(response.message || 'Failed to place order. Please try again.');
         }
       },
       error: (error) => {
+        // Re-enable button on error
         this.isPlacingOrder = false;
-        console.error('=== ORDER PLACEMENT ERROR ===');
-        console.error('Full error object:', error);
-        console.error('Error.error:', error.error);
-        console.error('Error.error.errors:', error.error?.errors);
-        if (error.error?.errors) {
-          console.error('Errors object keys:', Object.keys(error.error.errors));
-          console.error('Errors object full:', JSON.stringify(error.error.errors, null, 2));
-        }
-        console.error('Error status:', error.status);
-        console.error('Error statusText:', error.statusText);
-        console.error('============================');
-        
-        // Extract validation errors if available
-        let errorMessage = 'Failed to place order. Please try again.';
-        let validationErrors: string[] = [];
-        
-        if (error.error) {
-          // Check if it's an ApiResponse format
-          if (error.error.message) {
-            errorMessage = error.error.message;
-          }
-          
-          // Check for validation errors in ApiResponse format
-          if (error.error.errors && Array.isArray(error.error.errors)) {
-            validationErrors = error.error.errors;
-            if (validationErrors.length > 0) {
-              errorMessage = `Validation failed:\n${validationErrors.join('\n')}`;
-              console.error('Validation errors:', validationErrors);
-            }
-          }
-          // Check for validation errors in ASP.NET Core format
-          else if (error.error.errors && typeof error.error.errors === 'object') {
-            const errorObj = error.error.errors;
-            Object.keys(errorObj).forEach(key => {
-              const fieldErrors = errorObj[key];
-              if (Array.isArray(fieldErrors)) {
-                fieldErrors.forEach((err: string) => {
-                  validationErrors.push(`${key}: ${err}`);
-                });
-              } else if (typeof fieldErrors === 'string') {
-                validationErrors.push(`${key}: ${fieldErrors}`);
-              }
-            });
-            
-            if (validationErrors.length > 0) {
-              errorMessage = `Validation errors:\n${validationErrors.join('\n')}`;
-              console.error('Validation errors:', validationErrors);
-            }
-          }
-          
-          // Fallback to title or message
-          if (validationErrors.length === 0) {
-            errorMessage = error.error.message || error.error.title || errorMessage;
-          }
-        } else {
-          errorMessage = error.message || errorMessage;
-        }
-        
-        // Show error notification
-        if (validationErrors.length > 0) {
-          // Show first few validation errors
-          const displayMessage = validationErrors.length > 3 
-            ? `${validationErrors.slice(0, 3).join(', ')}... (${validationErrors.length} total errors)`
-            : validationErrors.join(', ');
-          this.notificationService.error(displayMessage);
-        } else {
-          this.notificationService.error(errorMessage);
-        }
+        console.error('Error placing order:', error);
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to place order. Please try again.';
+        this.notificationService.error(errorMessage);
       }
     });
   }
@@ -332,6 +345,32 @@ export class CheckoutComponent implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.checkoutForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  /**
+   * Get mobile number error message
+   */
+  getMobileNumberError(): string {
+    const field = this.checkoutForm.get('mobileNumber');
+    if (!field || !field.errors) {
+      return '';
+    }
+
+    if (field.errors['required']) {
+      return 'Mobile number is required';
+    }
+    if (field.errors['startsWithZero']) {
+      return 'Mobile number cannot start with 0';
+    }
+    if (field.errors['invalidCharacters']) {
+      return 'Mobile number must contain only digits';
+    }
+    if (field.errors['invalidLength']) {
+      const actualLength = field.errors['actualLength'];
+      return `Mobile number must be 10 digits (currently ${actualLength})`;
+    }
+
+    return 'Please enter a valid mobile number';
   }
 }
 

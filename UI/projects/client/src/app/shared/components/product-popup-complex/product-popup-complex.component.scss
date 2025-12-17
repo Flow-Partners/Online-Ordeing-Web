@@ -244,6 +244,16 @@
         color: #333333;
       }
 
+      .select-any-badge {
+        background-color: #ff6b35;
+        color: #ffffff;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: lowercase;
+      }
+
       .required-badge {
         background-color: #dc3545;
         color: #ffffff;
@@ -341,7 +351,7 @@
       background-color: #fff5f0;
     }
 
-    .portion-radio {
+    .portion-input {
       width: 20px;
       height: 20px;
       cursor: pointer;
@@ -366,6 +376,23 @@
     .portion-label {
       border-color: #ff6b35;
       background-color: #fff5f0;
+    }
+  }
+
+  &.disabled {
+    .portion-label {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: #f5f5f5;
+
+      &:hover {
+        border-color: #e0e0e0;
+        background-color: #f5f5f5;
+      }
+
+      .portion-input {
+        cursor: not-allowed;
+      }
     }
   }
 }

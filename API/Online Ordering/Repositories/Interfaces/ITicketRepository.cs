@@ -9,6 +9,7 @@ namespace DotNet_Starter_Template.Repositories.Interfaces
         Task<IEnumerable<Ticket>> GetByCustomerIdAsync(int customerId);
         Task<IEnumerable<Ticket>> GetByCustomerIdOrPhoneAsync(int customerId, string? customerPhone, string? customerEmail);
         Task<string> GenerateTicketNumberAsync();
+        Task<IEnumerable<Ticket>> GetByStatusWithDetailsAsync(bool isClosed);
     }
 }
 

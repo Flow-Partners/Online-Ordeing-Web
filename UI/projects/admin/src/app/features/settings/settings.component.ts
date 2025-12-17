@@ -20,7 +20,8 @@ export class SettingsComponent implements OnInit {
     productUpdates: true,
     language: 'en',
     timezone: 'UTC',
-    theme: 'light'
+    theme: 'light',
+    orderReceivedRefreshTime: 30 // Default 30 seconds
   };
 
   languages = [
@@ -53,10 +54,20 @@ export class SettingsComponent implements OnInit {
     if (savedSettings) {
       this.settings = { ...this.settings, ...savedSettings };
     }
+    
+    // Load refresh time from sessionStorage
+    const refreshTime = this.storageService.getSessionItem('orderReceivedRefreshTime');
+    if (refreshTime) {
+      this.settings.orderReceivedRefreshTime = parseInt(refreshTime, 10) || 30;
+    }
   }
 
   saveSettings(): void {
     this.storageService.setObject('app_settings', this.settings);
+    
+    // Save refresh time to sessionStorage
+    this.storageService.setSessionItem('orderReceivedRefreshTime', this.settings.orderReceivedRefreshTime.toString());
+    
     this.notificationService.success('Settings saved successfully!');
   }
 
@@ -69,10 +80,19 @@ export class SettingsComponent implements OnInit {
       productUpdates: true,
       language: 'en',
       timezone: 'UTC',
-      theme: 'light'
+      theme: 'light',
+      orderReceivedRefreshTime: 30
     };
     this.storageService.removeItem('app_settings');
+    this.storageService.removeSessionItem('orderReceivedRefreshTime');
     this.notificationService.info('Settings reset to defaults');
+  }
+
+  onRefreshTimeChange(): void {
+    // Save to sessionStorage immediately when value changes
+    if (this.settings.orderReceivedRefreshTime !== undefined && this.settings.orderReceivedRefreshTime !== null) {
+      this.storageService.setSessionItem('orderReceivedRefreshTime', this.settings.orderReceivedRefreshTime.toString());
+    }
   }
 }
 

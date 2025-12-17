@@ -127,6 +127,22 @@ namespace DotNet_Starter_Template.Repositories.Implementations
 
             return $"TKT-{today:yyyyMMdd}-001";
         }
+
+        public async Task<IEnumerable<Ticket>> GetByStatusWithDetailsAsync(bool isClosed)
+        {
+            return await _dbSet
+                .Include(t => t.Orders)
+                    .ThenInclude(o => o.MenuItem)
+                .Include(t => t.Orders)
+                    .ThenInclude(o => o.Portion)
+                .Include(t => t.Orders)
+                    .ThenInclude(o => o.PortionDetail)
+                .Include(t => t.Customer)
+                .Include(t => t.CustomerAddress)
+                .Where(t => t.IsClosed == isClosed)
+                .OrderByDescending(t => t.Date)
+                .ToListAsync();
+        }
     }
 }
 

@@ -38,7 +38,8 @@ export const API_ENDPOINTS = {
     LIST: '/Orders/all',
     GET: (id: number) => `/Orders/${id}`,
     GET_BY_TICKET: (ticketId: number) => `/Orders/tickets/${ticketId}`,
-    UPDATE_STATUS: (id: number) => `/Orders/${id}/status`
+    UPDATE_STATUS: (ticketId: number) => `/Orders/tickets/${ticketId}/status`,
+    GET_ALL_TICKETS_BY_STATUS: (ticketStatus: boolean) => `/Orders/tickets/all?ticketStatus=${ticketStatus}`
   }
 };
 

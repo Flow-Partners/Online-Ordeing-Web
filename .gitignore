@@ -13,3 +13,5 @@
 /UI/node_modules
 /UI/images/
 /.vs
+/Publish
+/UI/.vs
