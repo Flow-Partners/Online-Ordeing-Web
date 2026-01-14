@@ -43,11 +43,26 @@ export class CheckoutComponent implements OnInit {
   initForm(): void {
     this.checkoutForm = this.fb.group({
       fullName: ['', [Validators.required]],
-      mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
+      mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       emailAddress: ['', [Validators.email]],
       address: ['', [Validators.required]],
       specialInstructions: ['']
     });
+  }
+
+  onMobileNumberKeyPress(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    // Allow only numbers (0-9)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+      return;
+    }
+    // Prevent entering more than 10 digits
+    const input = event.target as HTMLInputElement;
+    if (input.value.length >= 10) {
+      event.preventDefault();
+      return;
+    }
   }
 
   loadCartItems(): void {

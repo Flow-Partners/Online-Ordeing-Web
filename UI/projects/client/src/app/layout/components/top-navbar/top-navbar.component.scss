@@ -1,32 +1,34 @@
-.main-header {
+// Sticky Header Wrapper
+.header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  width: 100%;
   background-color: #000000;
   color: #ffffff;
-  width: 100%;
+}
 
-  // Container to match product alignment (max-width: 1400px, centered)
-  .header-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 5rem;
+// Container to match product alignment (max-width: 1400px, centered)
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5rem;
 
-    @media (max-width: 768px) {
-      padding: 0 0.5rem;
-    }
-
-    @media (max-width: 480px) {
-      padding: 0 0.25rem;
-    }
+  @media (max-width: 768px) {
+    padding: 0 0.5rem;
   }
 
-  // Section 1: Top Header (Logo, Location, Cart, Auth)
-  .header-top-section {
-    background-color: #000000;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #333333;
-    position: sticky;
-    top: 0;
-    z-index: 1032;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  @media (max-width: 480px) {
+    padding: 0 0.25rem;
+  }
+}
+
+// Section 1: Top Header (Logo, Location, Cart, Auth)
+.header-top-section {
+  background-color: #000000;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #333333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
     .header-top-content {
       display: flex;
@@ -76,29 +78,29 @@
 
         .logo-text {
           .logo-title {
-            font-size: 2.2rem;
+            font-size: 1.75rem;
             font-weight: 900;
             color: #ffd700;
             margin: 0;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             font-family: 'Arial Black', sans-serif;
             line-height: 1;
           }
 
           .logo-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: #ffffff;
             margin: 0;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             font-weight: 300;
           }
         }
 
         .logo-icon {
-          font-size: 1.5rem;
+          font-size: 1.25rem;
           color: #ffd700;
-          margin-left: 0.5rem;
+          margin-left: 0.4rem;
         }
       }
     }
@@ -116,7 +118,7 @@
         color: #ffffff;
         display: flex;
         align-items: center;
-        padding: 0.5rem 0;
+        padding: 0.3rem 0;
         cursor: pointer;
         transition: color 0.2s ease;
 
@@ -125,7 +127,7 @@
         }
 
         i {
-          font-size: 1.1rem;
+          font-size: 1rem;
           color: #ffffff;
         }
 
@@ -136,21 +138,21 @@
           margin-left: 0.5rem;
 
           .location-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #ffffff;
             display: flex;
             align-items: center;
             gap: 0.25rem;
 
             i {
-              font-size: 0.7rem;
+              font-size: 0.65rem;
             }
           }
 
           .location-address {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #cccccc;
-            margin-top: 0.25rem;
+            margin-top: 0.2rem;
           }
         }
       }
@@ -188,8 +190,8 @@
           background: transparent;
           border: none;
           color: #ffd700;
-          font-size: 1.5rem;
-          padding: 0.5rem;
+          font-size: 1.35rem;
+          padding: 0.35rem;
           cursor: pointer;
           position: relative;
           transition: color 0.2s ease;
@@ -220,11 +222,11 @@
         .signin-btn {
           background-color: #8B4513;
           color: #ffffff;
-          padding: 0.5rem 1.25rem;
+          padding: 0.4rem 1rem;
           border-radius: 4px;
           text-decoration: none;
           font-weight: 500;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           transition: all 0.2s ease;
           white-space: nowrap;
 
@@ -251,8 +253,8 @@
             }
 
             .profile-avatar {
-              width: 40px;
-              height: 40px;
+              width: 36px;
+              height: 36px;
               border-radius: 50%;
               object-fit: cover;
               border: 2px solid #ffd700;
@@ -263,15 +265,12 @@
     }
   }
 
-  // Section 2: Category Tabs Navigation
-  .header-categories-section {
-    background-color: #000000;
-    padding: 0;
-    border-bottom: 1px solid #333333;
-    position: sticky;
-    top: 60px; // Position below section 1 (adjust based on section 1 height)
-    z-index: 1031;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+// Section 2: Category Tabs Navigation
+.header-categories-section {
+  background-color: #000000;
+  padding: 0;
+  border-bottom: 1px solid #333333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 
     .category-tabs-container {
       display: flex;
@@ -280,7 +279,7 @@
       scroll-behavior: smooth;
       scrollbar-width: none;
       -ms-overflow-style: none;
-      padding: 0.75rem 0;
+      padding: 0.5rem 0;
       gap: 0;
 
       &::-webkit-scrollbar {
@@ -291,12 +290,12 @@
         background: transparent;
         border: none;
         border-radius: 0;
-        padding: 0.5rem 1.25rem;
+        padding: 0.4rem 1rem;
         white-space: nowrap;
         cursor: pointer;
         transition: all 0.2s ease;
         font-weight: 500;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         color: #ffffff;
         flex-shrink: 0;
         min-width: fit-content;
@@ -339,10 +338,10 @@
     }
   }
 
-  // Section 3: Search Bar
-  .header-search-section {
+// Section 3: Search Bar (Not Sticky)
+.header-search-section {
     background-color: #f5f5f5;
-    padding: 1.5rem 0;
+    padding: 0.75rem 0;
     border-bottom: 1px solid #e0e0e0;
 
     .search-container {
@@ -356,7 +355,7 @@
         position: absolute;
         left: 0.5rem;
         color: #999999;
-        font-size: 1.2rem;
+        font-size: 1rem;
         z-index: 1;
       }
 
@@ -366,8 +365,8 @@
         border: none;
         border-bottom: 1px solid #cccccc;
         color: #333333;
-        padding: 0.75rem 0.5rem 0.75rem 2.5rem;
-        font-size: 1.1rem;
+        padding: 0.5rem 0.5rem 0.5rem 2rem;
+        font-size: 0.95rem;
         outline: none;
         transition: border-color 0.2s ease;
 
@@ -380,10 +379,10 @@
         }
       }
     }
-  }
+}
 
-  // Cart Dropdown Styles
-  .cart-dropdown {
+// Cart Dropdown Styles
+.cart-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
@@ -637,10 +636,10 @@
         }
       }
     }
-  }
+}
 
-  // User Dropdown
-  .user-dropdown {
+// User Dropdown
+.user-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
@@ -700,118 +699,118 @@
         }
       }
     }
-  }
 }
 
 // Responsive Design
 @media (max-width: 1200px) {
-  .main-header {
-    .header-top-section {
-      .header-top-content {
-        gap: 1rem;
-      }
+  .header-top-section {
+    .header-top-content {
+      gap: 1rem;
+    }
 
-      .header-logo {
-        min-width: 150px;
+    .header-logo {
+      min-width: 150px;
 
-        .logo-container {
-          .logo-text {
-            .logo-title {
-              font-size: 1.8rem;
-            }
+      .logo-container {
+        .logo-text {
+          .logo-title {
+            font-size: 1.65rem;
           }
         }
       }
-
-      .header-location {
-        min-width: 180px;
-      }
     }
 
-    .header-categories-section {
-      .category-tabs-container {
-        .category-tab {
-          padding: 0.5rem 0.75rem;
-          font-size: 0.85rem;
-        }
+    .header-location {
+      min-width: 180px;
+    }
+  }
+
+  .header-categories-section {
+    .category-tabs-container {
+      .category-tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
       }
     }
   }
 }
 
 @media (max-width: 768px) {
-  .main-header {
-    .header-top-section {
-      padding: 0.5rem 0;
+  .header-top-section {
+    padding: 0.35rem 0;
 
-      .header-top-content {
-        flex-wrap: wrap;
-        gap: 0.75rem;
-      }
+    .header-top-content {
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
 
-      .header-left-group {
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
+    .header-left-group {
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
 
-      .header-logo {
-        min-width: 120px;
+    .header-logo {
+      min-width: 120px;
 
-        .logo-container {
-          gap: 0.5rem;
+      .logo-container {
+        gap: 0.5rem;
 
-          .logo-text {
-            .logo-title {
-              font-size: 1.5rem;
-            }
-
-            .logo-subtitle {
-              font-size: 0.65rem;
-            }
+        .logo-text {
+          .logo-title {
+            font-size: 1.4rem;
           }
 
-          .logo-icon {
-            font-size: 1.2rem;
+          .logo-subtitle {
+            font-size: 0.6rem;
           }
         }
-      }
 
-      .header-location {
-        min-width: auto;
-
-        .location-btn {
-          .location-text {
-            .location-label {
-              font-size: 0.75rem;
-            }
-
-            .location-address {
-              font-size: 0.7rem;
-            }
-          }
+        .logo-icon {
+          font-size: 1.1rem;
         }
       }
+    }
 
-      .header-right {
-        gap: 0.75rem;
+    .header-location {
+      min-width: auto;
 
-        .auth-wrapper {
-          .signin-btn {
-            padding: 0.4rem 0.9rem;
-            font-size: 0.8rem;
+      .location-btn {
+        .location-text {
+          .location-label {
+            font-size: 0.7rem;
+          }
+
+          .location-address {
+            font-size: 0.65rem;
           }
         }
       }
     }
 
-    .header-search-section {
-      padding: 1rem 0;
+    .header-right {
+      gap: 0.75rem;
 
-      .search-container {
-        .search-input {
-          font-size: 1rem;
-          padding: 0.5rem 0.5rem 0.5rem 2rem;
+      .auth-wrapper {
+        .signin-btn {
+          padding: 0.35rem 0.8rem;
+          font-size: 0.75rem;
         }
+      }
+    }
+  }
+
+  .header-search-section {
+    padding: 0.6rem 0;
+
+    .search-container {
+      .search-input {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.4rem 0.4rem 1.8rem;
+      }
+
+      .search-icon {
+        font-size: 0.9rem;
+        left: 0.4rem;
       }
     }
   }

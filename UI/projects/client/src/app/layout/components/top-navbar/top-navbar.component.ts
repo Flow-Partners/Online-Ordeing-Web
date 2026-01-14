@@ -65,6 +65,13 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
 
     // Load categories for header tabs
     this.loadCategories();
+
+    // Subscribe to active category changes from menu scroll spy
+    this.categoryService.getActiveCategoryId()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(activeCategoryId => {
+        this.selectedCategoryId = activeCategoryId;
+      });
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,6 @@
-<!-- Header Section -->
-<header class="main-header">
-  <!-- Section 1: Logo, Location, Cart, Auth -->
+<!-- Sticky Header Container -->
+<div class="header-wrapper">
+  <!-- Section 1: Top Header (Logo, Location, Cart, Auth) - Sticky -->
   <div class="header-top-section">
     <div class="header-container">
       <div class="header-top-content">
@@ -189,7 +189,7 @@
     </div>
   </div>
 
-  <!-- Section 2: Category Tabs Navigation -->
+  <!-- Section 2: Category Tabs Navigation - Sticky -->
   <div class="header-categories-section">
     <div class="header-container">
       <div class="category-tabs-container">
@@ -214,19 +214,19 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Section 3: Search Bar -->
-  <div class="header-search-section">
-    <div class="header-container">
-      <div class="search-container">
-        <i class="bi bi-search search-icon"></i>
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Search for Kabab St"
-          [(ngModel)]="searchTerm"
-          (keyup.enter)="onSearch()">
-      </div>
+<!-- Section 3: Search Bar (Not Sticky) -->
+<div class="header-search-section">
+  <div class="header-container">
+    <div class="search-container">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search for Kabab St"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()">
     </div>
   </div>
-</header>
+</div>
