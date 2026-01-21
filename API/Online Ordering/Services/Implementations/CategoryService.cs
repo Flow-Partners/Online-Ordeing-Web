@@ -251,6 +251,44 @@ namespace DotNet_Starter_Template.Services.Implementations
             }
         }
 
+        public async Task<ApiResponse<bool>> UpdateCategoryOrderAsync(UpdateCategoryOrderDto updateOrderDto)
+        {
+            try
+            {
+                if (updateOrderDto.Categories == null || !updateOrderDto.Categories.Any())
+                {
+                    return ApiResponse<bool>.ErrorResult("Categories list cannot be empty");
+                }
+
+                // Validate all categories exist
+                var categoryIds = updateOrderDto.Categories.Select(c => c.Id).ToList();
+                var existingCategories = await _categoryRepository.GetByIdsAsync(categoryIds);
+                
+                if (existingCategories.Count() != categoryIds.Count)
+                {
+                    return ApiResponse<bool>.ErrorResult("One or more categories not found");
+                }
+
+                // Update display order for each category
+                foreach (var orderItem in updateOrderDto.Categories)
+                {
+                    var category = existingCategories.FirstOrDefault(c => c.Id == orderItem.Id);
+                    if (category != null)
+                    {
+                        category.DisplayOrder = orderItem.DisplayOrder;
+                        category.UpdatedAt = DateTime.UtcNow;
+                        await _categoryRepository.UpdateAsync(category);
+                    }
+                }
+
+                return ApiResponse<bool>.SuccessResult(true, "Category order updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.ErrorResult($"Failed to update category order: {ex.Message}");
+            }
+        }
+
         private CategoryDetailViewModel MapToCategoryDetailViewModel(Category category)
         {
             return new CategoryDetailViewModel
