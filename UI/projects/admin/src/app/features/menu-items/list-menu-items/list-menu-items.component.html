@@ -8,13 +8,22 @@
         </h2>
         <p class="text-muted mb-0">Manage your menu items and pricing</p>
       </div>
-      <button
-        type="button"
-        class="btn btn-primary"
-        routerLink="/menu-items/create">
-        <i class="bi bi-plus-circle me-1"></i>
-        Create Menu Item
-      </button>
+      <div class="d-flex gap-2">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="openCategoryOrderModal()">
+          <i class="bi bi-sort-alpha-down me-1"></i>
+          Set Category Order
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          routerLink="/menu-items/create">
+          <i class="bi bi-plus-circle me-1"></i>
+          Create Menu Item
+        </button>
+      </div>
     </div>
   </div>
 
@@ -182,4 +191,128 @@
     </div>
   </div>
 </div>
+
+<!-- Category Order Modal -->
+<div class="modal fade" [class.show]="showCategoryOrderModal" [style.display]="showCategoryOrderModal ? 'block' : 'none'" 
+     tabindex="-1" role="dialog" [attr.aria-hidden]="!showCategoryOrderModal" [attr.aria-modal]="showCategoryOrderModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-sort-alpha-down me-2"></i>
+          Set Category Order
+        </h5>
+        <button type="button" class="btn-close" (click)="closeCategoryOrderModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info" role="alert">
+          <i class="bi bi-info-circle me-2"></i>
+          Drag categories up/down or change the order number to reorder. Categories will appear in this order on the client menu.
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoadingCategories" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-3">Loading categories...</p>
+        </div>
+
+        <!-- Categories List -->
+        <div *ngIf="!isLoadingCategories">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 80px;">Order #</th>
+                  <th style="width: 100px;">Actions</th>
+                  <th>Category Name</th>
+                  <th>Description</th>
+                  <th style="width: 100px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="categories.length === 0">
+                  <td colspan="5" class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                    <p class="text-muted mb-0">No categories found</p>
+                  </td>
+                </tr>
+                <tr *ngFor="let category of categories; let i = index">
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="category.displayOrder"
+                      (change)="onOrderChange(category)"
+                      min="1"
+                      [max]="categories.length"
+                      style="width: 70px;">
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="moveCategoryUp(i)"
+                        [disabled]="i === 0"
+                        title="Move Up">
+                        <i class="bi bi-arrow-up"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="moveCategoryDown(i)"
+                        [disabled]="i === categories.length - 1"
+                        title="Move Down">
+                        <i class="bi bi-arrow-down"></i>
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <strong>{{ category.name }}</strong>
+                  </td>
+                  <td>
+                    <span class="text-muted small">
+                      {{ category.description || 'No description' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [class.bg-success]="category.isVisible" [class.bg-secondary]="!category.isVisible">
+                      {{ category.isVisible ? 'Visible' : 'Hidden' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeCategoryOrderModal()"
+          [disabled]="isSavingOrder">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveCategoryOrder()"
+          [disabled]="!hasOrderChanged() || isSavingOrder || isLoadingCategories">
+          <span *ngIf="!isSavingOrder">
+            <i class="bi bi-save me-1"></i>
+            Save Order
+          </span>
+          <span *ngIf="isSavingOrder">
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            Saving...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showCategoryOrderModal" *ngIf="showCategoryOrderModal" (click)="closeCategoryOrderModal()"></div>
 
