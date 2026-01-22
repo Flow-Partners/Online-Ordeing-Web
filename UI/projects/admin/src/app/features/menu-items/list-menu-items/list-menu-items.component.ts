@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItemService, MenuItemList } from '@core/services/menu-item.service';
+import { Category } from '@models/menu-item.model';
 import { NotificationService } from '@core/services/notification.service';
 import { ApiResponse } from '@models/api-response.model';
 import { environment } from '@environments/environment';
@@ -30,6 +31,13 @@ export class ListMenuItemsComponent implements OnInit {
   totalCount = 0;
   totalPages = 0;
   searchText = '';
+  
+  // Category order modal
+  showCategoryOrderModal = false;
+  categories: Category[] = [];
+  isLoadingCategories = false;
+  isSavingOrder = false;
+  originalOrder: Map<number, number> = new Map();
 
   constructor(
     private menuItemService: MenuItemService,
@@ -169,6 +177,144 @@ export class ListMenuItemsComponent implements OnInit {
     if (placeholder && placeholder.classList.contains('menu-item-placeholder')) {
       placeholder.classList.remove('d-none');
     }
+  }
+
+  /**
+   * Open category order modal
+   */
+  openCategoryOrderModal(): void {
+    this.showCategoryOrderModal = true;
+    this.loadCategories();
+  }
+
+  /**
+   * Close category order modal
+   */
+  closeCategoryOrderModal(): void {
+    this.showCategoryOrderModal = false;
+    this.categories = [];
+    this.originalOrder.clear();
+  }
+
+  /**
+   * Load categories for ordering
+   */
+  loadCategories(): void {
+    this.isLoadingCategories = true;
+    this.menuItemService.getCategories().subscribe({
+      next: (response: ApiResponse<Category[]>) => {
+        this.isLoadingCategories = false;
+        if (response.success && response.data) {
+          // Sort by display order
+          this.categories = response.data.sort((a, b) => a.displayOrder - b.displayOrder);
+          // Store original order
+          this.categories.forEach(cat => {
+            this.originalOrder.set(cat.id, cat.displayOrder);
+          });
+        } else {
+          this.categories = [];
+        }
+      },
+      error: (error: unknown) => {
+        this.isLoadingCategories = false;
+        console.error('Error loading categories:', error);
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to load categories';
+        this.notificationService.error(errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Move category up
+   */
+  moveCategoryUp(index: number): void {
+    if (index > 0) {
+      const temp = this.categories[index].displayOrder;
+      this.categories[index].displayOrder = this.categories[index - 1].displayOrder;
+      this.categories[index - 1].displayOrder = temp;
+      this.categories = [...this.categories].sort((a, b) => a.displayOrder - b.displayOrder);
+      // Reassign sequential orders
+      this.categories.forEach((cat, idx) => {
+        cat.displayOrder = idx + 1;
+      });
+    }
+  }
+
+  /**
+   * Move category down
+   */
+  moveCategoryDown(index: number): void {
+    if (index < this.categories.length - 1) {
+      const temp = this.categories[index].displayOrder;
+      this.categories[index].displayOrder = this.categories[index + 1].displayOrder;
+      this.categories[index + 1].displayOrder = temp;
+      this.categories = [...this.categories].sort((a, b) => a.displayOrder - b.displayOrder);
+      // Reassign sequential orders
+      this.categories.forEach((cat, idx) => {
+        cat.displayOrder = idx + 1;
+      });
+    }
+  }
+
+  /**
+   * Handle order number change
+   */
+  onOrderChange(category: Category): void {
+    // Reorder all categories
+    this.categories = [...this.categories].sort((a, b) => a.displayOrder - b.displayOrder);
+    // Reassign sequential orders
+    this.categories.forEach((cat, index) => {
+      cat.displayOrder = index + 1;
+    });
+  }
+
+  /**
+   * Save category order
+   */
+  saveCategoryOrder(): void {
+    this.isSavingOrder = true;
+    
+    const updateOrderDto = {
+      categories: this.categories.map((cat, index) => ({
+        id: cat.id,
+        displayOrder: index + 1
+      }))
+    };
+
+    this.menuItemService.updateCategoryOrder(updateOrderDto).subscribe({
+      next: (response: ApiResponse<boolean>) => {
+        this.isSavingOrder = false;
+        if (response.success) {
+          this.notificationService.success('Category order saved successfully');
+          // Update original order
+          this.categories.forEach(cat => {
+            this.originalOrder.set(cat.id, cat.displayOrder);
+          });
+          this.closeCategoryOrderModal();
+        } else {
+          this.notificationService.error(response.message || 'Failed to save category order');
+        }
+      },
+      error: (error: unknown) => {
+        this.isSavingOrder = false;
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to save category order';
+        this.notificationService.error(errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Check if order has changed
+   */
+  hasOrderChanged(): boolean {
+    return this.categories.some(cat => {
+      const original = this.originalOrder.get(cat.id);
+      return original !== undefined && original !== cat.displayOrder;
+    });
   }
 }
 

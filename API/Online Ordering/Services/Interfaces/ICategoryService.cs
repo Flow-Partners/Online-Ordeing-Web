@@ -13,6 +13,7 @@ namespace DotNet_Starter_Template.Services.Interfaces
         Task<ApiResponse<bool>> DeleteCategoryAsync(int id);
         Task<ApiResponse<bool>> ToggleVisibilityAsync(int id, bool isVisible);
         Task<ApiResponse<bool>> IsNameUniqueAsync(string name, int? excludeId = null);
+        Task<ApiResponse<bool>> UpdateCategoryOrderAsync(UpdateCategoryOrderDto updateOrderDto);
     }
 }
 

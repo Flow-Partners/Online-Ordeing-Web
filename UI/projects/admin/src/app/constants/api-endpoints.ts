@@ -22,7 +22,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/Categories/${id}`,
     DELETE: (id: number) => `/Categories/${id}`,
     TOGGLE_VISIBILITY: (id: number) => `/Categories/${id}/toggle-visibility`,
-    CHECK_NAME: '/Categories/check-name'
+    CHECK_NAME: '/Categories/check-name',
+    UPDATE_ORDER: '/Categories/update-order'
   },
   MENU_ITEMS: {
     LIST: '/MenuItems',
