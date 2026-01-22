@@ -93,6 +93,13 @@ export class MenuItemService {
   getMenuItemById(id: number): Observable<ApiResponse<MenuItemDetail>> {
     return this.apiService.get<MenuItemDetail>(API_ENDPOINTS.MENU_ITEMS.GET(id));
   }
+
+  /**
+   * Update category order
+   */
+  updateCategoryOrder(orderData: { categories: Array<{ id: number; displayOrder: number }> }): Observable<ApiResponse<boolean>> {
+    return this.apiService.put<boolean>(API_ENDPOINTS.CATEGORIES.UPDATE_ORDER, orderData);
+  }
 }
 
 export interface MenuItemList {

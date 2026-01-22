@@ -47,6 +47,13 @@ namespace DotNet_Starter_Template.Repositories.Implementations
         {
             return await _dbSet.FirstOrDefaultAsync(c => c.Name == name);
         }
+
+        public async Task<IEnumerable<Category>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _dbSet
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync();
+        }
     }
 }
 
