@@ -24,7 +24,8 @@ namespace DotNet_Starter_Template.Repositories.Implementations
         {
             return await _dbSet
                 .Where(mi => mi.CategoryId == categoryId)
-                .OrderBy(mi => mi.Name)
+                .OrderBy(mi => mi.DisplayOrder)
+                .ThenBy(mi => mi.Name)
                 .ToListAsync();
         }
 
@@ -49,6 +50,13 @@ namespace DotNet_Starter_Template.Repositories.Implementations
         public async Task<bool> CategoryExistsAsync(int categoryId)
         {
             return await _context.Categories.AnyAsync(c => c.Id == categoryId);
+        }
+
+        public async Task<IEnumerable<MenuItem>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _dbSet
+                .Where(mi => ids.Contains(mi.Id))
+                .ToListAsync();
         }
     }
 }

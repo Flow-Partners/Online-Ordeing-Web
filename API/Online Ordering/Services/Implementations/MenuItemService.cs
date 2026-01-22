@@ -46,6 +46,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                     BaseImageUrl = mi.BaseImageUrl,
                     IsAvailable = mi.IsAvailable,
                     PreparationTime = mi.PreparationTime,
+                    DisplayOrder = mi.DisplayOrder,
                     CreatedAt = mi.CreatedAt,
                     PortionCount = mi.Portions?.Count ?? 0
                 }).ToList();
@@ -118,6 +119,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                     BaseImageUrl = menuItem.BaseImageUrl,
                     IsAvailable = menuItem.IsAvailable,
                     PreparationTime = menuItem.PreparationTime,
+                    DisplayOrder = menuItem.DisplayOrder,
                     CreatedAt = menuItem.CreatedAt,
                     UpdatedAt = menuItem.UpdatedAt,
                     CreatedBy = menuItem.CreatedBy,
@@ -297,6 +299,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                     BaseImageUrl = mi.BaseImageUrl,
                     IsAvailable = mi.IsAvailable,
                     PreparationTime = mi.PreparationTime,
+                    DisplayOrder = mi.DisplayOrder,
                     CreatedAt = mi.CreatedAt,
                     PortionCount = mi.Portions?.Count ?? 0
                 }).ToList();
@@ -824,6 +827,55 @@ namespace DotNet_Starter_Template.Services.Implementations
             catch (Exception ex)
             {
                 return ApiResponse<MenuItemDetailViewModel>.ErrorResult($"Failed to create/update menu item with price: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse<bool>> UpdateMenuItemOrderAsync(UpdateMenuItemOrderDto updateOrderDto)
+        {
+            try
+            {
+                if (updateOrderDto.MenuItems == null || !updateOrderDto.MenuItems.Any())
+                {
+                    return ApiResponse<bool>.ErrorResult("Menu items list cannot be empty");
+                }
+
+                // Verify category exists
+                if (!await _categoryRepository.CategoryExistsAsync(updateOrderDto.CategoryId))
+                {
+                    return ApiResponse<bool>.ErrorResult("Category not found");
+                }
+
+                var menuItemIds = updateOrderDto.MenuItems.Select(mi => mi.Id).ToList();
+                var existingMenuItems = await _menuItemRepository.GetByIdsAsync(menuItemIds);
+
+                // Verify all menu items exist and belong to the category
+                if (existingMenuItems.Count() != menuItemIds.Count)
+                {
+                    return ApiResponse<bool>.ErrorResult("One or more menu items not found");
+                }
+
+                if (existingMenuItems.Any(mi => mi.CategoryId != updateOrderDto.CategoryId))
+                {
+                    return ApiResponse<bool>.ErrorResult("One or more menu items do not belong to the specified category");
+                }
+
+                // Update display order for each menu item
+                foreach (var orderItem in updateOrderDto.MenuItems)
+                {
+                    var menuItem = existingMenuItems.FirstOrDefault(mi => mi.Id == orderItem.Id);
+                    if (menuItem != null)
+                    {
+                        menuItem.DisplayOrder = orderItem.DisplayOrder;
+                        menuItem.UpdatedAt = DateTime.UtcNow;
+                        await _menuItemRepository.UpdateAsync(menuItem);
+                    }
+                }
+
+                return ApiResponse<bool>.SuccessResult(true, "Menu item order updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.ErrorResult($"Failed to update menu item order: {ex.Message}");
             }
         }
     }

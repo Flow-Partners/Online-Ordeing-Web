@@ -29,6 +29,9 @@ namespace DotNet_Starter_Template.Models.Entities
         public int PreparationTime { get; set; } = 0;
 
         [Required]
+        public int DisplayOrder { get; set; } = 0;
+
+        [Required]
         [Column(TypeName = "datetime2")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

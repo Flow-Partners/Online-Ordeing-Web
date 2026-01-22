@@ -854,7 +854,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                 await _context.SaveChangesAsync();
                 return address;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log error but don't throw - return null to indicate failure
                 return null;

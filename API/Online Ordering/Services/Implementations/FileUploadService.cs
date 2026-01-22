@@ -63,10 +63,10 @@ namespace DotNet_Starter_Template.Services.Implementations
             return imageUrl;
         }
 
-        public async Task<bool> DeleteImageAsync(string imageUrl)
+        public Task<bool> DeleteImageAsync(string imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
-                return false;
+                return Task.FromResult(false);
 
             try
             {
@@ -83,7 +83,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                 {
                     File.Delete(filePath);
                     _logger.LogInformation("Image deleted successfully: {ImageUrl}", imageUrl);
-                    return true;
+                    return Task.FromResult(true);
                 }
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace DotNet_Starter_Template.Services.Implementations
                 _logger.LogError(ex, "Error deleting image: {ImageUrl}", imageUrl);
             }
 
-            return false;
+            return Task.FromResult(false);
         }
 
         public string GetImageUrl(string fileName, string folderName)

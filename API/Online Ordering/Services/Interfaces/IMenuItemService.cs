@@ -16,6 +16,7 @@ namespace DotNet_Starter_Template.Services.Interfaces
         Task<ApiResponse<bool>> IsNameUniqueInCategoryAsync(int categoryId, string name, int? excludeId = null);
         Task<ApiResponse<MenuItemDetailViewModel>> CreateMenuItemWithPriceAsync(CreateMenuItemWithPriceDto createDto);
         Task<ApiResponse<MenuItemDetailViewModel>> CreateOrUpdateMenuItemWithPriceAsync(CreateMenuItemWithPriceDto dto);
+        Task<ApiResponse<bool>> UpdateMenuItemOrderAsync(UpdateMenuItemOrderDto updateOrderDto);
     }
 }
 
