@@ -1,6 +1,6 @@
-<!-- Sticky Header Container -->
+<!-- Sticky Header Container - Contains only top header section -->
 <div class="header-wrapper">
-  <!-- Section 1: Top Header (Logo, Location, Cart, Auth) - Sticky -->
+  <!-- Section 1: Top Header (Logo, Location, Cart, Auth) -->
   <div class="header-top-section">
     <div class="header-container">
       <div class="header-top-content">
@@ -198,7 +198,7 @@
       </div>
     </div>
   </div>
-</header>
+</div>
 
 <!-- Slider Section (after header-top-section, not sticky) -->
 <div class="slider-container w-100" *ngIf="sliderImages && sliderImages.length > 0 && !isCheckoutPage && !isOrdersPage">
@@ -226,43 +226,42 @@
     <button class="slider-nav-btn slider-next d-none d-md-flex" (click)="nextSlide()" aria-label="Next slide" type="button">
       <i class="bi bi-chevron-right"></i>
     </button>
-  </div>
-  
-  <!-- Slider Indicators -->
-  <div class="slider-indicators d-flex justify-content-center py-2 py-md-3">
-    <button 
-      *ngFor="let image of sliderImages; let i = index"
-      class="slider-indicator"
-      [class.active]="i === currentSlideIndex"
-      (click)="goToSlide(i)"
-      [attr.aria-label]="'Go to slide ' + (i + 1)"
-      type="button"
-    ></button>
+    
+    <!-- Slider Indicators - Inside the image -->
+    <div class="slider-indicators d-flex justify-content-center">
+      <button 
+        *ngFor="let image of sliderImages; let i = index"
+        class="slider-indicator"
+        [class.active]="i === currentSlideIndex"
+        (click)="goToSlide(i)"
+        [attr.aria-label]="'Go to slide ' + (i + 1)"
+        type="button"
+      ></button>
+    </div>
   </div>
 </div>
 
-  <!-- Section 2: Category Tabs Navigation - Sticky -->
-  <div class="header-categories-section">
-    <div class="header-container">
-      <div class="category-tabs-container">
-        <button
-          class="category-tab"
-          [class.active]="selectedCategoryId === null"
-          (click)="selectCategory(null)"
-          type="button">
-          All
-        </button>
-        <button
-          *ngFor="let category of categories"
-          class="category-tab"
-          [class.active]="selectedCategoryId === category.id"
-          (click)="selectCategory(category.id)"
-          type="button">
-          {{ category.name }}
-        </button>
-        <div class="category-arrow">
-          <i class="bi bi-chevron-right"></i>
-        </div>
+<!-- Section 2: Category Tabs Navigation - Sticky (placed below slider) -->
+<div class="header-categories-section">
+  <div class="header-container">
+    <div class="category-tabs-container" #categoryTabsContainer>
+      <button
+        class="category-tab"
+        [class.active]="selectedCategoryId === null"
+        (click)="selectCategory(null)"
+        type="button">
+        All
+      </button>
+      <button
+        *ngFor="let category of categories"
+        class="category-tab"
+        [class.active]="selectedCategoryId === category.id"
+        (click)="selectCategory(category.id)"
+        type="button">
+        {{ category.name }}
+      </button>
+      <div class="category-arrow">
+        <i class="bi bi-chevron-right"></i>
       </div>
     </div>
   </div>
