@@ -1,6 +1,9 @@
 using DotNet_Starter_Template.Services.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace DotNet_Starter_Template.Services.Implementations
 {
@@ -9,6 +12,11 @@ namespace DotNet_Starter_Template.Services.Implementations
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<FileUploadService> _logger;
         private const string BaseUrl = "/images";
+        
+        // Image compression settings
+        private const int MaxWidth = 1920;
+        private const int MaxHeight = 1920;
+        private const int JpegQuality = 85;
 
         public FileUploadService(IWebHostEnvironment environment, ILogger<FileUploadService> logger)
         {
@@ -46,14 +54,54 @@ namespace DotNet_Starter_Template.Services.Implementations
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            // Generate unique filename
-            var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+            // Generate unique filename - always use .jpg for compressed images
+            var uniqueFileName = $"{Guid.NewGuid()}.jpg";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            // Save file
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(fileStream);
+                // Compress and resize image
+                using (var imageStream = file.OpenReadStream())
+                using (var image = await Image.LoadAsync(imageStream))
+                {
+                    var originalWidth = image.Width;
+                    var originalHeight = image.Height;
+                    
+                    // Calculate new dimensions while maintaining aspect ratio
+                    var (newWidth, newHeight) = CalculateDimensions(originalWidth, originalHeight, MaxWidth, MaxHeight);
+                    
+                    // Resize if needed
+                    if (originalWidth > MaxWidth || originalHeight > MaxHeight)
+                    {
+                        image.Mutate(x => x.Resize(new ResizeOptions
+                        {
+                            Size = new Size(newWidth, newHeight),
+                            Mode = ResizeMode.Max,
+                            Sampler = KnownResamplers.Lanczos3
+                        }));
+                        _logger.LogInformation("Image resized from {OriginalWidth}x{OriginalHeight} to {NewWidth}x{NewHeight}", 
+                            originalWidth, originalHeight, newWidth, newHeight);
+                    }
+
+                    // Save compressed image as JPEG
+                    var encoder = new JpegEncoder
+                    {
+                        Quality = JpegQuality
+                    };
+
+                    await image.SaveAsync(filePath, encoder);
+                    
+                    var fileInfo = new FileInfo(filePath);
+                    _logger.LogInformation("Image compressed and saved: {ImageUrl}, Original size: {OriginalSize}KB, Compressed size: {CompressedSize}KB", 
+                        $"{BaseUrl}/{folderName}/{uniqueFileName}", 
+                        file.Length / 1024, 
+                        fileInfo.Length / 1024);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing image: {FileName}", file.FileName);
+                throw new ArgumentException($"Failed to process image: {ex.Message}");
             }
 
             // Return URL path (relative to wwwroot)
@@ -97,6 +145,22 @@ namespace DotNet_Starter_Template.Services.Implementations
         public string GetImageUrl(string fileName, string folderName)
         {
             return $"{BaseUrl}/{folderName}/{fileName}";
+        }
+
+        private (int width, int height) CalculateDimensions(int originalWidth, int originalHeight, int maxWidth, int maxHeight)
+        {
+            // If image is smaller than max dimensions, return original
+            if (originalWidth <= maxWidth && originalHeight <= maxHeight)
+            {
+                return (originalWidth, originalHeight);
+            }
+
+            // Calculate scaling factor
+            var widthRatio = (double)maxWidth / originalWidth;
+            var heightRatio = (double)maxHeight / originalHeight;
+            var ratio = Math.Min(widthRatio, heightRatio);
+
+            return ((int)(originalWidth * ratio), (int)(originalHeight * ratio));
         }
     }
 }
