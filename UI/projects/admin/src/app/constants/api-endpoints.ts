@@ -33,7 +33,8 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `/MenuItems/${id}`,
     TOGGLE_AVAILABILITY: (id: number) => `/MenuItems/${id}/toggle-availability`,
     BY_CATEGORY: (categoryId: number) => `/MenuItems/category/${categoryId}`,
-    CHECK_NAME: '/MenuItems/check-name'
+    CHECK_NAME: '/MenuItems/check-name',
+    UPDATE_ORDER: '/MenuItems/update-order'
   },
   ORDERS: {
     LIST: '/Orders/all',

@@ -44,6 +44,7 @@ export class MenuItemService {
             baseImageUrl: apiData.baseImageUrl,
             isAvailable: apiData.isAvailable,
             preparationTime: apiData.preparationTime,
+            displayOrder: apiData.displayOrder || 0,
             createdAt: apiData.createdAt,
             updatedAt: apiData.updatedAt,
             createdBy: apiData.createdBy,

@@ -39,6 +39,14 @@ export class ListMenuItemsComponent implements OnInit {
   isSavingOrder = false;
   originalOrder: Map<number, number> = new Map();
 
+  // Sort menu modal
+  showSortMenuModal = false;
+  selectedCategoryId: number | null = null;
+  categoryMenuItems: Map<number, MenuItemList[]> = new Map();
+  isLoadingMenuItems: Map<number, boolean> = new Map();
+  isSavingMenuItemOrder = false;
+  originalMenuItemOrder: Map<number, Map<number, number>> = new Map(); // categoryId -> (menuItemId -> displayOrder)
+
   constructor(
     private menuItemService: MenuItemService,
     private notificationService: NotificationService,
@@ -315,6 +323,257 @@ export class ListMenuItemsComponent implements OnInit {
       const original = this.originalOrder.get(cat.id);
       return original !== undefined && original !== cat.displayOrder;
     });
+  }
+
+  /**
+   * Open sort menu modal
+   */
+  openSortMenuModal(): void {
+    this.showSortMenuModal = true;
+    this.loadCategoriesForSortMenu();
+  }
+
+  /**
+   * Close sort menu modal
+   */
+  closeSortMenuModal(): void {
+    this.showSortMenuModal = false;
+    this.selectedCategoryId = null;
+    this.categoryMenuItems.clear();
+    this.isLoadingMenuItems.clear();
+    this.originalMenuItemOrder.clear();
+  }
+
+  /**
+   * Load categories for sort menu modal
+   */
+  loadCategoriesForSortMenu(): void {
+    this.menuItemService.getCategories().subscribe({
+      next: (response: ApiResponse<Category[]>) => {
+        if (response.success && response.data) {
+          this.categories = response.data.sort((a, b) => a.displayOrder - b.displayOrder);
+          // Load menu items for first category if available
+          if (this.categories.length > 0) {
+            this.selectedCategoryId = this.categories[0].id;
+            this.loadMenuItemsForCategory(this.categories[0].id);
+          }
+        }
+      },
+      error: (error: unknown) => {
+        console.error('Error loading categories:', error);
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to load categories';
+        this.notificationService.error(errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Load menu items for a specific category
+   */
+  loadMenuItemsForCategory(categoryId: number): void {
+    if (this.categoryMenuItems.has(categoryId)) {
+      return; // Already loaded
+    }
+
+    this.isLoadingMenuItems.set(categoryId, true);
+    this.menuItemService.getMenuItemsByCategory(categoryId).subscribe({
+      next: (response: ApiResponse<MenuItemList[]>) => {
+        this.isLoadingMenuItems.set(categoryId, false);
+        if (response.success && response.data) {
+          // Sort by displayOrder
+          const items = response.data.sort((a, b) => {
+            if (a.displayOrder !== b.displayOrder) return a.displayOrder - b.displayOrder;
+            return a.name.localeCompare(b.name);
+          });
+          
+          this.categoryMenuItems.set(categoryId, items);
+          
+          // Store original order
+          if (!this.originalMenuItemOrder.has(categoryId)) {
+            this.originalMenuItemOrder.set(categoryId, new Map());
+          }
+          const originalOrder = this.originalMenuItemOrder.get(categoryId)!;
+          items.forEach((item) => {
+            originalOrder.set(item.id, item.displayOrder);
+          });
+        } else {
+          this.categoryMenuItems.set(categoryId, []);
+        }
+      },
+      error: (error: unknown) => {
+        this.isLoadingMenuItems.set(categoryId, false);
+        console.error('Error loading menu items:', error);
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to load menu items';
+        this.notificationService.error(errorMessage);
+        this.categoryMenuItems.set(categoryId, []);
+      }
+    });
+  }
+
+  /**
+   * Handle category selection change
+   */
+  onCategoryChange(categoryId: number): void {
+    this.selectedCategoryId = categoryId;
+    this.loadMenuItemsForCategory(categoryId);
+  }
+
+  /**
+   * Get menu items for selected category
+   */
+  getSelectedCategoryMenuItems(): MenuItemList[] {
+    if (!this.selectedCategoryId) return [];
+    return this.categoryMenuItems.get(this.selectedCategoryId) || [];
+  }
+
+  /**
+   * Move menu item up
+   */
+  moveMenuItemUp(categoryId: number, index: number): void {
+    const items = this.categoryMenuItems.get(categoryId);
+    if (!items || index === 0) return;
+
+    const temp = items[index];
+    items[index] = items[index - 1];
+    items[index - 1] = temp;
+
+    // Reassign sequential display orders
+    items.forEach((item, idx) => {
+      item.displayOrder = idx + 1;
+    });
+
+    this.categoryMenuItems.set(categoryId, [...items]);
+  }
+
+  /**
+   * Move menu item down
+   */
+  moveMenuItemDown(categoryId: number, index: number): void {
+    const items = this.categoryMenuItems.get(categoryId);
+    if (!items || index >= items.length - 1) return;
+
+    const temp = items[index];
+    items[index] = items[index + 1];
+    items[index + 1] = temp;
+
+    // Reassign sequential display orders
+    items.forEach((item, idx) => {
+      item.displayOrder = idx + 1;
+    });
+
+    this.categoryMenuItems.set(categoryId, [...items]);
+  }
+
+  /**
+   * Handle menu item order number change
+   */
+  onMenuItemOrderChange(categoryId: number, menuItem: MenuItemList): void {
+    const items = this.categoryMenuItems.get(categoryId);
+    if (!items) return;
+
+    // Reorder all items
+    items.sort((a, b) => {
+      return a.displayOrder - b.displayOrder;
+    });
+
+    // Reassign sequential orders
+    items.forEach((item, index) => {
+      item.displayOrder = index + 1;
+    });
+
+    this.categoryMenuItems.set(categoryId, [...items]);
+  }
+
+  /**
+   * Save menu item order for selected category
+   */
+  saveMenuItemOrder(): void {
+    if (!this.selectedCategoryId) {
+      this.notificationService.warning('Please select a category');
+      return;
+    }
+
+    const items = this.getSelectedCategoryMenuItems();
+    if (items.length === 0) {
+      this.notificationService.warning('No menu items to save');
+      return;
+    }
+
+    this.isSavingMenuItemOrder = true;
+
+    const updateOrderDto = {
+      categoryId: this.selectedCategoryId,
+      menuItems: items.map((item, index) => ({
+        id: item.id,
+        displayOrder: index + 1
+      }))
+    };
+
+    this.menuItemService.updateMenuItemOrder(updateOrderDto).subscribe({
+      next: (response: ApiResponse<boolean>) => {
+        this.isSavingMenuItemOrder = false;
+        if (response.success) {
+          this.notificationService.success('Menu item order saved successfully');
+          // Update original order
+          const originalOrder = this.originalMenuItemOrder.get(this.selectedCategoryId!);
+          if (originalOrder) {
+            items.forEach((item, index) => {
+              originalOrder.set(item.id, index + 1);
+            });
+          }
+        } else {
+          this.notificationService.error(response.message || 'Failed to save menu item order');
+        }
+      },
+      error: (error: unknown) => {
+        this.isSavingMenuItemOrder = false;
+        const errorMessage = (error as { error?: { message?: string }; message?: string })?.error?.message || 
+                            (error as { message?: string })?.message || 
+                            'Failed to save menu item order';
+        this.notificationService.error(errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Check if menu item order has changed for selected category
+   */
+  hasMenuItemOrderChanged(): boolean {
+    if (!this.selectedCategoryId) return false;
+
+    const items = this.getSelectedCategoryMenuItems();
+    if (items.length === 0) return false;
+
+    const originalOrder = this.originalMenuItemOrder.get(this.selectedCategoryId);
+    if (!originalOrder) return false;
+
+    return items.some((item, index) => {
+      const original = originalOrder.get(item.id);
+      return original !== undefined && original !== index + 1;
+    });
+  }
+
+  /**
+   * Check if any category has menu item order changes
+   */
+  hasAnyMenuItemOrderChanged(): boolean {
+    for (const categoryId of this.categoryMenuItems.keys()) {
+      const items = this.categoryMenuItems.get(categoryId) || [];
+      const originalOrder = this.originalMenuItemOrder.get(categoryId);
+      if (!originalOrder) continue;
+
+      const hasChanged = items.some((item, index) => {
+        const original = originalOrder.get(item.id);
+        return original !== undefined && original !== index + 1;
+      });
+
+      if (hasChanged) return true;
+    }
+    return false;
   }
 }
 

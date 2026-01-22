@@ -248,13 +248,21 @@ export class MenuComponent implements OnInit, OnDestroy {
       grouped.get(categoryId)!.push(item);
     });
     
-    // Create category sections
+    // Create category sections and sort items within each category by DisplayOrder
     this.categorySections = this.categories
       .filter(cat => grouped.has(cat.id) && grouped.get(cat.id)!.length > 0)
-      .map(cat => ({
-        category: cat,
-        items: grouped.get(cat.id)!
-      }))
+      .map(cat => {
+        const items = grouped.get(cat.id)!;
+        // Sort items by DisplayOrder, then by name as fallback
+        items.sort((a, b) => {
+          if (a.displayOrder !== b.displayOrder) return a.displayOrder - b.displayOrder;
+          return a.name.localeCompare(b.name);
+        });
+        return {
+          category: cat,
+          items: items
+        };
+      })
       .sort((a, b) => (a.category.displayOrder || 0) - (b.category.displayOrder || 0));
     
     console.log('Grouped items into', this.categorySections.length, 'sections');

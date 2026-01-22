@@ -7,6 +7,7 @@ export interface MenuItem {
   baseImageUrl?: string;
   isAvailable: boolean;
   preparationTime: number;
+  displayOrder: number;
   createdAt: string;
   portionCount: number;
 }
