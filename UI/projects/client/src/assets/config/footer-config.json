@@ -1,0 +1,86 @@
+{
+  "company": {
+    "name": "M21 Kitchen",
+    "logoTitle": "M21 KITCHEN",
+    "logoSubtitle": "THE KITCHEN OF 21 CENTURY"
+  },
+  "contact": {
+    "whatsapp": {
+      "number": "923045777621",
+      "displayNumber": "+923045777621",
+      "message": "Hello! I would like to place an order."
+    },
+    "email": {
+      "address": "m21kitchen@gmail.com",
+      "displayAddress": "m21kitchen@gmail.com"
+    },
+    "address": "M21 Kitchen - Wapda Town, 230-C, PIA Road, Main Blvd, WAPDA Town, Lahore, 54000"
+  },
+  "appDownloads": {
+    "googlePlay": {
+      "enabled": true,
+      "url": "https://play.google.com/store",
+      "text": "GET IT ON",
+      "title": "Google Play"
+    },
+    "appStore": {
+      "enabled": true,
+      "url": "https://apps.apple.com",
+      "text": "Download on the",
+      "title": "App Store"
+    }
+  },
+  "timings": {
+    "days": "Monday - Sunday",
+    "hours": "11:00 AM - 05:00 AM"
+  },
+  "socialMedia": {
+    "facebook": {
+      "enabled": true,
+      "url": "#",
+      "title": "Facebook"
+    },
+    "instagram": {
+      "enabled": true,
+      "url": "#",
+      "title": "Instagram"
+    },
+    "twitter": {
+      "enabled": true,
+      "url": "#",
+      "title": "Twitter/X"
+    },
+    "youtube": {
+      "enabled": true,
+      "url": "#",
+      "title": "YouTube"
+    },
+    "tiktok": {
+      "enabled": true,
+      "url": "#",
+      "title": "TikTok"
+    }
+  },
+  "legalLinks": {
+    "termsAndConditions": {
+      "enabled": true,
+      "url": "#",
+      "text": "Terms and conditions"
+    },
+    "privacyPolicy": {
+      "enabled": true,
+      "url": "#",
+      "text": "Privacy Policy"
+    },
+    "sitemap": {
+      "enabled": true,
+      "url": "#",
+      "text": "Sitemap"
+    }
+  },
+  "copyright": {
+    "year": "2025",
+    "poweredBy": "Blink Co."
+  }
+}
+

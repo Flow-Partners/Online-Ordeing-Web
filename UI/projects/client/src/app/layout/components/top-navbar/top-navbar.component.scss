@@ -224,11 +224,14 @@
           color: #ffffff;
           padding: 0.4rem 1rem;
           border-radius: 4px;
+          border: none;
           text-decoration: none;
           font-weight: 500;
           font-size: 0.85rem;
           transition: all 0.2s ease;
           white-space: nowrap;
+          cursor: pointer;
+          display: inline-block;
 
           &:hover {
             background-color: #a0522d;
@@ -238,6 +241,8 @@
 
         .profile-menu {
           position: relative;
+          display: flex;
+          align-items: center;
 
           .profile-btn {
             background: transparent;
@@ -247,9 +252,17 @@
             border-radius: 50%;
             overflow: hidden;
             transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
             &:hover {
               transform: scale(1.1);
+            }
+
+            &:focus {
+              outline: 2px solid #ffd700;
+              outline-offset: 2px;
             }
 
             .profile-avatar {
@@ -258,6 +271,7 @@
               border-radius: 50%;
               object-fit: cover;
               border: 2px solid #ffd700;
+              display: block;
             }
           }
         }
@@ -275,12 +289,15 @@
     .category-tabs-container {
       display: flex;
       align-items: center;
+      justify-content: center; // Center items horizontally like the image
       overflow-x: auto;
       scroll-behavior: smooth;
       scrollbar-width: none;
       -ms-overflow-style: none;
       padding: 0.5rem 0;
       gap: 0;
+      max-width: 1400px;
+      margin: 0 auto;
 
       &::-webkit-scrollbar {
         display: none;
@@ -300,24 +317,28 @@
         flex-shrink: 0;
         min-width: fit-content;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px; // Increased from 0.5px for better readability
         position: relative;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
         &:hover {
-          color: #ffd700;
+          color: #ffa500; // Orange/gold color like image
         }
 
         &.active {
-          color: #ffd700;
+          color: #ffa500; // Orange/gold color for active state like "WINTER IS COMING" in image
 
           &::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 1.25rem;
-            right: 1.25rem;
-            height: 2px;
-            background: #ffd700;
+            bottom: -0.6rem; // Position at bottom border of container (accounts for button padding 0.5rem + container padding 0.5rem)
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 3px; // Increased from 2px for more visibility
+            background: #ffa500; // Orange/gold underline like image
+            border-radius: 0; // No border radius for straight line at bottom
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1), right 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1); // Smooth transition when moving between categories
           }
         }
       }
@@ -343,6 +364,7 @@
     background-color: #f5f5f5;
     padding: 0.75rem 0;
     border-bottom: 1px solid #e0e0e0;
+    position: static;
 
     .search-container {
       display: flex;
@@ -634,6 +656,119 @@
           transform: translateY(-1px);
           box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
         }
+      }
+    }
+  }
+
+  // User Dropdown (for profile menu)
+  .profile-menu {
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 240px;
+      padding: 0;
+      margin-top: 0;
+      list-style: none;
+      display: none;
+      z-index: 1050;
+      overflow: hidden;
+
+      &.show {
+        display: block;
+      }
+
+      .dropdown-header {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+
+        .user-info {
+          .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #212529;
+            margin-bottom: 0.25rem;
+          }
+
+          .user-email,
+          .user-phone {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin: 0;
+          }
+        }
+      }
+
+      .dropdown-divider {
+        margin: 0;
+        border-color: #e9ecef;
+      }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: #495057;
+        text-decoration: none;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 0.9rem;
+
+        &:hover {
+          background-color: #f8f9fa;
+        }
+
+        i {
+          width: 20px;
+          font-size: 1rem;
+        }
+
+        &.text-danger {
+          color: #dc3545;
+
+          &:hover {
+            background-color: #fff5f5;
+          }
+        }
+      }
+
+      @media (max-width: 768px) {
+        min-width: 220px;
+        right: -10px;
+
+        .dropdown-header {
+          padding: 0.75rem;
+
+          .user-info {
+            .user-name {
+              font-size: 0.9rem;
+            }
+
+            .user-email,
+            .user-phone {
+              font-size: 0.8rem;
+            }
+          }
+        }
+
+        .dropdown-item {
+          padding: 0.65rem 0.75rem;
+          font-size: 0.85rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        min-width: 200px;
+        right: -15px;
       }
     }
 }

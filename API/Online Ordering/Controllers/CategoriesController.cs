@@ -5,6 +5,8 @@ using DotNet_Starter_Template.Models.ViewModels.Categories;
 using DotNet_Starter_Template.Models.Common;
 using DotNet_Starter_Template.Services.Interfaces;
 
+
+
 namespace DotNet_Starter_Template.Controllers
 {
     [ApiController]
@@ -159,6 +161,32 @@ namespace DotNet_Starter_Template.Controllers
             {
                 _logger.LogError(ex, "Error checking category name uniqueness");
                 return StatusCode(500, ApiResponse<bool>.ErrorResult("An error occurred while checking category name"));
+            }
+        }
+
+        [HttpPut("update-order")]
+        public async Task<ActionResult<ApiResponse<bool>>> UpdateCategoryOrder([FromBody] UpdateCategoryOrderDto updateOrderDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList();
+                    return BadRequest(ApiResponse<bool>.ErrorResult("Validation failed", errors));
+                }
+
+                var result = await _categoryService.UpdateCategoryOrderAsync(updateOrderDto);
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating category order");
+                return StatusCode(500, ApiResponse<bool>.ErrorResult("An error occurred while updating category order"));
             }
         }
     }

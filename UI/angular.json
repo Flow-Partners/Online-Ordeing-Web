@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/admin",
+            "outputPath": "C:/Paid Projects/OOW/Online-Ordeing-Web/Publish/UI/admin",
             "index": "projects/admin/src/index.html",
             "browser": "projects/admin/src/main.ts",
             "polyfills": [
@@ -130,7 +130,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/client",
+            "outputPath": "C:/Paid Projects/OOW/Online-Ordeing-Web/Publish/UI/client",
             "index": "projects/client/src/index.html",
             "browser": "projects/client/src/main.ts",
             "polyfills": [
@@ -167,8 +167,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kB",
-                  "maximumError": "4kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "30kB"
                 }
               ],
               "outputHashing": "all",

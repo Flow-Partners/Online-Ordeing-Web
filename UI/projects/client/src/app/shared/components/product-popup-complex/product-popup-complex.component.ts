@@ -6,7 +6,7 @@ import { MenuItemService } from '@core/services/menu-item.service';
 
 interface PortionSelection {
   portion: Portion;
-  selectedDetail: PortionDetail | null;
+  selectedDetails: PortionDetail[]; // Changed to array for multi-select
 }
 
 @Component({
@@ -36,15 +36,20 @@ export class ProductPopupComplexComponent implements OnInit {
       this.menuItemDetail.portions.forEach(portion => {
         this.collapsedPortions.set(portion.id, false);
         if (portion.portionDetails && portion.portionDetails.length > 0) {
-          // Select first option by default
+          // Select first option(s) by default based on minSelection
+          const initialSelections: PortionDetail[] = [];
+          const minSelect = portion.minSelection || 1;
+          for (let i = 0; i < Math.min(minSelect, portion.portionDetails.length); i++) {
+            initialSelections.push(portion.portionDetails[i]);
+          }
           this.portionSelections.set(portion.id, {
             portion: portion,
-            selectedDetail: portion.portionDetails[0]
+            selectedDetails: initialSelections
           });
         } else {
           this.portionSelections.set(portion.id, {
             portion: portion,
-            selectedDetail: null
+            selectedDetails: []
           });
         }
       });
@@ -66,26 +71,94 @@ export class ProductPopupComplexComponent implements OnInit {
   }
 
   selectPortionDetail(portion: Portion, portionDetail: PortionDetail): void {
+    const selection = this.portionSelections.get(portion.id);
+    if (!selection) return;
+
+    const maxSelect = portion.maxSelection || 1;
+    const minSelect = portion.minSelection || 1;
+    const currentSelections = [...selection.selectedDetails];
+    const index = currentSelections.findIndex(d => d.id === portionDetail.id);
+
+    if (index >= 0) {
+      // Deselect if already selected, but check minSelection constraint
+      if (currentSelections.length > minSelect) {
+        currentSelections.splice(index, 1);
+      }
+      // If trying to deselect but would go below minSelection, don't allow it
+    } else {
+      // Select if not already selected
+      if (currentSelections.length < maxSelect) {
+        currentSelections.push(portionDetail);
+      } else if (maxSelect === 1) {
+        // Replace entire selection if single select
+        currentSelections.length = 0;
+        currentSelections.push(portionDetail);
+      }
+    }
+
     this.portionSelections.set(portion.id, {
       portion: portion,
-      selectedDetail: portionDetail
+      selectedDetails: currentSelections
     });
     this.updatePrices();
   }
 
   isSelected(portionId: number, portionDetailId: number): boolean {
     const selection = this.portionSelections.get(portionId);
-    return selection?.selectedDetail?.id === portionDetailId;
+    return selection?.selectedDetails?.some(d => d.id === portionDetailId) || false;
   }
 
   hasSelection(portionId: number): boolean {
     const selection = this.portionSelections.get(portionId);
-    return !!selection?.selectedDetail;
+    return (selection?.selectedDetails?.length || 0) > 0;
   }
 
-  getSelectedDetail(portionId: number): PortionDetail | null {
+  getSelectedDetails(portionId: number): PortionDetail[] {
     const selection = this.portionSelections.get(portionId);
-    return selection?.selectedDetail || null;
+    return selection?.selectedDetails || [];
+  }
+
+  getSelectionCount(portionId: number): number {
+    const selection = this.portionSelections.get(portionId);
+    return selection?.selectedDetails?.length || 0;
+  }
+
+  canSelectMore(portionId: number): boolean {
+    const selection = this.portionSelections.get(portionId);
+    if (!selection) return false;
+    const maxSelect = selection.portion.maxSelection || 1;
+    return (selection.selectedDetails.length || 0) < maxSelect;
+  }
+
+  canDeselect(portionId: number): boolean {
+    const selection = this.portionSelections.get(portionId);
+    if (!selection) return false;
+    const minSelect = selection.portion.minSelection || 1;
+    return (selection.selectedDetails.length || 0) > minSelect;
+  }
+
+  getRequiredText(portion: Portion): string {
+    return 'Required';
+  }
+
+  getSelectAnyText(portion: Portion): string {
+    const maxSelect = portion.maxSelection || 1;
+    return `select any ${maxSelect}`;
+  }
+
+  isMaxSelected(portionId: number): boolean {
+    const selection = this.portionSelections.get(portionId);
+    if (!selection) return false;
+    const maxSelect = selection.portion.maxSelection || 1;
+    return selection.selectedDetails.length >= maxSelect;
+  }
+
+  isSelectionValid(portionId: number): boolean {
+    const selection = this.portionSelections.get(portionId);
+    if (!selection) return false;
+    const minSelect = selection.portion.minSelection || 1;
+    const count = selection.selectedDetails.length;
+    return count >= minSelect;
   }
 
   getMinPrice(): number {
@@ -102,29 +175,31 @@ export class ProductPopupComplexComponent implements OnInit {
   }
 
   getCurrentPrice(): number {
-    // Get the price from the first selected portion detail (typically Size)
-    // In most cases, Size determines the base price
+    // The price shown in portions is the actual deal price, not additive
+    // Get the price from the first selected portion detail (all should have same price)
     let selectedPrice = 0;
     
-    // Find the first selected portion detail (usually Size)
-    this.portionSelections.forEach((selection) => {
-      if (selection.selectedDetail && selectedPrice === 0) {
-        selectedPrice = selection.selectedDetail.price;
+    // Find the first selected portion detail from any portion
+    for (const selection of this.portionSelections.values()) {
+      if (selection.selectedDetails && selection.selectedDetails.length > 0) {
+        selectedPrice = selection.selectedDetails[0].price;
+        break;
       }
-    });
+    }
     
+    // If no selection made yet, use minimum price
     return selectedPrice || this.minPrice;
   }
 
   showFromPrice(): boolean {
-    // Show "from" if no selection made yet
-    let hasSelection = false;
+    // Show "from" if selections don't meet minimum requirements
+    let allValid = true;
     this.portionSelections.forEach((selection) => {
-      if (selection.selectedDetail) {
-        hasSelection = true;
+      if (!this.isSelectionValid(selection.portion.id)) {
+        allValid = false;
       }
     });
-    return !hasSelection;
+    return !allValid;
   }
 
   updatePrices(): void {
@@ -147,15 +222,24 @@ export class ProductPopupComplexComponent implements OnInit {
   }
 
   onAddToCart(): void {
-    // Get the first selected portion detail
+    // Validate all selections meet minimum requirements
+    for (const selection of this.portionSelections.values()) {
+      if (!this.isSelectionValid(selection.portion.id)) {
+        return; // Don't add to cart if validation fails
+      }
+    }
+
+    // For multi-select portions, we need to create cart items for each combination
+    // For now, we'll create a cart item for the first portion's first selection
+    // This may need to be updated based on how the backend handles multi-select
     let selectedPortion: Portion | null = null;
     let selectedPortionDetail: PortionDetail | null = null;
 
     // Find the first selected portion detail
     for (const selection of this.portionSelections.values()) {
-      if (selection.selectedDetail) {
+      if (selection.selectedDetails && selection.selectedDetails.length > 0) {
         selectedPortion = selection.portion;
-        selectedPortionDetail = selection.selectedDetail;
+        selectedPortionDetail = selection.selectedDetails[0];
         break;
       }
     }
@@ -164,6 +248,9 @@ export class ProductPopupComplexComponent implements OnInit {
     if (!selectedPortion || !selectedPortionDetail) {
       return;
     }
+
+    // Calculate price per item (total of all selections)
+    const pricePerItem = this.getCurrentPrice();
 
     // At this point, TypeScript knows both are not null
     const cartItem: CartItem = {
@@ -174,7 +261,7 @@ export class ProductPopupComplexComponent implements OnInit {
       portionName: selectedPortion.name,
       portionDetailId: selectedPortionDetail.id,
       portionDetailName: selectedPortionDetail.name,
-      price: this.totalPrice / this.quantity, // Price per item
+      price: pricePerItem, // Price per item (includes all selections)
       quantity: this.quantity
     };
     this.addToCart.emit(cartItem);

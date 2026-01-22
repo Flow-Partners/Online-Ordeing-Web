@@ -43,9 +43,66 @@ namespace DotNet_Starter_Template.Repositories.Implementations
         public async Task<IEnumerable<Ticket>> GetByCustomerIdAsync(int customerId)
         {
             return await _dbSet
+                .Include(t => t.Customer)
+                .Include(t => t.CustomerAddress)
+                .Include(t => t.Orders)
                 .Where(t => t.CustomerId == customerId)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Ticket>> GetByCustomerIdOrPhoneAsync(int customerId, string? customerPhone, string? customerEmail)
+        {
+            // First get tickets by CustomerId
+            var ticketsByCustomerId = await _dbSet
+                .Include(t => t.Customer)
+                .Include(t => t.CustomerAddress)
+                .Include(t => t.Orders)
+                .Where(t => t.CustomerId == customerId)
+                .ToListAsync();
+
+            // If we found tickets, return them
+            if (ticketsByCustomerId.Any())
+            {
+                return ticketsByCustomerId.OrderByDescending(t => t.Date);
+            }
+
+            // If no tickets found by CustomerId, try to find by phone/email
+            // This handles cases where CustomerId wasn't set correctly on tickets
+            var ticketsByPhoneOrEmail = new List<Ticket>();
+
+            if (!string.IsNullOrWhiteSpace(customerPhone))
+            {
+                var byPhone = await _dbSet
+                    .Include(t => t.Customer)
+                    .Include(t => t.CustomerAddress)
+                    .Include(t => t.Orders)
+                    .Where(t => t.CustomerId == null && 
+                                t.Customer != null && 
+                                t.Customer.Phone == customerPhone)
+                    .ToListAsync();
+                ticketsByPhoneOrEmail.AddRange(byPhone);
+            }
+
+            if (!string.IsNullOrWhiteSpace(customerEmail))
+            {
+                var byEmail = await _dbSet
+                    .Include(t => t.Customer)
+                    .Include(t => t.CustomerAddress)
+                    .Include(t => t.Orders)
+                    .Where(t => t.CustomerId == null && 
+                                t.Customer != null && 
+                                !string.IsNullOrWhiteSpace(t.Customer.Email) &&
+                                t.Customer.Email == customerEmail)
+                    .ToListAsync();
+                ticketsByPhoneOrEmail.AddRange(byEmail);
+            }
+
+            // Remove duplicates and return
+            return ticketsByPhoneOrEmail
+                .GroupBy(t => t.Id)
+                .Select(g => g.First())
+                .OrderByDescending(t => t.Date);
         }
 
         public async Task<string> GenerateTicketNumberAsync()
@@ -69,6 +126,22 @@ namespace DotNet_Starter_Template.Repositories.Implementations
             }
 
             return $"TKT-{today:yyyyMMdd}-001";
+        }
+
+        public async Task<IEnumerable<Ticket>> GetByStatusWithDetailsAsync(bool isClosed)
+        {
+            return await _dbSet
+                .Include(t => t.Orders)
+                    .ThenInclude(o => o.MenuItem)
+                .Include(t => t.Orders)
+                    .ThenInclude(o => o.Portion)
+                .Include(t => t.Orders)
+                    .ThenInclude(o => o.PortionDetail)
+                .Include(t => t.Customer)
+                .Include(t => t.CustomerAddress)
+                .Where(t => t.IsClosed == isClosed)
+                .OrderByDescending(t => t.Date)
+                .ToListAsync();
         }
     }
 }

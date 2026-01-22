@@ -22,7 +22,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/Categories/${id}`,
     DELETE: (id: number) => `/Categories/${id}`,
     TOGGLE_VISIBILITY: (id: number) => `/Categories/${id}/toggle-visibility`,
-    CHECK_NAME: '/Categories/check-name'
+    CHECK_NAME: '/Categories/check-name',
+    UPDATE_ORDER: '/Categories/update-order'
   },
   MENU_ITEMS: {
     LIST: '/MenuItems',
@@ -38,7 +39,8 @@ export const API_ENDPOINTS = {
     LIST: '/Orders/all',
     GET: (id: number) => `/Orders/${id}`,
     GET_BY_TICKET: (ticketId: number) => `/Orders/tickets/${ticketId}`,
-    UPDATE_STATUS: (id: number) => `/Orders/${id}/status`
+    UPDATE_STATUS: (ticketId: number) => `/Orders/tickets/${ticketId}/status`,
+    GET_ALL_TICKETS_BY_STATUS: (ticketStatus: boolean) => `/Orders/tickets/all?ticketStatus=${ticketStatus}`
   }
 };
 

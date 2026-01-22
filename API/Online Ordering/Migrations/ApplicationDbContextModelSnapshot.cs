@@ -153,7 +153,6 @@ namespace DotNet_Starter_Template.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -215,6 +214,10 @@ namespace DotNet_Starter_Template.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt")
@@ -229,6 +232,10 @@ namespace DotNet_Starter_Template.Migrations
 
                     b.HasIndex("Phone")
                         .HasDatabaseName("IX_Customers_Phone");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Customers_UserId")
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Customers", (string)null);
                 });
@@ -694,7 +701,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 1,
                             Action = "Create",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3267),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8086),
                             Description = "Create users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -711,7 +718,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 2,
                             Action = "Read",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3273),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8099),
                             Description = "View users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -728,7 +735,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 3,
                             Action = "Update",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3275),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8102),
                             Description = "Update users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -745,7 +752,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 4,
                             Action = "Delete",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3277),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8104),
                             Description = "Delete users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -762,7 +769,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 5,
                             Action = "Activate",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3329),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8105),
                             Description = "Activate/deactivate users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -779,7 +786,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 6,
                             Action = "ResetPassword",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3332),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8108),
                             Description = "Reset user passwords",
                             IsActive = true,
                             IsDeprecated = false,
@@ -796,7 +803,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 7,
                             Action = "AssignRoles",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3333),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8110),
                             Description = "Assign roles to users",
                             IsActive = true,
                             IsDeprecated = false,
@@ -813,7 +820,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 8,
                             Action = "ViewAuditLog",
                             Category = "Audit",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3335),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8111),
                             Description = "View user audit logs",
                             IsActive = true,
                             IsDeprecated = false,
@@ -830,7 +837,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 9,
                             Action = "Create",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3336),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8113),
                             Description = "Create roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -847,7 +854,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 10,
                             Action = "Read",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3338),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8117),
                             Description = "View roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -864,7 +871,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 11,
                             Action = "Update",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3339),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8119),
                             Description = "Update roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -881,7 +888,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 12,
                             Action = "Delete",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3340),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8121),
                             Description = "Delete roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -898,7 +905,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 13,
                             Action = "AssignPermissions",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3342),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8122),
                             Description = "Assign permissions to roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -915,7 +922,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 14,
                             Action = "AssignUsers",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3343),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8124),
                             Description = "Assign users to roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -932,7 +939,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 15,
                             Action = "Create",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3345),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8125),
                             Description = "Create permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -949,7 +956,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 16,
                             Action = "Read",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3347),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8126),
                             Description = "View permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -966,7 +973,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 17,
                             Action = "Update",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3349),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8128),
                             Description = "Update permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -983,7 +990,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 18,
                             Action = "Delete",
                             Category = "CRUD",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3352),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8131),
                             Description = "Delete permissions",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1000,7 +1007,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 19,
                             Action = "Assign",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3353),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8132),
                             Description = "Assign permissions to roles",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1017,7 +1024,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 20,
                             Action = "Settings",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3354),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8133),
                             Description = "Manage system settings",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1034,7 +1041,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 21,
                             Action = "Backup",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3356),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8135),
                             Description = "Create system backups",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1051,7 +1058,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 22,
                             Action = "Restore",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3357),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8136),
                             Description = "Restore system backups",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1068,7 +1075,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 23,
                             Action = "Logs",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3358),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8138),
                             Description = "View system logs",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1085,7 +1092,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 24,
                             Action = "Monitoring",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3359),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8139),
                             Description = "System monitoring access",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1102,7 +1109,7 @@ namespace DotNet_Starter_Template.Migrations
                             Id = 25,
                             Action = "Maintenance",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3361),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8140),
                             Description = "System maintenance access",
                             IsActive = true,
                             IsDeprecated = false,
@@ -1311,7 +1318,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "1",
                             Category = "System",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3439),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8283),
                             Description = "Full system access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -1323,7 +1330,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "2",
                             Category = "Admin",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3503),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8378),
                             Description = "Administrative access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -1335,7 +1342,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "3",
                             Category = "Management",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3506),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8383),
                             Description = "Management access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -1347,7 +1354,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "4",
                             Category = "User",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3510),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8387),
                             Description = "Basic user access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -1359,7 +1366,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "5",
                             Category = "Guest",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3513),
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8390),
                             Description = "Limited guest access",
                             IsActive = true,
                             IsSystemRole = true,
@@ -1407,7 +1414,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 1,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2201),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5120),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1415,7 +1422,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 2,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2205),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5126),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1423,7 +1430,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 3,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2207),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5127),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1431,7 +1438,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 4,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2208),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5128),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1439,7 +1446,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 5,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2209),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5129),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1447,7 +1454,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 6,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2210),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5129),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1455,7 +1462,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 7,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2210),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5130),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1463,7 +1470,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 8,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2211),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5131),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1471,7 +1478,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 9,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2212),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5131),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1479,7 +1486,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 10,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2212),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5132),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1487,7 +1494,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 11,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2213),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5132),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1495,7 +1502,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 12,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2213),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5133),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1503,7 +1510,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 13,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2214),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5134),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1511,7 +1518,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 14,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2214),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5134),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1519,7 +1526,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 15,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2215),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5135),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1527,7 +1534,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 16,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2216),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5136),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1535,7 +1542,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 17,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2217),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5137),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1543,7 +1550,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 18,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2217),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5137),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1551,7 +1558,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 19,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2218),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5138),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1559,7 +1566,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 20,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2218),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5140),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1567,7 +1574,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 21,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2219),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5141),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1575,7 +1582,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 22,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2219),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5142),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1583,7 +1590,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 23,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2220),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5143),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1591,7 +1598,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 24,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2221),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5144),
                             AssignedBy = "System",
                             IsActive = true
                         },
@@ -1599,7 +1606,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             RoleId = "1",
                             PermissionId = 25,
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2222),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(5145),
                             AssignedBy = "System",
                             IsActive = true
                         });
@@ -1862,8 +1869,8 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2eb2dce1-9095-42e1-bd81-13152c8083d1",
-                            CreatedAt = new DateTime(2025, 11, 20, 12, 53, 31, 678, DateTimeKind.Utc).AddTicks(3625),
+                            ConcurrencyStamp = "81f7395c-3d8f-44cf-9582-e96a1bba0f0a",
+                            CreatedAt = new DateTime(2025, 12, 2, 23, 10, 13, 312, DateTimeKind.Utc).AddTicks(8620),
                             Email = "superadmin@example.com",
                             EmailConfirmed = true,
                             FirstName = "Super",
@@ -1873,9 +1880,9 @@ namespace DotNet_Starter_Template.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SUPERADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMD/sBhvRiHvDrzblkdHEi+eefLC/acsug+Qylt+0ePnCp3h04B3lsuNlTkZEOteGA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBPLmKungjIisphJlU7bGd7wIDs9VVgJFBMfqKfVjaoOKGDDVGxRxRlPCydv42xQ1Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "44ca6238-d58a-455e-9054-31a2c88ba891",
+                            SecurityStamp = "785d7d57-737e-4ba9-b34b-f713ed123af2",
                             Theme = "light",
                             TwoFactorEnabled = false,
                             UserName = "superadmin@example.com"
@@ -1920,7 +1927,7 @@ namespace DotNet_Starter_Template.Migrations
                         {
                             UserId = "1",
                             RoleId = "1",
-                            AssignedAt = new DateTime(2025, 11, 20, 12, 53, 31, 750, DateTimeKind.Utc).AddTicks(2088),
+                            AssignedAt = new DateTime(2025, 12, 2, 23, 10, 13, 382, DateTimeKind.Utc).AddTicks(4977),
                             AssignedBy = "System",
                             IsActive = true,
                             IsPrimary = true
@@ -2031,6 +2038,16 @@ namespace DotNet_Starter_Template.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.Customer", b =>
+                {
+                    b.HasOne("DotNet_Starter_Template.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DotNet_Starter_Template.Models.Entities.CustomerAddress", b =>

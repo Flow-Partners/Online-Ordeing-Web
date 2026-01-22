@@ -53,6 +53,12 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ['admin']
   },
   {
+    label: 'Ticket Management',
+    icon: 'bi-ticket-perforated',
+    route: '/tickets',
+    roles: ['admin']
+  },
+  {
     label: 'Admin',
     icon: 'bi-shield-lock',
     roles: ['admin'],

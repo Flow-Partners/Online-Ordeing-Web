@@ -7,7 +7,10 @@ namespace DotNet_Starter_Template.Repositories.Interfaces
         Task<Ticket?> GetByIdWithOrdersAsync(int id);
         Task<Ticket?> GetByTicketNumberAsync(string ticketNumber);
         Task<IEnumerable<Ticket>> GetByCustomerIdAsync(int customerId);
+        Task<IEnumerable<Ticket>> GetByCustomerIdOrPhoneAsync(int customerId, string? customerPhone, string? customerEmail);
         Task<string> GenerateTicketNumberAsync();
+        Task<IEnumerable<Ticket>> GetByStatusWithDetailsAsync(bool isClosed);
     }
 }
+
 

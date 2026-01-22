@@ -1,5 +1,5 @@
 .checkout-container {
-  padding: 2rem;
+  padding-top: 6rem;
   background: #f8f9fa;
   min-height: calc(100vh - 60px);
 }
@@ -352,10 +352,23 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: all 0.3s ease;
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    pointer-events: none;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+  }
+  
+  &:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:not(:disabled):active {
+    transform: translateY(0);
   }
 }
 

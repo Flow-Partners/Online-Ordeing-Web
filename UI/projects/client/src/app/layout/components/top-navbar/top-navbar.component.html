@@ -141,53 +141,105 @@
           <!-- Auth Section -->
           <div class="auth-wrapper" (appClickOutside)="closeDropdowns()">
             <!-- Sign In / Register Button (if not logged in) -->
-            <a 
-              *ngIf="!authService.isAuthenticated"
-              routerLink="/auth/login"
-              class="signin-btn">
+            <button 
+              *ngIf="!customerAuthService.isAuthenticated"
+              (click)="openAuthModal(); $event.preventDefault(); $event.stopPropagation()"
+              class="signin-btn"
+              type="button">
               Sign In / Register
-            </a>
+            </button>
 
-            <!-- Profile Icon (if logged in) -->
-            <div *ngIf="authService.isAuthenticated" class="profile-menu">
+            <!-- Profile Avatar with Dropdown (if logged in) -->
+            <div class="profile-menu" *ngIf="customerAuthService.isAuthenticated && currentCustomer">
               <button 
                 class="profile-btn"
                 (click)="toggleUserMenu()"
-                type="button">
+                type="button"
+                [attr.aria-expanded]="isUserMenuOpen"
+                aria-label="User menu">
                 <img 
-                  [src]="currentUser?.avatar || 'https://ui-avatars.com/api/?name=' + (currentUser?.name || 'User')" 
-                  alt="User Avatar" 
-                  class="profile-avatar">
+                  [src]="getProfileAvatarUrl()"
+                  [alt]="currentCustomer.fullName || 'Profile'"
+                  class="profile-avatar"
+                  (error)="onAvatarError($event)">
               </button>
-              <ul class="user-dropdown" [class.show]="isUserMenuOpen">
-                <li><h6 class="dropdown-header">{{ currentUser?.email }}</h6></li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a class="dropdown-item" routerLink="/profile" (click)="closeDropdowns()">
-                    <i class="bi bi-person me-2"></i>
-                    Profile
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" routerLink="/settings" (click)="closeDropdowns()">
-                    <i class="bi bi-gear me-2"></i>
-                    Settings
-                  </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <button class="dropdown-item text-danger" (click)="onLogout()">
-                    <i class="bi bi-box-arrow-right me-2"></i>
-                    Logout
-                  </button>
-                </li>
-              </ul>
+
+              <!-- Profile Dropdown Menu -->
+              <div class="user-dropdown" [class.show]="isUserMenuOpen">
+                <div class="dropdown-header">
+                  <div class="user-info">
+                    <div class="user-name">{{ currentCustomer.fullName }}</div>
+                    <div class="user-email" *ngIf="currentCustomer.email">{{ currentCustomer.email }}</div>
+                    <div class="user-phone" *ngIf="!currentCustomer.email">{{ currentCustomer.phone }}</div>
+                  </div>
+                </div>
+                <hr class="dropdown-divider">
+                <a class="dropdown-item" routerLink="/profile" (click)="closeDropdowns()">
+                  <i class="bi bi-person me-2"></i>
+                  Profile
+                </a>
+                <a class="dropdown-item" [routerLink]="['/orders', currentCustomer.customerId]" (click)="closeDropdowns()">
+                  <i class="bi bi-bag me-2"></i>
+                  My Orders
+                </a>
+                <a class="dropdown-item" routerLink="/settings" (click)="closeDropdowns()">
+                  <i class="bi bi-gear me-2"></i>
+                  Settings
+                </a>
+                <hr class="dropdown-divider">
+                <button class="dropdown-item text-danger" (click)="onLogout()">
+                  <i class="bi bi-box-arrow-right me-2"></i>
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</header>
+
+<!-- Slider Section (after header-top-section, not sticky) -->
+<div class="slider-container w-100" *ngIf="sliderImages && sliderImages.length > 0 && !isCheckoutPage && !isOrdersPage">
+  <div class="slider-wrapper position-relative w-100">
+    <button class="slider-nav-btn slider-prev d-none d-md-flex" (click)="prevSlide()" aria-label="Previous slide" type="button">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    
+    <div class="slider-content w-100">
+      <div 
+        class="slider-slide" 
+        *ngFor="let image of sliderImages; let i = index"
+        [class.active]="i === currentSlideIndex"
+      >
+        <img 
+          [src]="getSliderImageUrl(image)" 
+          [alt]="'Slide ' + (i + 1)"
+          (error)="onImageError($event)"
+          loading="eager"
+          class="w-100 h-100"
+        />
+      </div>
+    </div>
+    
+    <button class="slider-nav-btn slider-next d-none d-md-flex" (click)="nextSlide()" aria-label="Next slide" type="button">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+  
+  <!-- Slider Indicators -->
+  <div class="slider-indicators d-flex justify-content-center py-2 py-md-3">
+    <button 
+      *ngFor="let image of sliderImages; let i = index"
+      class="slider-indicator"
+      [class.active]="i === currentSlideIndex"
+      (click)="goToSlide(i)"
+      [attr.aria-label]="'Go to slide ' + (i + 1)"
+      type="button"
+    ></button>
+  </div>
+</div>
 
   <!-- Section 2: Category Tabs Navigation - Sticky -->
   <div class="header-categories-section">

@@ -1,0 +1,43 @@
+.orders-container {
+  padding-top: 3rem;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.order-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #dee2e6;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-size: 0.875rem;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.pagination {
+  .page-link {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .pointer-events-none {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
+

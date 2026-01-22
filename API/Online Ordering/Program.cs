@@ -31,7 +31,13 @@ try
     builder.Host.UseSerilog();
 
     // Add services to the container
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            // Configure JSON to use camelCase (matches frontend)
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        });
 
     // Add CORS
     builder.Services.AddCors(options =>
@@ -105,6 +111,8 @@ try
     builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 
+
+
     // Register Menu Management repositories
     builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
     builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
@@ -118,6 +126,7 @@ try
 
     // Register services
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<ICustomerAuthService, CustomerAuthService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
     builder.Services.AddScoped<IPermissionService, PermissionService>();
     builder.Services.AddScoped<IUserService, UserService>();

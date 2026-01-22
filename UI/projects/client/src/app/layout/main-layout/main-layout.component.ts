@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { TopNavbarComponent } from '../components/top-navbar/top-navbar.component';
 import { SideNavbarComponent } from '../components/side-navbar/side-navbar.component';
 import { FooterComponent } from '../components/footer/footer.component';
@@ -24,16 +24,38 @@ export class MainLayoutComponent {
 
   onCategorySelected(categoryId: number | null): void {
     this.selectedCategoryId = categoryId;
-    // Navigate to menu with category filter if needed
+    
+    // If not on menu page, navigate to menu first (without category param)
     if (this.router.url !== '/menu') {
-      this.router.navigate(['/menu'], { queryParams: { category: categoryId || null } });
-    } else {
-      // If already on menu page, trigger category change via service or event
-      // This will be handled by the menu component listening to route changes
-      this.router.navigate(['/menu'], { 
-        queryParams: { category: categoryId || null },
-        queryParamsHandling: 'merge'
+      this.router.navigate(['/menu']).then(() => {
+        // After navigation, scroll to category
+        setTimeout(() => this.scrollToCategory(categoryId), 300);
       });
+    } else {
+      // If already on menu page, just scroll to category without changing URL
+      this.scrollToCategory(categoryId);
+    }
+  }
+
+  private scrollToCategory(categoryId: number | null): void {
+    if (categoryId === null) {
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Scroll to category section
+      setTimeout(() => {
+        const element = document.getElementById(`category-${categoryId}`);
+        if (element) {
+          const offset = 200; // Account for sticky header (60px) + categories section (50px) + extra space (90px)
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
     }
   }
 }

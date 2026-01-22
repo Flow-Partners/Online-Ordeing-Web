@@ -61,17 +61,17 @@
           </div>
 
           <div class="mb-3">
-            <label for="emailAddress" class="form-label">Email Address</label>
+            <label for="emailAddress" class="form-label">Email Address <span class="text-muted">(Optional)</span></label>
             <input
               type="email"
               class="form-control"
               [class.is-invalid]="isFieldInvalid('emailAddress')"
               id="emailAddress"
               formControlName="emailAddress"
-              placeholder="Enter your email address"
+              placeholder="Enter your email address (optional)"
             />
             <div class="invalid-feedback" *ngIf="isFieldInvalid('emailAddress')">
-              Valid email address is required
+              Please enter a valid email address
             </div>
           </div>
         </div>
@@ -228,9 +228,17 @@
         type="button"
         class="btn btn-dark w-100 place-order-btn"
         (click)="onPlaceOrder()"
-        [disabled]="cartItems.length === 0"
+        [disabled]="cartItems.length === 0 || isPlacingOrder || checkoutForm.invalid"
+        [attr.aria-busy]="isPlacingOrder"
       >
-        Place Order
+        <span *ngIf="!isPlacingOrder">
+          <i class="bi bi-cart-check me-2"></i>
+          Place Order
+        </span>
+        <span *ngIf="isPlacingOrder">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Placing Order...
+        </span>
       </button>
     </div>
 

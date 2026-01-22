@@ -51,15 +51,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   activeCategoryId: number | null = null; // For scroll spy
   isScrolling = false; // Prevent scroll spy during programmatic scroll
   
-  // Slider properties
-  sliderImages: string[] = [
-    '/images/Slider/slid1.jpg',
-    '/images/Slider/slid2.jpg',
-    '/images/Slider/slid3.jpg'
-  ];
-  currentSlideIndex = 0;
-  private sliderInterval: any;
-  private readonly sliderIntervalTime = 5000; // 5 seconds
   
   // Popup properties
   showSimplePopup = false;
@@ -138,12 +129,10 @@ export class MenuComponent implements OnInit, OnDestroy {
 
     this.loadCategories();
     this.loadMenuItems();
-    this.startSlider();
     this.setupScrollSpy();
   }
 
   ngOnDestroy(): void {
-    this.stopSlider();
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', () => this.onScroll());
     }
@@ -523,46 +512,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   // Slider methods
-  getSliderImageUrl(imagePath: string): string {
-    const apiUrl = 'http://localhost:5071';
-    const fullUrl = `${apiUrl}${imagePath}`;
-    console.log('Slider image URL:', fullUrl);
-    return fullUrl;
-  }
-
-  nextSlide(): void {
-    this.currentSlideIndex = (this.currentSlideIndex + 1) % this.sliderImages.length;
-    this.resetSliderInterval();
-  }
-
-  prevSlide(): void {
-    this.currentSlideIndex = (this.currentSlideIndex - 1 + this.sliderImages.length) % this.sliderImages.length;
-    this.resetSliderInterval();
-  }
-
-  goToSlide(index: number): void {
-    this.currentSlideIndex = index;
-    this.resetSliderInterval();
-  }
-
-  startSlider(): void {
-    this.resetSliderInterval();
-  }
-
-  stopSlider(): void {
-    if (this.sliderInterval) {
-      clearInterval(this.sliderInterval);
-      this.sliderInterval = null;
-    }
-  }
-
-  private resetSliderInterval(): void {
-    this.stopSlider();
-    this.sliderInterval = setInterval(() => {
-      this.nextSlide();
-    }, this.sliderIntervalTime);
-  }
-
   // Category methods
   selectCategory(categoryId: number | null): void {
     this.isScrolling = true;

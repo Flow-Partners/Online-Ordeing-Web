@@ -14,3 +14,5 @@
 /UI/images/
 /.vs
 .DS_Store
+/Publish
+/UI/.vs

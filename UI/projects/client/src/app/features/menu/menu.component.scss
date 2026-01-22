@@ -479,16 +479,6 @@
 }
 /* Deal Card */
 .deal-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:active {
-    transform: translateY(-2px);
-  }
   display: flex;
   padding: 10px;
   gap: 0.6rem;
@@ -498,13 +488,16 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   transition: .25s ease;
   cursor: pointer;
-  height: 90%;
   align-items: stretch;
   width: auto;
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
   
   /* Desktop: Keep 90% width for grid layout */
@@ -529,12 +522,13 @@
   }
 }
 
-/* IMAGE BOX */
+/* IMAGE BOX - Perfect Square */
 .deal-image {
   margin: 10px;
   width: 160px;
-  min-width: 99px;
-  height: 160px;
+  min-width: 160px;
+  height: 160px; /* Perfect square - same as width */
+  aspect-ratio: 1 / 1; /* Ensure perfect square */
   border-radius: 12px;
   overflow: hidden;
   background: #ececec;
@@ -543,32 +537,30 @@
   align-items: center;
   justify-content: center;
 
-
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover; /* Changed from contain to cover for better image fill */
     object-position: center;
     display: block;
   }
   
-
   @media (max-width: 1200px) {
     width: 150px;
     min-width: 150px;
-    height: 150px;
+    height: 150px; /* Perfect square */
   }
   
   @media (max-width: 768px) {
     width: 120px;
     min-width: 120px;
-    height: 120px;
+    height: 120px; /* Perfect square */
   }
   
   @media (max-width: 480px) {
     width: 100px;
     min-width: 100px;
-    height: 100px;
+    height: 100px; /* Perfect square */
   }
 }
 
@@ -577,8 +569,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 140px; /* Match image height */
+  min-height: 160px; /* Match image height for perfect alignment */
   justify-content: space-between;
+  
+  @media (max-width: 1200px) {
+    min-height: 150px;
+  }
   
   @media (max-width: 768px) {
     min-height: 120px;
@@ -591,17 +587,20 @@
 
 /* Header */
 .deal-header {
-  margin-top: 5px;
-  display:block;
+  margin-top: 15px;
+  display: block;
   width: 210px;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 
   .deal-title {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #333;
+    margin-bottom: 0.25rem; /* Reduced gap between heading and description */
+    font-size: 16px;
+    font-weight: 800;
+    color: #1d1d1c; /* Bold black like image */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.3;
   }
   
   @media (max-width: 768px) {
@@ -609,12 +608,14 @@
     
     .deal-title {
       font-size: 1.1rem;
+      margin-bottom: 0.2rem;
     }
   }
   
   @media (max-width: 480px) {
     .deal-title {
       font-size: 1rem;
+      margin-bottom: 0.15rem;
     }
   }
 }
@@ -622,9 +623,11 @@
 /* Description */
 .deal-desc {
   text-wrap: balance;
-  font-size: 0.95rem;
-  color: #0a0a0a;
-  margin: 4px 0 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666666; /* Gray color like image */
+  margin: 0; /* Removed top margin - gap handled by title margin-bottom */
+  margin-bottom: 0.5rem;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* Limit to 2 lines */
@@ -632,73 +635,76 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 2.8em; /* Ensure consistent height for 2 lines */
+  min-height: 2.6em; /* Slightly reduced for tighter spacing */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   
   @media (max-width: 768px) {
     font-size: 0.85rem;
-    margin: 3px 0 4px;
+    margin-bottom: 0.4rem;
   }
   
   @media (max-width: 480px) {
     font-size: 0.8rem;
-    margin: 2px 0 3px;
+    margin-bottom: 0.3rem;
   }
 }
 
 /* PRICE (separated so it stands out like your image) */
 .deal-price {
-  background-color: #e36310;
+  background-color: rgb(255, 184, 80); /* Orange/yellow like image */
   width: fit-content;
-  min-width: 100px;
-  padding: 0.3rem 0.2rem;
-  border-radius: 30px;
-  font-size: 1rem;
+  min-width: 10px;
+  padding: 0.2rem 0.7rem;
+  border-radius: 6px; /* Rectangular like image, not rounded */
+  font-size: 12px;
   font-weight: 700;
-  color: #ffffff;
+  color: #1d1d1c; /* Black text like image */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 0.5rem 0;
+  margin: 0; /* Removed top margin - gap will be handled by description margin-bottom */
+  margin-bottom: -1rem; /* Reduced gap between price and add to cart button */
   text-align: center;
   white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   
   @media (max-width: 768px) {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     min-width: 90px;
-    padding: 0.25rem 0.8rem;
-    margin: 0.4rem 0;
+    padding: 0.35rem 0.8rem;
+    margin-bottom: 0.25rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     min-width: 80px;
-    padding: 0.2rem 0.7rem;
-    margin: 0.3rem 0;
+    padding: 0.3rem 0.7rem;
+    margin-bottom: 0.2rem;
   }
 }
 
 /* Bottom action section */
 .deal-footer {
-  // margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  // justify-content: flex-start;
   gap: 1rem;
-  margin-bottom: 10px;
+  margin-top: 0; /* No top margin - gap handled by price margin-bottom */
+  margin-bottom: 5px;
 }
 
 /* ADD TO CART BUTTON */
 .deal-btn {
-  background: #f97316;
-  color: #fff;
+  background: rgb(255, 184, 80); /* Orange/yellow like image */
+  color: #1d1d1c; /* Black text like image */
   border: none;
-  // padding: 0.65rem 1.3rem;
-  padding: 0.3rem 1.1rem;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  min-width: 64px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px; /* Rectangular like image */
+  font-weight: bold; /* Bold like image */
+  font-size: 14px;
   transition: 0.25s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   &:hover:not(:disabled) {
     background: #e36310;
@@ -712,12 +718,12 @@
   }
   
   @media (max-width: 768px) {
-    padding: 0.4rem 1rem;
+    padding: 0.35rem 1rem;
     font-size: 0.9rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.35rem 0.9rem;
+    padding: 0.3rem 0.9rem;
     font-size: 0.85rem;
   }
 }
