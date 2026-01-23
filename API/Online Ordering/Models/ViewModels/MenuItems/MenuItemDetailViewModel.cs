@@ -12,6 +12,7 @@ namespace DotNet_Starter_Template.Models.ViewModels.MenuItems
         public string? BaseImageUrl { get; set; }
         public bool IsAvailable { get; set; }
         public int PreparationTime { get; set; }
+        public int DisplayOrder { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public int? CreatedBy { get; set; }

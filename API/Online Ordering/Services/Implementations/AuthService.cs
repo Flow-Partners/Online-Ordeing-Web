@@ -147,22 +147,22 @@ namespace DotNet_Starter_Template.Services.Implementations
             }
         }
 
-        public async Task<ApiResponse<string>> RefreshTokenAsync(string refreshToken)
+        public Task<ApiResponse<string>> RefreshTokenAsync(string refreshToken)
         {
             // Implementation for refresh token logic
-            return ApiResponse<string>.ErrorResult("Refresh token functionality not implemented yet");
+            return Task.FromResult(ApiResponse<string>.ErrorResult("Refresh token functionality not implemented yet"));
         }
 
-        public async Task<ApiResponse<bool>> LogoutAsync(string userId)
+        public Task<ApiResponse<bool>> LogoutAsync(string userId)
         {
             try
             {
                 // Implementation for logout logic (token blacklisting, etc.)
-                return ApiResponse<bool>.SuccessResult(true, "Logout successful");
+                return Task.FromResult(ApiResponse<bool>.SuccessResult(true, "Logout successful"));
             }
             catch (Exception ex)
             {
-                return ApiResponse<bool>.ErrorResult($"Logout failed: {ex.Message}");
+                return Task.FromResult(ApiResponse<bool>.ErrorResult($"Logout failed: {ex.Message}"));
             }
         }
 

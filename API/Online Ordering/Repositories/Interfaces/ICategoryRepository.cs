@@ -10,6 +10,7 @@ namespace DotNet_Starter_Template.Repositories.Interfaces
         Task<bool> IsNameUniqueAsync(string name, int? excludeId = null);
         Task<Category?> GetByNameAsync(string name);
         Task<IEnumerable<Category>> GetByIdsAsync(IEnumerable<int> ids);
+        Task<bool> CategoryExistsAsync(int categoryId);
     }
 }
 

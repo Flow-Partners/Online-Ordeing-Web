@@ -18,6 +18,13 @@
         </button>
         <button
           type="button"
+          class="btn btn-outline-primary"
+          (click)="openSortMenuModal()">
+          <i class="bi bi-list-ol me-1"></i>
+          Sort Menu
+        </button>
+        <button
+          type="button"
           class="btn btn-primary"
           routerLink="/menu-items/create">
           <i class="bi bi-plus-circle me-1"></i>
@@ -316,3 +323,140 @@
 </div>
 <div class="modal-backdrop fade" [class.show]="showCategoryOrderModal" *ngIf="showCategoryOrderModal" (click)="closeCategoryOrderModal()"></div>
 
+<!-- Sort Menu Modal -->
+<div class="modal fade" [class.show]="showSortMenuModal" [style.display]="showSortMenuModal ? 'block' : 'none'" 
+     tabindex="-1" role="dialog" [attr.aria-hidden]="!showSortMenuModal" [attr.aria-modal]="showSortMenuModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-list-ol me-2"></i>
+          Sort Menu Items
+        </h5>
+        <button type="button" class="btn-close" (click)="closeSortMenuModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info" role="alert">
+          <i class="bi bi-info-circle me-2"></i>
+          Select a category and reorder its menu items. The order will be displayed on the client menu.
+        </div>
+
+        <!-- Category Selection -->
+        <div class="mb-4">
+          <label for="categorySelect" class="form-label fw-bold">Select Category</label>
+          <select
+            id="categorySelect"
+            class="form-select"
+            [(ngModel)]="selectedCategoryId"
+            (change)="onCategoryChange(selectedCategoryId!)">
+            <option [value]="null" disabled>Choose a category...</option>
+            <option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="selectedCategoryId && isLoadingMenuItems.get(selectedCategoryId)" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-3">Loading menu items...</p>
+        </div>
+
+        <!-- Menu Items List -->
+        <div *ngIf="selectedCategoryId && !isLoadingMenuItems.get(selectedCategoryId)">
+          <div *ngIf="getSelectedCategoryMenuItems().length === 0" class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+            <p class="text-muted mb-0">No menu items found in this category</p>
+          </div>
+
+          <div *ngIf="getSelectedCategoryMenuItems().length > 0" class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 80px;">Order #</th>
+                  <th style="width: 100px;">Actions</th>
+                  <th>Menu Item Name</th>
+                  <th>Description</th>
+                  <th style="width: 100px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let menuItem of getSelectedCategoryMenuItems(); let i = index">
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="menuItem.displayOrder"
+                      (change)="onMenuItemOrderChange(selectedCategoryId!, menuItem)"
+                      min="1"
+                      [max]="getSelectedCategoryMenuItems().length"
+                      style="width: 70px;">
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="moveMenuItemUp(selectedCategoryId!, i)"
+                        [disabled]="i === 0"
+                        title="Move Up">
+                        <i class="bi bi-arrow-up"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="moveMenuItemDown(selectedCategoryId!, i)"
+                        [disabled]="i === getSelectedCategoryMenuItems().length - 1"
+                        title="Move Down">
+                        <i class="bi bi-arrow-down"></i>
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <strong>{{ menuItem.name }}</strong>
+                  </td>
+                  <td>
+                    <span class="text-muted small">
+                      {{ menuItem.description || 'No description' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [class.bg-success]="menuItem.isAvailable" [class.bg-secondary]="!menuItem.isAvailable">
+                      {{ menuItem.isAvailable ? 'Available' : 'Unavailable' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeSortMenuModal()"
+          [disabled]="isSavingMenuItemOrder">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveMenuItemOrder()"
+          [disabled]="!hasMenuItemOrderChanged() || isSavingMenuItemOrder || !selectedCategoryId || isLoadingMenuItems.get(selectedCategoryId!)">
+          <span *ngIf="!isSavingMenuItemOrder">
+            <i class="bi bi-save me-1"></i>
+            Save Order
+          </span>
+          <span *ngIf="isSavingMenuItemOrder">
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            Saving...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showSortMenuModal" *ngIf="showSortMenuModal" (click)="closeSortMenuModal()"></div>

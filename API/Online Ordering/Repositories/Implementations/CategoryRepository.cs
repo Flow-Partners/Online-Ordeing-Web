@@ -54,6 +54,11 @@ namespace DotNet_Starter_Template.Repositories.Implementations
                 .Where(c => ids.Contains(c.Id))
                 .ToListAsync();
         }
+
+        public async Task<bool> CategoryExistsAsync(int categoryId)
+        {
+            return await _dbSet.AnyAsync(c => c.Id == categoryId);
+        }
     }
 }
 

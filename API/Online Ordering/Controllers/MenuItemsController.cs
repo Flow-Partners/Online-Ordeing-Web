@@ -184,6 +184,32 @@ namespace DotNet_Starter_Template.Controllers
             }
         }
 
+        [HttpPut("update-order")]
+        public async Task<ActionResult<ApiResponse<bool>>> UpdateMenuItemOrder([FromBody] UpdateMenuItemOrderDto updateOrderDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList();
+                    return BadRequest(ApiResponse<bool>.ErrorResult("Validation failed", errors));
+                }
+
+                var result = await _menuItemService.UpdateMenuItemOrderAsync(updateOrderDto);
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating menu item order");
+                return StatusCode(500, ApiResponse<bool>.ErrorResult("An error occurred while updating menu item order"));
+            }
+        }
+
     }
 }
 

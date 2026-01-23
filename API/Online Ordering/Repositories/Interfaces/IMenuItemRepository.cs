@@ -9,6 +9,7 @@ namespace DotNet_Starter_Template.Repositories.Interfaces
         Task<IEnumerable<MenuItem>> GetAvailableMenuItemsAsync();
         Task<bool> IsNameUniqueInCategoryAsync(int categoryId, string name, int? excludeId = null);
         Task<bool> CategoryExistsAsync(int categoryId);
+        Task<IEnumerable<MenuItem>> GetByIdsAsync(IEnumerable<int> ids);
     }
 }
 

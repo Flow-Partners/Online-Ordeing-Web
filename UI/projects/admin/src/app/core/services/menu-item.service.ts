@@ -100,6 +100,20 @@ export class MenuItemService {
   updateCategoryOrder(orderData: { categories: Array<{ id: number; displayOrder: number }> }): Observable<ApiResponse<boolean>> {
     return this.apiService.put<boolean>(API_ENDPOINTS.CATEGORIES.UPDATE_ORDER, orderData);
   }
+
+  /**
+   * Get menu items by category ID
+   */
+  getMenuItemsByCategory(categoryId: number): Observable<ApiResponse<MenuItemList[]>> {
+    return this.apiService.get<MenuItemList[]>(API_ENDPOINTS.MENU_ITEMS.BY_CATEGORY(categoryId));
+  }
+
+  /**
+   * Update menu item order within a category
+   */
+  updateMenuItemOrder(orderData: { categoryId: number; menuItems: Array<{ id: number; displayOrder: number }> }): Observable<ApiResponse<boolean>> {
+    return this.apiService.put<boolean>(API_ENDPOINTS.MENU_ITEMS.UPDATE_ORDER, orderData);
+  }
 }
 
 export interface MenuItemList {
@@ -111,6 +125,7 @@ export interface MenuItemList {
   baseImageUrl?: string;
   isAvailable: boolean;
   preparationTime: number;
+  displayOrder: number;
   createdAt: string;
   portionCount: number;
   imageError?: boolean; // Track if image failed to load
