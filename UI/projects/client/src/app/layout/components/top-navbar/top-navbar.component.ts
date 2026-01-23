@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
@@ -23,9 +23,10 @@ import { PagedResult } from '@models/menu-item.model';
   templateUrl: './top-navbar.component.html',
   styleUrls: ['./top-navbar.component.scss']
 })
-export class TopNavbarComponent implements OnInit, OnDestroy {
+export class TopNavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() toggleSidebar = new EventEmitter<void>();
   @Output() categorySelected = new EventEmitter<number | null>();
+  @ViewChild('categoryTabsContainer', { static: false }) categoryTabsContainer!: ElementRef<HTMLDivElement>;
 
   currentUser: User | null = null;
   currentCustomer: CustomerAuthResponse | null = null;
@@ -107,13 +108,41 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     // Load categories for header tabs
     this.loadCategories();
 
-    // Start slider
-    this.startSlider();
+    // Subscribe to active category changes from menu scroll spy
+    this.categoryService.getActiveCategoryId()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(activeCategoryId => {
+        this.selectedCategoryId = activeCategoryId;
+      });
+
+    // Start slider if on menu page
+    if (!this.isCheckoutPage && !this.isOrdersPage && this.sliderImages && this.sliderImages.length > 0) {
+      setTimeout(() => {
+        this.startSlider();
+      }, 500);
+    }
   }
   
   checkRoute(): void {
+    const wasCheckoutPage = this.isCheckoutPage;
+    const wasOrdersPage = this.isOrdersPage;
+    
     this.isCheckoutPage = this.router.url.includes('/checkout');
     this.isOrdersPage = this.router.url.includes('/orders');
+    
+    // Start/stop slider based on route
+    const shouldShowSlider = !this.isCheckoutPage && !this.isOrdersPage && 
+                             this.sliderImages && this.sliderImages.length > 0;
+    
+    if (shouldShowSlider) {
+      // Start slider if we're on a page where it should be visible
+      setTimeout(() => {
+        this.startSlider();
+      }, 100);
+    } else {
+      // Stop slider if we're on checkout or orders page
+      this.stopSlider();
+    }
   }
 
   ngOnDestroy(): void {
@@ -176,6 +205,11 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     this.selectedCategoryId = categoryId;
     this.categorySelected.emit(categoryId);
     
+    // Scroll the active tab into view
+    setTimeout(() => {
+      this.scrollActiveTabIntoView();
+    }, 100);
+    
     // Reset flag after scroll completes
     setTimeout(() => {
       this.isScrollingProgrammatically = false;
@@ -207,6 +241,8 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     if (scrollY < 300) {
       if (this.selectedCategoryId !== null) {
         this.selectedCategoryId = null;
+        // Scroll the first tab into view when at top
+        setTimeout(() => this.scrollActiveTabIntoView(), 100);
       }
       return;
     }
@@ -243,10 +279,82 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     // Update selected category if it changed
     if (currentCategoryId !== null && this.selectedCategoryId !== currentCategoryId) {
       this.selectedCategoryId = currentCategoryId;
+      // Scroll the active tab into view
+      setTimeout(() => this.scrollActiveTabIntoView(), 100);
       // Don't emit categorySelected to avoid triggering scroll
     } else if (currentCategoryId === null && this.selectedCategoryId !== null) {
       // If no category section is in view but we're scrolled down, keep the last selected one
       // This prevents flickering when scrolling between sections
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Scroll active tab into view after view initialization
+    setTimeout(() => this.scrollActiveTabIntoView(), 300);
+  }
+
+  scrollActiveTabIntoView(): void {
+    if (!this.categoryTabsContainer || !this.categoryTabsContainer.nativeElement) {
+      return;
+    }
+
+    const container = this.categoryTabsContainer.nativeElement;
+    let activeTab: HTMLElement | null = null;
+
+    // Find the active tab button
+    if (this.selectedCategoryId === null) {
+      // "All" tab is active
+      activeTab = container.querySelector('.category-tab:first-child') as HTMLElement;
+    } else {
+      // Find the tab that matches the selected category
+      const tabs = container.querySelectorAll('.category-tab');
+      tabs.forEach((tab: Element) => {
+        const button = tab as HTMLElement;
+        if (button.classList.contains('active')) {
+          activeTab = button;
+        }
+      });
+    }
+
+    if (activeTab) {
+      const containerRect = container.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      const containerScrollLeft = container.scrollLeft;
+      const containerWidth = containerRect.width;
+      
+      // Get computed styles to account for padding
+      const containerStyles = window.getComputedStyle(container);
+      const paddingLeft = parseFloat(containerStyles.paddingLeft) || 0;
+      const paddingRight = parseFloat(containerStyles.paddingRight) || 0;
+
+      // Calculate tab position relative to container's content area (accounting for padding)
+      const tabLeft = tabRect.left - containerRect.left + containerScrollLeft - paddingLeft;
+      const tabRight = tabLeft + tabRect.width;
+      const visibleLeft = paddingLeft;
+      const visibleRight = containerWidth - paddingRight;
+
+      // Scroll to show the active tab
+      if (this.selectedCategoryId === null) {
+        // If "All" tab is active, ensure it's fully visible at the start
+        container.scrollTo({
+          left: 0,
+          behavior: 'smooth'
+        });
+      } else if (tabLeft < visibleLeft) {
+        // Tab is to the left of visible area
+        const scrollTo = Math.max(0, tabLeft - paddingLeft - 20);
+        container.scrollTo({
+          left: scrollTo,
+          behavior: 'smooth'
+        });
+      } else if (tabRight > visibleRight) {
+        // Tab is to the right of visible area
+        const scrollTo = tabRight - (containerWidth - paddingRight) + 20;
+        container.scrollTo({
+          left: scrollTo,
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -315,7 +423,28 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     if (img) {
-      img.src = '/assets/i18n/placeholder-food.png';
+      // Prevent infinite loop: check if we're already trying to load a placeholder
+      const currentSrc = img.src || '';
+      const placeholderPath = '/assets/i18n/placeholder-food.png';
+      
+      // Only set placeholder if we haven't already tried it
+      if (!currentSrc.includes('placeholder-food.png') && !currentSrc.includes('data:image')) {
+        img.src = placeholderPath;
+        // Remove the error handler to prevent infinite loop if placeholder also fails
+        img.onerror = () => {
+          // If placeholder also fails, use a data URL to break the loop
+          if (img && !img.src.includes('data:image')) {
+            img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ececec" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="Arial" font-size="14"%3ENo Image%3C/text%3E%3C/svg%3E';
+            img.onerror = null; // Remove handler to prevent further attempts
+          }
+        };
+      } else {
+        // If we're already on placeholder and it failed, use data URL
+        if (!currentSrc.includes('data:image')) {
+          img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ececec" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="Arial" font-size="14"%3ENo Image%3C/text%3E%3C/svg%3E';
+          img.onerror = null; // Remove handler to prevent further attempts
+        }
+      }
     }
   }
 

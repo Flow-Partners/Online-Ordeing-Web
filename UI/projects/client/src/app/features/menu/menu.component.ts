@@ -563,6 +563,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     // Check if we're at the top
     if (scrollY < 100) {
       this.activeCategoryId = null;
+      this.categoryService.setActiveCategoryId(null);
       return;
     }
     
@@ -586,6 +587,10 @@ export class MenuComponent implements OnInit, OnDestroy {
     
     if (currentSection !== null && this.activeCategoryId !== currentSection) {
       this.activeCategoryId = currentSection;
+      this.categoryService.setActiveCategoryId(currentSection);
+    } else if (currentSection === null && this.activeCategoryId !== null) {
+      this.activeCategoryId = null;
+      this.categoryService.setActiveCategoryId(null);
     }
   }
 

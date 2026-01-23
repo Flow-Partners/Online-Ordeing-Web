@@ -1,6 +1,6 @@
-<!-- Header Section -->
-<header class="main-header">
-  <!-- Section 1: Logo, Location, Cart, Auth -->
+<!-- Sticky Header Container - Contains only top header section -->
+<div class="header-wrapper">
+  <!-- Section 1: Top Header (Logo, Location, Cart, Auth) -->
   <div class="header-top-section">
     <div class="header-container">
       <div class="header-top-content">
@@ -198,7 +198,7 @@
       </div>
     </div>
   </div>
-</header>
+</div>
 
 <!-- Slider Section (after header-top-section, not sticky) -->
 <div class="slider-container w-100" *ngIf="sliderImages && sliderImages.length > 0 && !isCheckoutPage && !isOrdersPage">
@@ -226,25 +226,25 @@
     <button class="slider-nav-btn slider-next d-none d-md-flex" (click)="nextSlide()" aria-label="Next slide" type="button">
       <i class="bi bi-chevron-right"></i>
     </button>
-  </div>
-  
-  <!-- Slider Indicators -->
-  <div class="slider-indicators d-flex justify-content-center py-2 py-md-3">
-    <button 
-      *ngFor="let image of sliderImages; let i = index"
-      class="slider-indicator"
-      [class.active]="i === currentSlideIndex"
-      (click)="goToSlide(i)"
-      [attr.aria-label]="'Go to slide ' + (i + 1)"
-      type="button"
-    ></button>
+    
+    <!-- Slider Indicators - Inside the image -->
+    <div class="slider-indicators d-flex justify-content-center">
+      <button 
+        *ngFor="let image of sliderImages; let i = index"
+        class="slider-indicator"
+        [class.active]="i === currentSlideIndex"
+        (click)="goToSlide(i)"
+        [attr.aria-label]="'Go to slide ' + (i + 1)"
+        type="button"
+      ></button>
+    </div>
   </div>
 </div>
 
-<!-- Section 2: Category Tabs Navigation (sticky) -->
-<div class="header-categories-section" *ngIf="!isCheckoutPage && !isOrdersPage">
+<!-- Section 2: Category Tabs Navigation - Sticky (placed below slider) -->
+<div class="header-categories-section">
   <div class="header-container">
-    <div class="category-tabs-container">
+    <div class="category-tabs-container" #categoryTabsContainer>
       <button
         class="category-tab"
         [class.active]="selectedCategoryId === null"
@@ -267,8 +267,8 @@
   </div>
 </div>
 
-<!-- Section 3: Search Bar -->
-<div class="header-search-section" *ngIf="!isCheckoutPage && !isOrdersPage">
+<!-- Section 3: Search Bar (Not Sticky) -->
+<div class="header-search-section">
   <div class="header-container">
     <div class="search-container">
       <i class="bi bi-search search-icon"></i>
@@ -281,10 +281,3 @@
     </div>
   </div>
 </div>
-
-<!-- Auth Modal -->
-<app-auth-modal
-  *ngIf="showAuthModal"
-  (close)="closeAuthModal()"
-  (success)="onAuthSuccess()">
-</app-auth-modal>

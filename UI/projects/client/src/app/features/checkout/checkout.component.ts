@@ -72,94 +72,26 @@ export class CheckoutComponent implements OnInit {
   initForm(): void {
     this.checkoutForm = this.fb.group({
       fullName: ['', [Validators.required]],
-      mobileNumber: ['', [Validators.required, this.mobileNumberValidator]],
-      emailAddress: ['', [this.emailValidator]], // Optional - only validate format if provided
+      mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      emailAddress: ['', [Validators.email]],
       address: ['', [Validators.required]],
       specialInstructions: ['']
     });
   }
 
-  
-   
-  private mobileNumberValidator(control: { value: string | null | undefined }) {
-    if (!control.value) {
-      return { required: true };
+  onMobileNumberKeyPress(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    // Allow only numbers (0-9)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+      return;
     }
-
-    // Remove dashes and spaces for validation
-    const cleanValue = control.value.replace(/[-\s]/g, '');
-
-    // Check if empty
-    if (cleanValue.length === 0) {
-      return { required: true };
-    }
-
-    // Check if starts with 0
-    if (cleanValue.startsWith('0')) {
-      return { startsWithZero: true };
-    }
-
-    // Check if contains only digits
-    if (!/^\d+$/.test(cleanValue)) {
-      return { invalidCharacters: true };
-    }
-
-    // Check length (should be 10 digits)
-    if (cleanValue.length !== 10) {
-      return { invalidLength: true, actualLength: cleanValue.length };
-    }
-
-    return null; // Valid
-  }
-
-  /**
-   * Format mobile number as XXX-XXXXXXX
-   * Prevents leading zero
-   */
-  formatMobileNumber(value: string): string {
-    // Remove all non-digit characters
-    let digits = value.replace(/\D/g, '');
-
-    // Prevent leading zero - remove it if present
-    if (digits.startsWith('0')) {
-      digits = digits.substring(1);
-    }
-
-    // Limit to 10 digits
-    const limitedDigits = digits.substring(0, 10);
-
-    // Format as XXX-XXXXXXX
-    if (limitedDigits.length <= 3) {
-      return limitedDigits;
-    } else {
-      return `${limitedDigits.substring(0, 3)}-${limitedDigits.substring(3)}`;
-    }
-  }
-
-  /**
-   * Handle mobile number input
-   */
-  onMobileNumberInput(event: Event): void {
+    // Prevent entering more than 10 digits
     const input = event.target as HTMLInputElement;
-    const formatted = this.formatMobileNumber(input.value);
-    
-    // Update form control value without triggering validation errors
-    this.checkoutForm.patchValue({ mobileNumber: formatted }, { emitEvent: false });
-    
-    // Set the input value directly to maintain cursor position
-    input.value = formatted;
-  }
-
-  /**
-   * Custom email validator - only validates format if email is provided
-   */
-  private emailValidator(control: { value: string | null | undefined }) {
-    if (!control.value || control.value.trim() === '') {
-      return null; // Empty is valid (optional field)
+    if (input.value.length >= 10) {
+      event.preventDefault();
+      return;
     }
-    // Validate email format if provided
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(control.value) ? null : { email: true };
   }
 
   loadCartItems(): void {

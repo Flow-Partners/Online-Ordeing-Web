@@ -13,5 +13,6 @@
 /UI/node_modules
 /UI/images/
 /.vs
+.DS_Store
 /Publish
 /UI/.vs

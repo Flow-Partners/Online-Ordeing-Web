@@ -48,12 +48,14 @@
                 [class.is-invalid]="isFieldInvalid('mobileNumber')"
                 id="mobileNumber"
                 formControlName="mobileNumber"
-                placeholder="XXX-XXXXXXX"
-                (input)="onMobileNumberInput($event)"
-                maxlength="12"
+                placeholder="Enter your mobile number"
+                maxlength="10"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                (keypress)="onMobileNumberKeyPress($event)"
               />
               <div class="invalid-feedback" *ngIf="isFieldInvalid('mobileNumber')">
-                {{ getMobileNumberError() }}
+                Please enter exactly 10 digits
               </div>
             </div>
           </div>
